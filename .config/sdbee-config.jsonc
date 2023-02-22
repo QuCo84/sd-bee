@@ -1,0 +1,54 @@
+/**
+*  sdbee-config.jsonc commented JSON config file for SD bee server
+*/
+{
+    /**
+     * public section - where to find public resources
+     */
+     /*
+    "public-storage" : {
+        "storageService" : "gs",
+        "keyFile" : "require-version/local-config/gctest211130-567804cfadc6.json", 
+        "bucket" : "gcstest211130", 
+        "top-dir" : "", 
+        "prefix" : ""
+    },*/    
+    "public-storage" : {
+        "storageService" : "file",
+        "top-dir" : "https://www.sd-bee.com/upload/sd-bee-cdn/", 
+        "prefix" : ""
+    },    
+    /**
+     * admin section - where to find the acess control database
+     */
+    "admin-storage" : {
+        "storageService" : "gs",
+        "keyFile" : "require-version/local-config/gctest211130-567804cfadc6.json", 
+        "bucket" : "gcstest211130", 
+        "top-dir" : "", 
+        "prefix" : "ymbNpnZm8"
+    },
+    /**
+     * private section - default values for where to store users' private files and how to protect
+     * some values can be overwritten by user's info ( )
+     */
+    "private-storage": {
+        "storageService" : "gs",
+        "keyFile" : "require-version/local-config/gctest211130-567804cfadc6.json", 
+        "bucket" : "gcstest211130", 
+        "top-dir" : "", 
+        "prefix" : ""
+       // "credentials" : "credentials.json", // file  to acess storage server
+       // "source" : "bucket",                // url of storage space
+       // "top-dir" : "",                         // directory of private space
+       // "algo" :
+       // "key" :
+    },
+
+    "access-database" : {
+        "type" : "sqlite",
+        "database" : "gs:system/sdbee-test2.db",
+        "use-storage" : "admin-storage",            // set for file transfert to tmp
+        "homeModel" : "A0000001IPLHB0000M_bienvenu2"
+    }
+}

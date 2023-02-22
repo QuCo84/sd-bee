@@ -1,0 +1,1574 @@
+{
+    "content": {
+        "modeltest": {
+            "depth": 0,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "3",
+            "nstyle": "A4 text",
+            "tcontent": "<span class=\"title\">Texte par chapitre, section et sous-section<\/span> - <span class=\"subtitle\">Aides, Tuto<\/span>",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 21,
+                "width": 794,
+                "offsetLeft": 203,
+                "offsetTop": 61,
+                "system": {
+                    "autoload": "on",
+                    "defaultPart": "Doc",
+                    "public": "pub",
+                    "defautPartMobile": "App",
+                    "requiredValues": {
+                        "defaultPart": "App",
+                        "views": [
+                            "App"
+                        ]
+                    },
+                    "copyParts": [
+                        "App",
+                        "Doc",
+                        "Doc FR"
+                    ]
+                }
+            },
+            "dcreated": 1583132560,
+            "dmodified": 1675327400
+        },
+        "B010000000000000M_Doc": {
+            "depth": 1,
+            "permissions": 3,
+            "nlabel": "Doc",
+            "stype": "4",
+            "nstyle": "LAY_A4",
+            "tcontent": "Doc",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": [],
+            "dcreated": 1583132560,
+            "dmodified": 1661411100
+        },
+        "B01000000A0000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "6",
+            "nstyle": "",
+            "tcontent": "Main title",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 44,
+                "width": 737,
+                "offsetLeft": 233,
+                "offsetTop": 147
+            },
+            "dcreated": 1583132560,
+            "dmodified": 1632119550
+        },
+        "B01000000B0000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "7",
+            "nstyle": "",
+            "tcontent": "Day 1 - Title",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 32,
+                "width": 737,
+                "offsetLeft": 233,
+                "offsetTop": 215
+            },
+            "dcreated": 1583132560,
+            "dmodified": 1632119550
+        },
+        "B01000000C0000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "8",
+            "nstyle": "",
+            "tcontent": "Step 1 - title",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 25,
+                "width": 737,
+                "offsetLeft": 233,
+                "offsetTop": 271
+            },
+            "dcreated": 1583132560,
+            "dmodified": 1632119550
+        },
+        "B01000000D0000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "10",
+            "nstyle": "",
+            "tcontent": "Text",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 21,
+                "width": 737,
+                "offsetLeft": 233,
+                "offsetTop": 317
+            },
+            "dcreated": 1583132560,
+            "dmodified": 1632119550
+        },
+        "B01000000E0000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "8",
+            "nstyle": "",
+            "tcontent": "Step 2 - Title",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 25,
+                "width": 737,
+                "offsetLeft": 233,
+                "offsetTop": 360
+            },
+            "dcreated": 1583132560,
+            "dmodified": 1632119550
+        },
+        "B01000000F0000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "10",
+            "nstyle": "",
+            "tcontent": "Text",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 21,
+                "width": 737,
+                "offsetLeft": 233,
+                "offsetTop": 406
+            },
+            "dcreated": 1583132560,
+            "dmodified": 1632119550
+        },
+        "B01000000G0000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "8",
+            "nstyle": "",
+            "tcontent": "Validation",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 25,
+                "width": 676,
+                "offsetLeft": 316,
+                "offsetTop": 451,
+                "marginTop": 22,
+                "marginBottom": 22
+            },
+            "dcreated": 1616864320,
+            "dmodified": 1632119550
+        },
+        "B01000000H0000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "10",
+            "nstyle": "normal",
+            "tcontent": "Was this useful ?<span ud_type=\"field\" class=\"field\" ude_stage=\"on\" ude_formula=\"switchTagCallback( 'userAction', 'Question','sw1','Useful');\" id=\"udcalc100\">ERR<\/span>",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 22,
+                "width": 676,
+                "offsetLeft": 316,
+                "offsetTop": 497,
+                "marginTop": 19,
+                "marginBottom": 19
+            },
+            "dcreated": 1616865940,
+            "dmodified": 1632119550
+        },
+        "B01000000I0000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "13",
+            "nstyle": "input",
+            "tcontent": {
+                "meta": {
+                    "name": "Quizz1",
+                    "zone": "Quizz1editZone",
+                    "type": "list",
+                    "caption": "How many steps ?   ",
+                    "captionPosition": "top"
+                },
+                "data": {
+                    "tag": "ul",
+                    "name": "Quizz1",
+                    "class": "listStyle1",
+                    "value": [
+                        {
+                            "tag": "li",
+                            "class": "rightAnwser",
+                            "placeholder": "Enter item",
+                            "value": "2"
+                        },
+                        {
+                            "tag": "li",
+                            "value": "3"
+                        },
+                        {
+                            "tag": "li",
+                            "value": "4"
+                        }
+                    ]
+                },
+                "changes": []
+            },
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 162,
+                "width": 648,
+                "offsetLeft": 331,
+                "offsetTop": 553,
+                "marginTop": 34,
+                "marginBottom": 34,
+                "system": {
+                    "chk": "5ZE"
+                }
+            },
+            "dcreated": 1617004800,
+            "dmodified": 1632119550
+        },
+        "B0A00000000000000M_App": {
+            "depth": 1,
+            "permissions": 3,
+            "nlabel": "App",
+            "stype": "4",
+            "nstyle": "",
+            "tcontent": "App",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": [],
+            "dcreated": 1583132560,
+            "dmodified": 1662040340
+        },
+        "B0A000000J0000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "7",
+            "nstyle": "helpTitle",
+            "tcontent": "Top menu",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 48,
+                "width": 737,
+                "offsetLeft": 300,
+                "offsetTop": 111
+            },
+            "dcreated": 1583132560,
+            "dmodified": 1632119550
+        },
+        "B0A000000K0000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "AppZone",
+            "stype": "31",
+            "nstyle": "",
+            "tcontent": "AppZone",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": [],
+            "dcreated": 1583132560,
+            "dmodified": 1633953140
+        },
+        "B0A000000L0000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "backHome",
+            "stype": "10",
+            "nstyle": "",
+            "tcontent": "<a href=\"javascript:\" class= \"sleepingButton\" onclick=\"API.grabPortionList('Doc','AppZone',{ headerId:'B0A00000001000000M_title',tagListStr:'h2', callback:'userAction'});\">Back to top of tutoriel<\/a>",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": [],
+            "dcreated": 1583132560,
+            "dmodified": 1632664680
+        },
+        "B0B00000000000000M_Doc FR": {
+            "depth": 1,
+            "permissions": 3,
+            "nlabel": "Doc FR",
+            "stype": "4",
+            "nstyle": "LAY_A4",
+            "tcontent": "Doc FR",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": [],
+            "dcreated": 1599653260,
+            "dmodified": 1661411140
+        },
+        "B0B000000M0000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "6",
+            "nstyle": "",
+            "tcontent": "Titre principal",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 44,
+                "width": 737,
+                "offsetLeft": 233,
+                "offsetTop": 147
+            },
+            "dcreated": 1599653260,
+            "dmodified": 1632119550
+        },
+        "B0B000000N0000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "7",
+            "nstyle": "",
+            "tcontent": "Jour 1 - titre",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 32,
+                "width": 737,
+                "offsetLeft": 233,
+                "offsetTop": 215
+            },
+            "dcreated": 1599656760,
+            "dmodified": 1632119550
+        },
+        "B0B000000O0000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "8",
+            "nstyle": "",
+            "tcontent": "\u00e9tape 1 - titre",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 25,
+                "width": 737,
+                "offsetLeft": 233,
+                "offsetTop": 271
+            },
+            "dcreated": 1599656800,
+            "dmodified": 1632119550
+        },
+        "B0B000000P0000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "10",
+            "nstyle": "",
+            "tcontent": "Texte de l'\u00e9tape 1",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 22,
+                "width": 676,
+                "offsetLeft": 316,
+                "offsetTop": 301,
+                "marginTop": 19,
+                "marginBottom": 19
+            },
+            "dcreated": 1599656820,
+            "dmodified": 1632119550
+        },
+        "B0B000000Q0000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "8",
+            "nstyle": "",
+            "tcontent": "\u00e9tape 2 - Jour 1",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 25,
+                "width": 676,
+                "offsetLeft": 316,
+                "offsetTop": 372,
+                "marginTop": 22,
+                "marginBottom": 22
+            },
+            "dcreated": 1616753660,
+            "dmodified": 1632119550
+        },
+        "B0B000000R0000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "10",
+            "nstyle": "",
+            "tcontent": "Texte de l'\u00e9tape 2",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 22,
+                "width": 718,
+                "offsetLeft": 292,
+                "offsetTop": 366,
+                "marginTop": 19,
+                "marginBottom": 19
+            },
+            "dcreated": 1616753700,
+            "dmodified": 1632119550
+        },
+        "B0C00000000000000M_Stats": {
+            "depth": 1,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "4",
+            "nstyle": "",
+            "tcontent": "<span class=\"title\">Stats<\/span> - <span class=\"subtitle\">Statistics of use<\/span>",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": [],
+            "dcreated": 1617713540,
+            "dmodified": 1632119550
+        },
+        "B0C000000S0000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "Readers",
+            "stype": "21",
+            "nstyle": "chart",
+            "tcontent": "<span class=\"caption\">Readers<\/span><span class=\"rightButton\"><a href=\"javascript:\" onclick=\"window.ud.ude.changeClass( 'hidden', 'ReaderseditZone', '');\"><img src=\"\/tmp\/W20H20_H0Cad0n1q_config.png\"><\/a><\/span><div id=\"Readers\" class=\"chartObject\" ude_editzone=\"ReadersviewZone\" style=\"display:none;\">{\"type\":\"bar\",\"data\":{\"labels\":\"A,B,C\",\"datasets\":[{\"label\":\"# of Votes\",\"data\":[10,12,25],\"backgroundColor\":[\"rgba(255, 99, 132, 0.2)\",\"rgba(54, 162, 235, 0.2)\",\"rgba(255, 206, 86, 0.2)\"],\"borderColor\":[\"rgba(255, 99, 132, 1)\",\"rgba(54, 162, 235, 1)\",\"rgba(255, 206, 86, 1)\"],\"borderWidth\":1}]},\"options\":{\"scales\":{\"yAxes\":[{\"ticks\":{\"beginAtZero\":\"true\"}}],\"xAxes\":\"\"}}}<\/div><div id=\"ReadersviewZone\" class=\"chartView\" ude_autosave=\"off\"><div class=\"chartjs-size-monitor\"><div class=\"chartjs-size-monitor-expand\"><div class=\"\"><\/div><\/div><div class=\"chartjs-size-monitor-shrink\"><div class=\"\"><\/div><\/div><\/div><canvas height=\"359\" class=\"chartjs-render-monitor\" style=\"display: block; width: 718px; height: 359px;\" width=\"718\"><\/canvas><\/div>",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 689,
+                "width": 720,
+                "offsetLeft": 292,
+                "offsetTop": 100,
+                "marginTop": 20,
+                "marginBottom": 10
+            },
+            "dcreated": 1617713550,
+            "dmodified": 1632119550
+        },
+        "B6000000000000000M_Data": {
+            "depth": 1,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "4",
+            "nstyle": "",
+            "tcontent": "<span class=\"title\">Data<\/span> - <span class=\"subtitle\"><\/span>",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": [],
+            "dcreated": 1616509850,
+            "dmodified": 1675327400
+        },
+        "B60000000T0000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "Connector1",
+            "stype": "80",
+            "nstyle": "",
+            "tcontent": {
+                "meta": {
+                    "name": "Connector1",
+                    "zone": "Connector1editZone",
+                    "type": "connector",
+                    "caption": "Connector1   ",
+                    "captionPosition": "top"
+                },
+                "data": {
+                    "button1": {
+                        "tag": "span",
+                        "class": "rightButton",
+                        "value": {
+                            "tag": "a",
+                            "href": "javascript:",
+                            "onclick": "API.showNextInList( ['Connector1_dataeditZone', 'Connector1_parametereditZone']);",
+                            "value": "configurer"
+                        }
+                    },
+                    "button2": {
+                        "tag": "span",
+                        "class": "rightButton",
+                        "value": {
+                            "tag": "a",
+                            "href": "javascript:",
+                            "onclick": "API.connectorRefresh( 'Connector1');",
+                            "value": "refresh"
+                        }
+                    },
+                    "button3": {
+                        "tag": "span",
+                        "class": "rightButton",
+                        "value": {
+                            "tag": "a",
+                            "href": "javascript:",
+                            "onclick": "API.connectorUpdateServer( 'Connector1');",
+                            "value": "update server"
+                        }
+                    },
+                    "config": {
+                        "tag": "div",
+                        "name": "Connector1_parametereditZone",
+                        "type": "text",
+                        "value": {
+                            "tag": "textedit",
+                            "class": " json",
+                            "value": {
+                                "ready": "yes",
+                                "service": "webdesk",
+                                "action": "AJAX_data",
+                                "format": "jsonTable",
+                                "cols": "id nname iuser nevent iresult tdetails",
+                                "target": "Connector1",
+                                "bind": "LogEntry--22-0-22--UD|1|nname|{%docTitle}",
+                                "firstRecord": {
+                                    "nname": "First",
+                                    "iuser": 22,
+                                    "nevent": "Setup",
+                                    "iresult": 1,
+                                    "tdetails": "Automatic"
+                                }
+                            }
+                        }
+                    },
+                    "cache": {
+                        "tag": "div",
+                        "name": "Connector1_dataeditZone",
+                        "value": {
+                            "tag": "jsontable",
+                            "class": "dataset",
+                            "sourceURL": "UniversalDocElement--21-44-21-311-21-1726-21-1727--UD|1",
+                            "updateMinutes": 1440,
+                            "_lastUpdated": "2023-02-02T09:43:28+0100",
+                            "value": {
+                                "row 1": {
+                                    "id": "8",
+                                    "oid": "LogEntry-gettingstarted-LogEntry-first--22-7-22-8--AL|7",
+                                    "nname": "First",
+                                    "iuser": "22",
+                                    "nevent": "Setup",
+                                    "iresult": "1",
+                                    "tdetails": "Automatic"
+                                },
+                                "row 2": {
+                                    "id": "9",
+                                    "oid": "LogEntry-gettingstarted-LogEntry-log00022202103081602--22-7-22-9--AL|7",
+                                    "nname": "Log00022202103081602",
+                                    "iuser": "22",
+                                    "nevent": "chapter",
+                                    "iresult": "1",
+                                    "tdetails": "Day 2"
+                                },
+                                "row 3": {
+                                    "id": "24",
+                                    "oid": "LogEntry-gettingstarted-LogEntry-first--22-23-22-24--AL|7",
+                                    "nname": "First",
+                                    "iuser": "22",
+                                    "nevent": "Setup",
+                                    "iresult": "1",
+                                    "tdetails": "Automatic"
+                                },
+                                "row 4": {
+                                    "id": "32",
+                                    "oid": "LogEntry-gettingstarted-LogEntry-first--22-31-22-32--AL|7",
+                                    "nname": "First",
+                                    "iuser": "22",
+                                    "nevent": "Setup",
+                                    "iresult": "1",
+                                    "tdetails": "Automatic"
+                                },
+                                "row 5": {
+                                    "id": "38",
+                                    "oid": "LogEntry-gettingstarted-LogEntry-log00133202103061716--22-31-22-38--AL|7",
+                                    "nname": "Log00133202103061716",
+                                    "iuser": "133",
+                                    "nevent": "chapter",
+                                    "iresult": "1",
+                                    "tdetails": "Jour 1"
+                                },
+                                "row 6": {
+                                    "id": "39",
+                                    "oid": "LogEntry-gettingstarted-LogEntry-log00133202103071001--22-31-22-39--AL|7",
+                                    "nname": "Log00133202103071001",
+                                    "iuser": "133",
+                                    "nevent": "chapter",
+                                    "iresult": "1",
+                                    "tdetails": "Jour 2"
+                                },
+                                "row 7": {
+                                    "id": "40",
+                                    "oid": "LogEntry-gettingstarted-LogEntry-log00133202104201127--22-31-22-40--AL|7",
+                                    "nname": "Log00133202104201127",
+                                    "iuser": "133",
+                                    "nevent": "chapter",
+                                    "iresult": "1",
+                                    "tdetails": "Jour 1"
+                                },
+                                "row 8": {
+                                    "id": "41",
+                                    "oid": "LogEntry-gettingstarted-LogEntry-log00133202105071131--22-31-22-41--AL|7",
+                                    "nname": "Log00133202105071131",
+                                    "iuser": "133",
+                                    "nevent": "chapter",
+                                    "iresult": "1",
+                                    "tdetails": "Jour 1"
+                                },
+                                "row 9": {
+                                    "id": "186",
+                                    "oid": "LogEntry-gettingstarted-LogEntry-first--22-185-22-186--AL|7",
+                                    "nname": "First",
+                                    "iuser": "22",
+                                    "nevent": "Setup",
+                                    "iresult": "1",
+                                    "tdetails": "Automatic"
+                                }
+                            },
+                            "name": "Connector1"
+                        }
+                    }
+                },
+                "cache": [],
+                "changes": []
+            },
+            "thtml": "",
+            "nlanguage": "",
+            "textra": [],
+            "dcreated": 1616509850,
+            "dmodified": 1675327400
+        },
+        "BB000000000000000M_System": {
+            "depth": 1,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "4",
+            "nstyle": "",
+            "tcontent": "System",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": [],
+            "dcreated": 1583132560,
+            "dmodified": 1673960930
+        },
+        "BB0000000U0000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "style_1",
+            "stype": "17",
+            "nstyle": "css linetext",
+            "tcontent": {
+                "meta": {
+                    "name": "style_1",
+                    "zone": "style_1editZone",
+                    "class": "table",
+                    "type": "text",
+                    "subType": "text",
+                    "mime": "text\/css",
+                    "stage": "off",
+                    "autosave": "off"
+                },
+                "data": {
+                    "tag": "textedit",
+                    "class": " css",
+                    "value": [
+                        "CSS",
+                        ".rightButton { margin-left:20px;}",
+                        ".titleButton{",
+                        "    border:1px solid #c1c1c1;",
+                        "    background: linear-gradient( 0deg, #99ada1, #F8F8F2);",
+                        "    padding:5px; ",
+                        "    cursor:pointer;",
+                        "    text-transform:capitalize;",
+                        " }",
+                        ".helpTitle{",
+                        "   background:linear-gradient( 10deg, #99ada1, #F8F8F2);",
+                        "   padding:8px;",
+                        "   text-transform:capitalize;",
+                        "}",
+                        "ul.portionList li { text-transform:capitalize;}",
+                        "h2.helpTitle,h3.portion, h3{ text-transform:capitalize;}",
+                        "p {",
+                        "    text-align:justify;",
+                        "}",
+                        "div.part[name='App'] div.page {",
+                        "  height:auto;",
+                        "  background-color: #eeffee;",
+                        "  width: 92%;",
+                        "  max-width:190mm;",
+                        "margin:1%;",
+                        "padding:1%;",
+                        "}",
+                        "",
+                        "@media screen and (max-width:500px) {",
+                        "  #B0A00000000000000M_App { transform:unset;}",
+                        "}",
+                        ""
+                    ],
+                    "mime": ""
+                },
+                "changes": []
+            },
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 349,
+                "width": 718,
+                "offsetLeft": 297,
+                "offsetTop": 80
+            },
+            "dcreated": 1583132560,
+            "dmodified": 1632378680
+        },
+        "BB0000000V0000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "text_2",
+            "stype": "18",
+            "nstyle": "",
+            "tcontent": {
+                "meta": {
+                    "name": "text_2",
+                    "zone": "text_2editZone",
+                    "class": "table",
+                    "type": "text",
+                    "subType": "text",
+                    "stage": "off",
+                    "autosave": "off",
+                    "captionPosition": "top",
+                    "caption": "save   "
+                },
+                "data": {
+                    "tag": "textedit",
+                    "class": "",
+                    "value": [
+                        "JS",
+                        "\/*let appView = window.ud.dom.element( \"[name='App']\", 'document');",
+                        "API.dom.attr( appView, 'ude_mode', \"display\");",
+                        "let appViewChildren = API.dom.children( appView);",
+                        "for ( let childi=0; childi < appViewChildren.length; childi++) {",
+                        "  API.dom.attr( appViewChildren[ childi], 'ude_mode', \"display\");",
+                        "}",
+                        "let lang = API.dom.element( 'UD_lang').textContent;",
+                        "let sourceName = (lang == 'EN') ?  'Doc' : 'Doc FR';",
+                        "let params = { headerId: 'Title', tagListStr: 'h2', callback:'userAction'};",
+                        "let appZone = API.dom.element( \"[name='AppZone']\", 'document');",
+                        "\/\/ let header = API.dom.element( \"[name='Title']\", view);",
+                        "let header = appZone.previousSibling;",
+                        "if (header) params.headerId = header.id;",
+                        "let paramsStr = JSON.stringify( params);",
+                        "let homeClickElement = API.dom.element( \"[name='backHome']\", appView);",
+                        " let anchor = API.dom.element( 'a', homeClickElement);",
+                        " let returnClick =\"API.grabPortionList('\"+ sourceName +\"','AppZone', \" + paramsStr + \");\";",
+                        " API.dom.attr( anchor, 'onclick', returnClick);",
+                        "if ( window.lang != \"EN\") { ",
+                        " \/\/sourceName += ' '+window.lang;",
+                        "  \/\/ let homeClickElement = API.dom.element( \"[name='backHome']\", appView);",
+                        "   \/\/if ( !homeClickElement)  homeClickElement = API.dom.element( 'B0AG00G0040200000M_retourAccueil');",
+                        "   \/\/if ( !homeClickElement) homeClickElement = API.dom.element( 'B0AG00G0040200000M_footer');",
+                        "   \/\/let returnClick =\"API.grabPortionList('\"+sourceName+\"','AppZone', \"+paramsStr+\");\";",
+                        "   \/\/let anchor = API.dom.element( 'a', homeClickElement);",
+                        "   \/\/API.dom.attr( anchor, 'onclick', returnClick);",
+                        "   anchor.textContent = \"Retour \u00e0 l'accueil\";",
+                        "}",
+                        "if ( !window.ud.dom.element( \"[name='\"+sourceName+\"']\", 'document')) sourceName = 'Doc';",
+                        "\/\/let appZone = API.dom.element( \"[name='AppZone']\", 'document');",
+                        "\/\/ let header = API.dom.element( \"[name='Title']\", view);",
+                        "\/\/let header = appZone.previousSibling;",
+                        "\/\/if (header) params.headerId = header.id;",
+                        "\/*2DO Read progress Go straight to a Day",
+                        "* Better Use Taskman and $$$.showOneOfClass( id) ot grabPortion ",
+                        "* \/",
+                        "API.grabPortionList( sourceName,'AppZone', params);",
+                        "\/\/setTimeout( function() { API.connectorRefresh( 'Connector1');}, 2000);",
+                        "API.connectorRefresh( 'Connector1');*\/"
+                    ],
+                    "mime": "text\/javascript"
+                },
+                "changes": []
+            },
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 313,
+                "width": 643,
+                "offsetLeft": 417,
+                "offsetTop": 403
+            },
+            "dcreated": 1583132560,
+            "dmodified": 1673960930
+        },
+        "BD000000000000000M_Program": {
+            "depth": 1,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "4",
+            "nstyle": "",
+            "tcontent": "<span class=\"title\">Program<\/span> - <span class=\"subtitle\">Tuto program<\/span>",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": [],
+            "dcreated": 1616763360,
+            "dmodified": 1674327060
+        },
+        "BD000000100000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "userAction",
+            "stype": "18",
+            "nstyle": "",
+            "tcontent": {
+                "meta": {
+                    "name": "userAction",
+                    "zone": "userActioneditZone",
+                    "class": "editzone",
+                    "type": "text",
+                    "autosave": "off",
+                    "captionPosition": "top",
+                    "caption": "userAction( action)               "
+                },
+                "data": {
+                    "tag": "textedit",
+                    "class": "                   js",
+                    "value": [
+                        "JS",
+                        "window.userAction = function( event, element) {",
+                        "   if ( typeof taskTO != \"undefined\" && taskTO) clearTimeout( taskTO);",
+                        "    let targetName = \"AppZone\";",
+                        "    let target = API.dom.element( \"[name='AppZone']\", 'document');",
+                        "    let headerId = 'Title';",
+                        "    let appZone = API.dom.element( \"[name='AppZone']\", 'document');",
+                        "    \/\/ let header = API.dom.element( \"[name='Title']\", view);",
+                        "    let header = appZone.previousSibling;  ",
+                        "    if ( header) headerId = header.id;",
+                        "    let action = details = \"\";",
+                        "    let result = 0;",
+                        "    switch ( event) {",
+                        "        case 'chapter' :",
+                        "             \/\/ 2DO Check previous chapter is validated or not required",
+                        "             API.copyPortion( API.dom.attr( element, 'udapi_value1'), target.id, headerId, null, 'userAction2');",
+                        "             action = \"chapter\";",
+                        "             result = 1;",
+                        "             details = element.textContent.split( '-').slice( 0, 1).join( ' ').trim();",
+                        "           break;",
+                        "        case 'Question' :",
+                        "            API.toggleSwitch( element);",
+                        "            let onOff = ( element.previousSibling.value == \"on\");",
+                        "            action = \"question\";",
+                        "            result = onOff ? 1: 0;",
+                        "            details = element.parentNode.parentNode.parentNode.textContent;",
+                        "            details = details.split( '-').slice( 0, 1).join( ' ').trim();",
+                        "            break;",
+                        "   }",
+                        "    let date = new Date();",
+                        "    let timestamp = date.getFullYear();",
+                        "    timestamp += ( \"00\" + date.getMonth()).slice( -2);",
+                        "    timestamp += ( \"00\" + date.getDate()).slice( -2);",
+                        "    timestamp += ( \"00\" + date.getHours()).slice( -2);",
+                        "    timestamp += ( \"00\" + date.getMinutes()).slice( -2);",
+                        "    let userId = ( \"00000\" + API.dom.element( 'UD_userId').textContent).slice(-5);",
+                        "    let record = {",
+                        "        nname:  \"Log\" + userId + timestamp,",
+                        "        iuser: parseInt( userId),",
+                        "        nevent: action,",
+                        "        iresult: result,",
+                        "        tdetails : details",
+                        "    };",
+                        "    \/\/ API.connectorAppend( \"Connector1\", record);",
+                        "}"
+                    ],
+                    "mime": "text\/javascript"
+                },
+                "changes": []
+            },
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 313,
+                "width": 643,
+                "offsetLeft": 417,
+                "offsetTop": 78
+            },
+            "dcreated": 1616763370,
+            "dmodified": 1674326740
+        },
+        "BD000000100IO0000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "JS4",
+            "stype": "18",
+            "nstyle": "",
+            "tcontent": {
+                "meta": {
+                    "name": "JS4",
+                    "zone": "JS4editZone",
+                    "class": "editzone",
+                    "type": "text",
+                    "autosave": "off",
+                    "captionPosition": "top",
+                    "caption": "JS4"
+                },
+                "data": {
+                    "tag": "textedit",
+                    "class": "  js",
+                    "value": [
+                        "JS",
+                        "userAction2 = function( elementOrId) {",
+                        "  let element = $$$.dom.element( elementOrId);",
+                        "  let steps = $$$.dom.elements( element.tagName.toLowerCase(), element.parentElement); ",
+                        "  if ( element == steps[ steps.length -1]) {",
+                        "     $$$.docParameter( 'me', 'progress',  nextProgress);    ",
+                        "   }",
+                        "   $$$.showOneOfClass( element);",
+                        "}"
+                    ],
+                    "mime": "text\/javascript"
+                },
+                "changes": []
+            },
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 313,
+                "width": 643,
+                "offsetLeft": 417,
+                "offsetTop": 405
+            },
+            "dcreated": 1673962360,
+            "dmodified": 1674151360
+        },
+        "BD000000100S40000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "onload",
+            "stype": "18",
+            "nstyle": "",
+            "tcontent": {
+                "meta": {
+                    "name": "onload",
+                    "zone": "onloadeditZone",
+                    "class": "editzone",
+                    "type": "text",
+                    "autosave": "off",
+                    "captionPosition": "top",
+                    "caption": "onload"
+                },
+                "data": {
+                    "tag": "textedit",
+                    "class": "        js",
+                    "value": [
+                        "JS",
+                        "setup = function() {",
+                        "   if ( typeof taskTO != \"undefined\" && taskTO) clearTimeout( taskTO);",
+                        "   let appView = window.ud.dom.element( \"[name='App']\", 'document');",
+                        "   $$$.dom.attr( appView, 'ude_mode', \"display\");",
+                        "   let appViewChildren = $$$.dom.children( appView);",
+                        "   for ( let childi=0; childi < appViewChildren.length; childi++) {",
+                        "      $$$.dom.attr( appViewChildren[ childi], 'ude_mode', \"display\");",
+                        "   }",
+                        "   let lang = API.dom.element( 'UD_lang').textContent;",
+                        "   let sourceName = (lang == 'EN') ?  'Doc' : 'Doc FR';",
+                        "   let params = {",
+                        "     headerId: 'Title',",
+                        "     tagListStr: 'h2',",
+                        "     callback:'userAction'",
+                        "   };",
+                        "   let appZone = API.dom.element( \"[name='AppZone']\", 'document');  ",
+                        "    \/\/ let header = API.dom.element( \"[name='Title']\", view);",
+                        "    let header = appZone.previousSibling;",
+                        "    if (header) params.headerId = header.id;",
+                        "    let paramsStr = JSON.stringify( params);",
+                        "    let homeClickElement = API.dom.element( \"[name='backHome']\", appView);",
+                        "    let anchor = API.dom.element( 'a', homeClickElement);",
+                        "     \/\/let returnClick =\"API.grabPortionList('\"+ sourceName +\"','AppZone', \" + paramsStr + \");\";",
+                        "     let returnClick = \"setup();\";",
+                        "     $$$.dom.attr( anchor, 'onclick', returnClick);",
+                        "      if ( window.lang != \"EN\") {",
+                        "         anchor.textContent = $$$.translateTerm( \"Retour \u00e0\u00a0 l'accueil\");",
+                        "      }",
+                        "      if ( !window.ud.dom.element( \"[name='\"+sourceName+\"']\", 'document')) sourceName = 'Doc';  ",
+                        "      \/\/let appZone = API.dom.element( \"[name='AppZone']\", 'document');",
+                        "      \/\/ let header = API.dom.element( \"[name='Title']\", view);",
+                        "      \/\/let header = appZone.previousSibling;",
+                        "      \/\/if (header) params.headerId = header.id;",
+                        "      window.taskTO = 0;",
+                        "      \/\/ Read progress ",
+                        "      let progressPr = $$$.docParameter( 'me', 'progress'); ",
+                        "      progressPr.then( (progress) => {",
+                        "          \/\/Go straight to a Day* Better Use Taskman and $$$.showOneOfClass( id) ot grabPortion* \/",
+                        "          $$$.grabPortionList( sourceName,'AppZone', params);",
+                        "           let sessions = $$$.dom.elements( 'li a', $$$.dom.elementByName( 'AppZone'));",
+                        "           let sessionIndex= Math.round(( progress * sessions.length) \/100);",
+                        "           for ( let sessioni=sessionIndex+1; sessioni < sessions.length; sessioni++) {",
+                        "                $$$.dom.attr( sessions[ sessioni], 'onclick', \"\");",
+                        "           }",
+                        "           \/\/if ( progress)  ",
+                        "            taskTO = setTimeout( function() { userAction( 'chapter', sessions[ sessionIndex]);}, 3000); ",
+                        "           \/\/ 2DO disable clicks on other items",
+                        "           window.progress  = progress;",
+                        "           window.nextProgress = progress + Math.round( 100\/sessions.length);",
+                        "           \/\/setTimeout( function() { API.connectorRefresh( 'Connector1');}, 2000);",
+                        "          $$$.connectorRefresh( 'Connector1');",
+                        "     });",
+                        "}",
+                        "setup();"
+                    ],
+                    "mime": "text\/javascript"
+                },
+                "changes": []
+            },
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 313,
+                "width": 643,
+                "offsetLeft": 417,
+                "offsetTop": 1159
+            },
+            "dcreated": 1673962370,
+            "dmodified": 1674327060
+        },
+        "BU000000000000000M_pub": {
+            "depth": 1,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "4",
+            "nstyle": "LAY_A4",
+            "tcontent": "<span class=\"title\">Pub<\/span> - <span class=\"subtitle\">App description<\/span>",
+            "thtml": "",
+            "nlanguage": "EN",
+            "textra": [],
+            "dcreated": 1619440830,
+            "dmodified": 1662108370
+        },
+        "BU000000110000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "6",
+            "nstyle": "",
+            "tcontent": "The Landing page app",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 43,
+                "width": 718,
+                "offsetLeft": 292,
+                "offsetTop": 112,
+                "marginTop": 25,
+                "marginBottom": 25
+            },
+            "dcreated": 1619441910,
+            "dmodified": 1632119550
+        },
+        "BU000000120000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "7",
+            "nstyle": "",
+            "tcontent": "The app",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 32,
+                "width": 718,
+                "offsetLeft": 292,
+                "offsetTop": 180,
+                "marginTop": 23,
+                "marginBottom": 23
+            },
+            "dcreated": 1619441960,
+            "dmodified": 1632119550
+        },
+        "BU000000130000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "7",
+            "nstyle": "",
+            "tcontent": "Stats",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 32,
+                "width": 718,
+                "offsetLeft": 292,
+                "offsetTop": 235,
+                "marginTop": 23,
+                "marginBottom": 23
+            },
+            "dcreated": 1619444260,
+            "dmodified": 1632119550
+        },
+        "BU000000140000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "chart1",
+            "stype": "21",
+            "nstyle": "",
+            "tcontent": {
+                "meta": {
+                    "type": "chart",
+                    "subtype": "std",
+                    "name": "chart1",
+                    "zone": "chart1activeZone",
+                    "caption": "Engagement Juillet",
+                    "captionPosition": "top",
+                    "autosave": "off"
+                },
+                "data": {
+                    "button1": {
+                        "tag": "span",
+                        "class": "rightButton",
+                        "value": {
+                            "tag": "img",
+                            "src": "\/tmp\/W20H20_H0Cad0n1q_config.png",
+                            "onclick": "API.showNextInList( ['chart1editZone', 'chart1viewZone']);",
+                            "value": ""
+                        }
+                    },
+                    "edit": {
+                        "tag": "div",
+                        "name": "chart1editZone",
+                        "type": "text",
+                        "bind": "chart1_object",
+                        "value": {
+                            "tag": "textedit",
+                            "class": "        json",
+                            "value": {
+                                "type": "bar",
+                                "data": {
+                                    "labels": [
+                                        "Ch 1",
+                                        "Ch 2",
+                                        "Ch 3"
+                                    ],
+                                    "datasets": [
+                                        {
+                                            "label": "Lecteurs",
+                                            "type": "bar",
+                                            "data": [
+                                                25,
+                                                12,
+                                                9
+                                            ],
+                                            "backgroundColor": "rgba(132, 99, 250, 0.2)",
+                                            "borderColor": "rgba(132, 99, 250, 1)",
+                                            "borderWidth": 1
+                                        },
+                                        {
+                                            "type": "line",
+                                            "fill": "false",
+                                            "label": "Validations",
+                                            "data": [
+                                                12,
+                                                10,
+                                                5
+                                            ],
+                                            "backgroundColor": "rgba(99,255,132,0.2);",
+                                            "borderColor": "rgba(99,255,132,1)",
+                                            "borderWidth": 3
+                                        }
+                                    ]
+                                },
+                                "options": {
+                                    "scales": {
+                                        "yAxes": [
+                                            {
+                                                "ticks": {
+                                                    "beginAtZero": "true"
+                                                }
+                                            }
+                                        ],
+                                        "xAxes": ""
+                                    }
+                                }
+                            },
+                            "mime": "text\/json"
+                        }
+                    },
+                    "display": {
+                        "tag": "div",
+                        "name": "chart1viewZone",
+                        "class": "chartView",
+                        "type": "viewzone",
+                        "subType": "html",
+                        "bind": "chart1_object",
+                        "autosave": "off",
+                        "follow": "off",
+                        "value": ""
+                    }
+                },
+                "changes": []
+            },
+            "thtml": "",
+            "nlanguage": "",
+            "textra": [],
+            "dcreated": 1619450380,
+            "dmodified": 1662105570
+        },
+        "BU0000001404M0000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "10",
+            "nstyle": "",
+            "tcontent": "You need to share a reference book, user support or any other  documentation with many other people. You want it to be easy to read on whatever device each reader chooses and you would like to know how the readers appreciate your work in order to continually improve it.",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 66,
+                "width": 718,
+                "offsetLeft": 297,
+                "offsetTop": 890,
+                "marginTop": 19,
+                "marginBottom": 19
+            },
+            "dcreated": 1632756800,
+            "dmodified": 1632757070
+        },
+        "BU000000144CK0000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "10",
+            "nstyle": "",
+            "tcontent": "This application converts your document into an easy-to-read format for all types of screen. User actions, such as opening a chapter or validating  a section, are tracked and used to generate readers engagement.",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 66,
+                "width": 718,
+                "offsetLeft": 292,
+                "offsetTop": 783,
+                "marginTop": 19,
+                "marginBottom": 19
+            },
+            "dcreated": 1632754640,
+            "dmodified": 1632758960
+        },
+        "BU100000000000000M_pubFR": {
+            "depth": 1,
+            "permissions": 3,
+            "nlabel": "Pub FR",
+            "stype": "4",
+            "nstyle": "LAY_A4",
+            "tcontent": "",
+            "thtml": "",
+            "nlanguage": "FR",
+            "textra": {
+                "height": 1115,
+                "width": 831,
+                "offsetLeft": 260,
+                "offsetTop": 42
+            },
+            "dcreated": 1632906610,
+            "dmodified": 1662109000
+        },
+        "BU1000000009M0000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "6",
+            "nstyle": "ud_requiresAction",
+            "tcontent": "Tuto",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 43,
+                "width": 718,
+                "offsetLeft": 297,
+                "offsetTop": 105,
+                "marginTop": 25,
+                "marginBottom": 25,
+                "system": {
+                    "datasrc": "BU000000110000000M"
+                }
+            },
+            "dcreated": 1632906620,
+            "dmodified": 1632906660
+        },
+        "BU100000000AJ0000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "7",
+            "nstyle": "ud_requiresAction",
+            "tcontent": "Conna\u00eetre l'engagment des utilisateurs",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 32,
+                "width": 718,
+                "offsetLeft": 297,
+                "offsetTop": 173,
+                "marginTop": 23,
+                "marginBottom": 23,
+                "system": {
+                    "datasrc": "BU000000130000000M"
+                }
+            },
+            "dcreated": 1632906620,
+            "dmodified": 1632907290
+        },
+        "BU100000000BO0000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "21",
+            "nstyle": "chart ud_requiresAction",
+            "tcontent": {
+                "meta": {
+                    "type": "chart",
+                    "subtype": "std",
+                    "name": "chart2",
+                    "zone": "chart2activeZone",
+                    "caption": "Engagement Juillet",
+                    "captionPosition": "top",
+                    "autosave": "off"
+                },
+                "data": {
+                    "button1": {
+                        "tag": "span",
+                        "class": "rightButton",
+                        "value": {
+                            "tag": "img",
+                            "src": "\/tmp\/W20H20_H0Cad0n1q_config.png",
+                            "onclick": "API.showNextInList( ['chart2editZone', 'chart2viewZone']);",
+                            "value": ""
+                        }
+                    },
+                    "edit": {
+                        "tag": "div",
+                        "name": "chart2editZone",
+                        "class": "hidden",
+                        "type": "text",
+                        "bind": "chart2_object",
+                        "value": {
+                            "tag": "textedit",
+                            "name": "chart2Params",
+                            "class": "json",
+                            "value": {
+                                "type": "bar",
+                                "data": {
+                                    "labels": [
+                                        "Ch 1",
+                                        "Ch 2",
+                                        "Ch 3"
+                                    ],
+                                    "datasets": [
+                                        {
+                                            "label": "Lecteurs",
+                                            "type": "bar",
+                                            "data": [
+                                                25,
+                                                12,
+                                                9
+                                            ],
+                                            "backgroundColor": "rgba(132, 99, 250, 0.2)",
+                                            "borderColor": "rgba(132, 99, 250, 1)",
+                                            "borderWidth": 1
+                                        },
+                                        {
+                                            "type": "line",
+                                            "fill": "false",
+                                            "label": "Validations",
+                                            "data": [
+                                                12,
+                                                10,
+                                                5
+                                            ],
+                                            "backgroundColor": "rgba(99,255,132,0.2);",
+                                            "borderColor": "rgba(99,255,132,1)",
+                                            "borderWidth": 3
+                                        }
+                                    ]
+                                },
+                                "options": {
+                                    "scales": {
+                                        "yAxes": [
+                                            {
+                                                "ticks": {
+                                                    "beginAtZero": "true"
+                                                }
+                                            }
+                                        ],
+                                        "xAxes": ""
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "display": {
+                        "tag": "div",
+                        "name": "chart2viewZone",
+                        "class": "chartView",
+                        "type": "viewzone",
+                        "subType": "html",
+                        "bind": "chart1_object",
+                        "autosave": "off",
+                        "follow": "off",
+                        "value": ""
+                    }
+                },
+                "changes": []
+            },
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 324,
+                "width": 833,
+                "offsetLeft": 255,
+                "offsetTop": 1487,
+                "marginTop": 20,
+                "marginBottom": 10,
+                "system": {
+                    "datasrc": "BU000000140000000M"
+                }
+            },
+            "dcreated": 1632906620,
+            "dmodified": 1662105510
+        },
+        "BU100000000E30000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "10",
+            "nstyle": "ud_requiresAction",
+            "tcontent": "Vous avez besoin de partager une livre de r\u00e9f\u00e9rence, un manuel utilisateur ou toute autre documentation avec un groupe de personnes. Vous voulez que \u00e7a soit facile \u00e0 lire quelque soit l'\u00e9cran utilis\u00e9 et de conna\u00eetre les r\u00e9actions des utilisateurs pour am\u00e9liorer en permanence votre document.You need to share a reference book, user support or any other  documentation with many other people. You want it to be easy to read on whatever device each reader chooses and you would like to know how the readers appreciate your work in order to continually improve it.",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 154,
+                "width": 718,
+                "offsetLeft": 297,
+                "offsetTop": 746,
+                "marginTop": 19,
+                "marginBottom": 19,
+                "system": {
+                    "datasrc": "BU0000001404M0000M"
+                }
+            },
+            "dcreated": 1632906620,
+            "dmodified": 1632907170
+        },
+        "BU100000000NF0000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "10",
+            "nstyle": "standard",
+            "tcontent": "Cette application pr\u00e9sente votre contenu dans un format facile \u00e0 lire sur tout \u00e9cran et m\u00e9morise les actions des lecteurs afin de vous fournir un rapport sur leur engagement avec votre texte.",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 44,
+                "width": 718,
+                "offsetLeft": 292,
+                "offsetTop": 941,
+                "marginTop": 19,
+                "marginBottom": 19
+            },
+            "dcreated": 1632907180,
+            "dmodified": 1632907460
+        },
+        "BVU0000000000000M_manage": {
+            "depth": 1,
+            "permissions": 3,
+            "nlabel": "manage",
+            "stype": "4",
+            "nstyle": "",
+            "tcontent": "",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": [],
+            "dcreated": 1673962710,
+            "dmodified": 1673963220
+        },
+        "BVU00000240000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "BotlogZone",
+            "stype": "5",
+            "nstyle": "manageZone",
+            "tcontent": "BotlogZone",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": [],
+            "dcreated": 1673962750,
+            "dmodified": 1673963220
+        },
+        "BVU00000250000000M": {
+            "depth": 3,
+            "permissions": 3,
+            "nlabel": "",
+            "stype": "10",
+            "nstyle": "botlog",
+            "tcontent": "<br>Initialising<br>Open log for server<br>Reloaded<br>Open log for server<br>Ferm\u00e9 au serveur",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": [],
+            "dcreated": 1673963070,
+            "dmodified": 1673963220
+        },
+        "BVU00000260000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "DocNames",
+            "stype": "5",
+            "nstyle": "manageZone",
+            "tcontent": "",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": [],
+            "dcreated": 1673962780,
+            "dmodified": 1673962920
+        },
+        "BVU00000270000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "DocParameters",
+            "stype": "5",
+            "nstyle": "manageZone",
+            "tcontent": "",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": [],
+            "dcreated": 1673962820,
+            "dmodified": 1673962910
+        },
+        "BVU00000280000000M": {
+            "depth": 2,
+            "permissions": 3,
+            "nlabel": "DocActions",
+            "stype": "5",
+            "nstyle": "manageZone",
+            "tcontent": "DocActions",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": [],
+            "dcreated": 1673962870,
+            "dmodified": 1673962890
+        }
+    },
+    "model": "",
+    "html": "",
+    "css": ""
+}

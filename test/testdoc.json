@@ -1,0 +1,383 @@
+{
+    "content": {
+        "A0000002NHSEB0000M_Repageaf": {
+            "depth": 0,
+            "permissions": 7,
+            "nlabel": "Repage after delete",
+            "stype": "3",
+            "nstyle": "ASS000000000301_System",
+            "tcontent": "<span class=\"title\">Repage after delete<\/span><span class=\"subtitle\">created in directory<\/span>",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "system": {
+                    "autoload": "on",
+                    "state": "initialised",
+                    "defaultPart": "doc"
+                }
+            },
+            "dcreated": 1669645490,
+            "dmodified": 1669986240
+        },
+        "B010000000000000M_docA4text": {
+            "depth": 1,
+            "permissions": 7,
+            "nlabel": "",
+            "stype": "4",
+            "nstyle": "LAY_A4",
+            "tcontent": "Doc",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": [],
+            "dcreated": 1669645540,
+            "dmodified": 1669986240
+        },
+        "B01000000O0000000M": {
+            "depth": 2,
+            "permissions": 7,
+            "nlabel": "",
+            "stype": "6",
+            "nstyle": "",
+            "tcontent": "Title",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 43,
+                "width": 718,
+                "offsetLeft": 297,
+                "offsetTop": 105,
+                "marginTop": 25,
+                "marginBottom": 25,
+                "system": {
+                    "ude_place": "Title"
+                }
+            },
+            "dcreated": 1669645540,
+            "dmodified": 1669986230
+        },
+        "B01000000P0000000M": {
+            "depth": 2,
+            "permissions": 7,
+            "nlabel": "",
+            "stype": "201",
+            "nstyle": "",
+            "tcontent": "<img src=\"http:\/\/dev.rfolks.com\/upload\/O2v3I3F2G_news4.png\" class=\"standard\"><p>...<\/p>",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 449,
+                "width": 718,
+                "offsetLeft": 490,
+                "offsetTop": 233
+            },
+            "dcreated": 1669878960,
+            "dmodified": 1669986230
+        },
+        "B01000000Q0000000M": {
+            "depth": 2,
+            "permissions": 7,
+            "nlabel": "",
+            "stype": "10",
+            "nstyle": "",
+            "tcontent": " We need lots of text",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 22,
+                "width": 718,
+                "offsetLeft": 490,
+                "offsetTop": 233,
+                "marginTop": 19,
+                "marginBottom": 19,
+                "system": {
+                    "data-ude-place": "Text"
+                }
+            },
+            "dcreated": 1669645540,
+            "dmodified": 1669986230
+        },
+        "B0100000180000000M": {
+            "depth": 2,
+            "permissions": 7,
+            "nlabel": "",
+            "stype": "100",
+            "nstyle": "undefined",
+            "tcontent": "We need lots pftext",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 22,
+                "width": 718,
+                "offsetLeft": 490,
+                "offsetTop": 274,
+                "marginTop": 19,
+                "marginBottom": 19
+            },
+            "dcreated": 1669823690,
+            "dmodified": 1669986230
+        },
+        "B01000001M0000000M": {
+            "depth": 2,
+            "permissions": 7,
+            "nlabel": "",
+            "stype": "100",
+            "nstyle": "undefined",
+            "tcontent": "We need lots of text",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 22,
+                "width": 718,
+                "offsetLeft": 490,
+                "offsetTop": 314,
+                "marginTop": 19,
+                "marginBottom": 19
+            },
+            "dcreated": 1669823700,
+            "dmodified": 1669986230
+        },
+        "B0100000240000000M": {
+            "depth": 2,
+            "permissions": 7,
+            "nlabel": "",
+            "stype": "100",
+            "nstyle": "undefined",
+            "tcontent": "Le coach propose aussi un reporting synth\u00e9tique bas\u00e9 directement sur ce plan afin de simplement drastiquement le pilotage.Cette simplification n&quote;exclue pas la possibilit\u00e9 de creuser en d\u00e9tail sur certains points \u00e0 travers des processus et apps d\u00e9di\u00e9s aux questions plus techniques lors les indicateurs techniques le n\u00e9cessitent. ",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 88,
+                "width": 718,
+                "offsetLeft": 490,
+                "offsetTop": 355,
+                "marginTop": 19,
+                "marginBottom": 19
+            },
+            "dcreated": 1669823700,
+            "dmodified": 1669986230
+        },
+        "B0100000240IO0000M": {
+            "depth": 2,
+            "permissions": 7,
+            "nlabel": "Table1",
+            "stype": "12",
+            "nstyle": "",
+            "tcontent": {
+                "meta": {
+                    "type": "table",
+                    "name": "Table1",
+                    "zone": "Table1editZone",
+                    "caption": "Table1",
+                    "captionPosition": "top"
+                },
+                "data": {
+                    "tag": "jsontable",
+                    "name": "Table1",
+                    "class": "tableStyle1",
+                    "value": [
+                        {
+                            "A": "",
+                            "B": "",
+                            "C": ""
+                        },
+                        {
+                            "A": "...",
+                            "B": "...",
+                            "C": "..."
+                        }
+                    ]
+                },
+                "changes": []
+            },
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 80,
+                "width": 718,
+                "offsetLeft": 490,
+                "offsetTop": 939,
+                "marginTop": 28,
+                "marginBottom": 28
+            },
+            "dcreated": 1669986240,
+            "dmodified": 1669986240
+        },
+        "B0100000250000000M": {
+            "depth": 2,
+            "permissions": 7,
+            "nlabel": "",
+            "stype": "201",
+            "nstyle": "",
+            "tcontent": "<img src=\"http:\/\/dev.rfolks.com\/upload\/O2h2b3p30_appmp3x3.png\" class=\"standard\">",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 409,
+                "width": 718,
+                "offsetLeft": 490,
+                "offsetTop": 1295
+            },
+            "dcreated": 1669824310,
+            "dmodified": 1669986230
+        },
+        "B01000002J0000000M": {
+            "depth": 2,
+            "permissions": 7,
+            "nlabel": "",
+            "stype": "100",
+            "nstyle": "undefined",
+            "tcontent": "Le coach propose aussi un reporting synth\u00e9tique bas\u00e9 directement sur ce plan afin de simplement drastiquement le pilotage.Cette simplification n&quote;exclue pas la possibilit\u00e9 de creuser en d\u00e9tail sur certains points \u00e0 travers des processus et apps d\u00e9di\u00e9s aux questions plus techniques lors les indicateurs techniques le n\u00e9cessitent. Le coach propose aussi un reporting synth\u00e9tique bas\u00e9 directement sur ce plan afin de simplement drastiquement le pilotage.Cette simplification n&quote;exclue pas la possibilit\u00e9 de creuser en d\u00e9tail sur certains points \u00e0 travers des processus et apps d\u00e9di\u00e9s aux questions plus techniques lors les indicateurs techniques le n\u00e9cessitent. ",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 154,
+                "width": 718,
+                "offsetLeft": 490,
+                "offsetTop": 462,
+                "marginTop": 19,
+                "marginBottom": 19
+            },
+            "dcreated": 1669823710,
+            "dmodified": 1669986230
+        },
+        "B0100000310000000M": {
+            "depth": 2,
+            "permissions": 7,
+            "nlabel": "",
+            "stype": "100",
+            "nstyle": "undefined",
+            "tcontent": "Le coach propose aussi un reporting synth\u00e9tique bas\u00e9 directement sur ce plan afin de simplement drastiquement le pilotage.Cette simplification n&quote;exclue pas la possibilit\u00e9 de creuser en d\u00e9tail sur certains points \u00e0 travers des processus et apps d\u00e9di\u00e9s aux questions plus techniques lors les indicateurs techniques le n\u00e9cessitent. ",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 88,
+                "width": 718,
+                "offsetLeft": 490,
+                "offsetTop": 634,
+                "marginTop": 19,
+                "marginBottom": 19
+            },
+            "dcreated": 1669823720,
+            "dmodified": 1669986230
+        },
+        "B0100000320000000M": {
+            "depth": 2,
+            "permissions": 7,
+            "nlabel": "",
+            "stype": "10",
+            "nstyle": "",
+            "tcontent": "lors les indicateurs techniques le n\u00e9cessitent. ",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 22,
+                "width": 718,
+                "offsetLeft": 490,
+                "offsetTop": 1980,
+                "marginTop": 19,
+                "marginBottom": 19
+            },
+            "dcreated": 1669986220,
+            "dmodified": 1669986230
+        },
+        "B0100000330000000M": {
+            "depth": 2,
+            "permissions": 7,
+            "nlabel": "",
+            "stype": "201",
+            "nstyle": "",
+            "tcontent": "<img src=\"http:\/\/dev.rfolks.com\/upload\/CUwUyUMvi_Business-Documentation-feat-image.jpg\" class=\"standard\">",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": {
+                "height": 430,
+                "width": 718,
+                "offsetLeft": 490,
+                "offsetTop": 741
+            },
+            "dcreated": 1669824110,
+            "dmodified": 1669986230
+        },
+        "BVU0000000000000M_manage": {
+            "depth": 1,
+            "permissions": 7,
+            "nlabel": "",
+            "stype": "4",
+            "nstyle": "",
+            "tcontent": "Manage",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": [],
+            "dcreated": 1669645500,
+            "dmodified": 1669646240
+        },
+        "BVU00000002000000M_botlog": {
+            "depth": 2,
+            "permissions": 7,
+            "nlabel": "",
+            "stype": "5",
+            "nstyle": "manageZone",
+            "tcontent": "BotlogZone",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": [],
+            "dcreated": 1669645500,
+            "dmodified": 1669646240
+        },
+        "BVU00000002200000M": {
+            "depth": 3,
+            "permissions": 7,
+            "nlabel": "",
+            "stype": "10",
+            "nstyle": "botlog",
+            "tcontent": "Initialising<br>Open log for server<br>Reloaded<br>Open log for server<br>Ferm\u00e9 au serveurOpen log for server<br>Ferm\u00e9 au serveur",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": [],
+            "dcreated": 1669645500,
+            "dmodified": 1669646240
+        },
+        "BVU00000008000000M_names": {
+            "depth": 2,
+            "permissions": 7,
+            "nlabel": "",
+            "stype": "5",
+            "nstyle": "manageZone",
+            "tcontent": "DocNames",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": [],
+            "dcreated": 1669645500,
+            "dmodified": 1669645500
+        },
+        "BVU0000000A000000M_params": {
+            "depth": 2,
+            "permissions": 7,
+            "nlabel": "",
+            "stype": "5",
+            "nstyle": "manageZone",
+            "tcontent": "DocParameters",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": [],
+            "dcreated": 1669645500,
+            "dmodified": 1669645500
+        },
+        "BVU0000000C000000M_actions": {
+            "depth": 2,
+            "permissions": 7,
+            "nlabel": "",
+            "stype": "5",
+            "nstyle": "manageZone",
+            "tcontent": "DocActions",
+            "thtml": "",
+            "nlanguage": "",
+            "textra": [],
+            "dcreated": 1669645500,
+            "dmodified": 1669645500
+        }
+    },
+    "model": "",
+    "html": "",
+    "css": ""
+}
