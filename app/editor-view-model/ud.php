@@ -1,5 +1,23 @@
 <?php
 /**
+ * ud.php -- Universal Doc server delivery
+ *  * Copyright (C) 2023  Quentin CORNWELL
+ *  
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/**
  *  The UniversalDoc PHP class prepares the HTML, CSS and JS of a web page or web app by compiling a set of elements.
  * 
  *  <p>After instantation, the class's loadData method is used to load an app's components. Alternatively the loadModel 
@@ -514,10 +532,10 @@ class UniversalDoc {
             } else {
                 $systemProgram .= "  API.changeClass( 'edit', 'document');\n";
             }
-            $edit = ($preferences[ 'ude_edit']) ? $preferences[ 'ude_edit'] : "on";
-            $menu = ($preferences[ 'ude_menu']) ? $preferences[ 'ude_menu'] : "on";
+            $edit = ( isset( $preferences[ 'ude_edit'])) ? $preferences[ 'ude_edit'] : "on";
+            $menu = ( isset( $preferences[ 'ude_menu'])) ? $preferences[ 'ude_menu'] : "on";
             $systemProgram .= "  $$$.dom.attr( 'document', 'ude_menu', '{$menu}');\n";
-            $stage = ($preferences[ 'ude_stage']) ? $preferences[ 'ude_stage'] : "off";
+            $stage = ( isset( $preferences[ 'ude_stage'])) ? $preferences[ 'ude_stage'] : "off";
             $systemProgram .= "  $$$.dom.attr( 'document', 'ude_stage', '{$stage}');\n";
         } else { 
             $systemProgram .= "  $$$.changeClass( 'readOnly', 'document');\n"; //document.getElementById( 'document').className ='readOnly'\n";

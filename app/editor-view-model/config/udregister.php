@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__.'/../ud-view-model/udconstants.php';
-require_once VENDOR_AUTOLOAD;
+require_once 'udconstants.php';
+require_once __DIR__.'/../../../vendor/autoload.php';
 use ScssPhp\ScssPhp\Compiler;
 
 /*

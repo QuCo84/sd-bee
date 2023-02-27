@@ -1,6 +1,21 @@
 <?php
 /**
  * sdbee-access.php -- Access controler for SD bee
+ * Copyright (C) 2023  Quentin CORNWELL
+ *  
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
  * 
  * Use :
  *    $params = [
@@ -57,7 +72,11 @@ class SDBEE_access {
             $r = $this->_query( "SELECT * FROM LoadedFiles WHERE file LIKE '%createaccess.sql';");            
             if ( $r === false || !count( $r)) {
                 echo "Initialising database\n";
-                $this->_load( '../.config/createaccess.sql');     
+                // Get instructions for initialisation
+                $sql = file_get_contents( '../.config/createaccess.sql');
+                // Substitue parameters
+                LF_substitute( $sql, $params);
+                $this->_load( $sql); 
                 $this->helper->save();                 
             }
         }
@@ -103,7 +122,6 @@ class SDBEE_access {
                 if ( $token) {
                     // "member" cookie found (remember me)
                     $members = $this->_query( "SELECT * FROM Members WHERE token=:token;", [ ':token'=>$token]); 
-                    echo "Member $token count( $members) {$this->lastError}<br>";
                     if ( count( $members)) {
                         $member = $members[0];
                         if ( $member[ 'validDate'] >= time()) {
@@ -121,10 +139,10 @@ class SDBEE_access {
             }
             return $this->userId;
         }
+        // Look for user
         $sql = "SELECT rowid, password FROM Users WHERE name=:name;";
         $data = [ ':name' => $name];  
         $candidates = $this->_query( $sql, $data);  
-        //var_dump( $sql, $data, $candidates, $this->lastError);
         if ( !$this->lastError && count( $candidates) == 1) {
             // User found .. check password
             $candidate = $candidates[0];
@@ -139,16 +157,19 @@ class SDBEE_access {
                 $member = [ 'token' => $token, 'ip'=> $_SERVER['REMOTE_ADDR'], 'userId' => $this->userId, 'validDate' => $validDate];
                 $this->_insert( 'Members', $member, "token ip userId validDate");
                 if ( $this->lastError) echo "Error writing member {$this->lastError}<br>\n";
-                var_dump( $this->_query( "SELECT rowid,* FROM Members"));
-                //if ( isset( $TEST) && $TEST != "PC")
                 setcookie( 'member', $token, $validDate, '/');    
-                $members = $this->_query( "SELECT * FROM Members WHERE token=:token;", [ ':token'=>$token]); 
             } else {
                 // Bad password
                 echo "Bad password $password ".print_r( $candidate)."<br>\n";
             }
         }       
         return $this->userId;
+    }
+
+    function logout() {
+        // Delete existing member cookies
+        $this->_query( "DELETE FROM Members WHERE userId=:userId;",[ ':userId'=>$this->userId]);
+        unset( $_SESSION[ 'user_id']);
     }
 
     /**
@@ -216,7 +237,10 @@ class SDBEE_access {
         $sql = "SELECT rowid, * FROM Docs WHERE name=:name;";
         $data = [ ':name' => $name]; 
         $candidates = $this->_query( $sql, $data);
-        if ( !count( $candidates)) return [];          
+        if ( !count( $candidates)) {
+            echo "No info for $name $this->lastError<br>";
+            return [];          
+        }
         $docInfo = $candidates[ 0];
         $docId = $docInfo[ 'rowid'];
         $this->_getAccess( 'D'.$docId, $docInfo);
@@ -336,7 +360,7 @@ class SDBEE_access {
         $existing = $this->_query( "SELECT * FROM CollectionLinks WHERE {$where};", $data);
         if ( !count( $existing)) {
             // Add a link
-            $data = [ 'targetId'=>$targetId, 'collectionId'=>$collectionId, 'isDoc'=>$isDoc,  'access' => $access];
+            $data = [ 'targetId'=>$targetId, 'isDoc'=>$isDoc, 'collectionId'=>$collectionId, 'access' => $access];
             $this->cache = [];
             return $this->_insert( 'CollectionLinks', $data, 'collectionId isDoc targetId access');
         } else {
@@ -354,7 +378,7 @@ class SDBEE_access {
         $existing = $this->_query( "SELECT * FROM UserLinks WHERE {$where};", $data);
         if ( !count( $existing)) {
             // Add a link
-            $data = [ 'targetId'=>$targetId, 'userId'=>$userId, 'isUser'=>$isUser, 'access' => $access];
+            $data = [ 'userId'=>$userId, 'isUser'=>$isUser, 'targetId'=>$targetId, 'access' => $access];
             $this->cache = [];
             return $this->_insert( 'UserLinks', $data, 'userId isUser targetId access');
         } else {
@@ -365,7 +389,7 @@ class SDBEE_access {
     }
 
     function addDocToCollection( $name, $collectionName, $data, $access=7) {
-        //Look for existing record with unique name
+        // Look for existing record with unique name
         $existing = $this->getDocInfo( $name);        
         if ( count( $existing)) return $this->_error( "Duplicate name $name in add Doc"); //$this->updateDocInfo( $existing[ 'rowid'], $data);
         // Get collection id
@@ -374,9 +398,9 @@ class SDBEE_access {
         $collectionId = $collection[ 'id'];
         $data[ 'name'] = $name;
         $data[ 'created'] = $data[ 'modified'] = time();        
-        var_dump( "doctocollection", $data);
         $r = $this->_insert( 'Docs', $data, 'name label type model description params prefix created modified state progress');
-        if ( (int) $r > 0) $this->_linkToCollection( (int) $r, !( $data[ 'type'] == UD_directory), $collectionId, $access);
+        $isDoc = ( $data[ 'type'] == UD_directory) ? 0 : 1;
+        if ( $r > 0) $this->_linkToCollection( $r, $collectionId, $isDoc, $access);
         return $r;
     }
 
@@ -385,23 +409,22 @@ class SDBEE_access {
         return $this->addDocToCollection( $name, $collectionName, $data, $access);
     }
 
-    function addToUser( $name, $userName, $data, $isUser = false, $access=7) {
+    function addToUser( $name, $userName, $data, $isUser = 0, $access=7) {
         //Look for existing record with unique name
         $existing = $this->getDocInfo( $name);        
         if ( count( $existing)) return $this->_error( "Duplicate name $name in add Doc"); //$this->updateDocInfo( $existing[ 'rowid'], $data);
         // Get collection id
         $user = $this->getUserInfo( $userName);
-        if ( !$user) return $this->_error( "Cannot add document $name to unknown collection $collectionName");
+        if ( !$user) return $this->_error( "Cannot add document $name to unknown user $userName");
         $userId = $user[ 'id'];
         $data[ 'name'] = $name;
-        $data[ 'created'] = $data[ 'modified'] = time();  
-        var_dump( "to user", $data);      
+        $data[ 'created'] = $data[ 'modified'] = time();        
         $r = $this->_insert( 'Docs', $data, 'name label type model description params prefix created modified state progress');
-        if ( (int) $r > 0) $this->_linkToUser( (int) $r, $isUser, $userId, $access);
+        if ( $r > 0) $this->_linkToUser( $r, $userId, $isUser, $access);
         return $r;
     }
 
-    function addUser( $name, $data) {
+    function addUser( $name, $data, $access=7) {
         //Look for existing record with unique name
         $existing = $this->getCollectionInfo( $name);
         if ( count( $existing)) $this->_error( "Duplicate name $name in add User");
@@ -411,6 +434,7 @@ class SDBEE_access {
         $parentId = $this->userId;
         $data[ 'name'] = $name;         
         $r = $this->_insert( 'Users', $data, 'name password doc-storage resource-storage service-gateway service-username service-password top-doc-dir home prefix key');
+        echo " Added user {$this->lastError} $r <br>";        
         if ( $r > 1 && $parentId) $this->_linkToUser( $r, $parentId, true, false, $access);
         return $r;         
    }
@@ -448,7 +472,7 @@ class SDBEE_access {
         $this->_query( $sal, $data);
         // If no other links delete target
         $collLinks = $this->_query( 'SELECT * FROM CollectionLinks WHERE targetId=:targetId', [ ':targetId'=>$target[ 'id']]);
-        $userLinks = $this->_query( 'SELECT * FROM UserLinks WHERE taregtId=:targetId', [ ':targetId'=>$target[ 'id']]);
+        $userLinks = $this->_query( 'SELECT * FROM UserLinks WHERE targetId=:targetId', [ ':targetId'=>$target[ 'id']]);
         if ( !$collLinks  AND !$userLinks) {
             // Delete Doc Or Collection
             $table = ( $isDoc) ? 'Docs' : 'Collections';
@@ -528,6 +552,7 @@ class SDBEE_access {
         foreach( $keyOrder as $key) {  
             if ( isset( $data[ $key]) || isset( $data[ ":{$key}"])) {    
                 $val = ( isset( $data[ $key])) ? $data[ $key] : $data[ ":{$key}"];
+                $key = str_replace( '-', '_', $key);
                 //if ( !$val) continue;
                 // Pre-process value
                 if ( $key == "password")  $val = password_hash( $val, PASSWORD_DEFAULT); 
@@ -537,6 +562,7 @@ class SDBEE_access {
                 $cols .= "$key,";
             } else {
                 // provide empty values as Insert with COLUMNS !working
+                $key = str_replace( '-', '_', $key);
                 $val = "";
                 if ( in_array( $key, [ 'type', 'modified', 'created', 'progress'])) $val = 0;
                 $qdata[ ":$key"] = $val;
@@ -578,6 +604,8 @@ names = [fields[1] for fields in desc]
      * @return integer Access
      */
     function _getAccess( $id, &$info=null) {
+        // Shortcut
+        // if ( $this->userId == 1) return 7;
         // Fill lookups (docs & collections) if not already done
         if ( !$this->cache) $this->_getAccessTables();
         $access = 0;
@@ -587,7 +615,7 @@ names = [fields[1] for fields in desc]
         if ( $info) {
             if ( $access) $info[ 'access'] = $access;
             else {
-                var_dump( $id, $this->cache);
+                // var_dump( $id, $info, $this->cache);
                 $info = []; // [ 'access' => 0, 'error' => 'No access'];
             }
         }
@@ -605,29 +633,40 @@ names = [fields[1] for fields in desc]
             $sql = "SELECT * FROM UserLinks WHERE userId=:userId;";
             $links = $this->_query( $sql, [ ':userId' => $this->userId]);
             // Full access by default
-            $access = 255;
+            $access = 7;
         } 
         // Loop through links
         for ( $linki=0; $linki < count( $links); $linki++) {
             $link = $links[ $linki];
             $linkId = $link[ 'targetId'];
-            $link[ 'access'] &= $access;
+            if ( is_string( $link[ 'access'])) $link[ 'access'] = (int) $link[ 'access'];
+            if ( is_NaN( $link[ 'access'] || !$link[ 'access'])) $link[ 'access'] = $access;
+            else $link[ 'access'] &= $access;
             $link[ 'path'] = $path;
             if ( isset( $link[ 'isUser']) && $link[ 'isUser']) {
                 // It's a user
                 $this->cache[ 'U'.$linkId] = $link;
+                // Check for links from this user
+                $sql = "SELECT * FROM UserLinks WHERE userId=:userId;";
+                $nextLinks = $this->_query( $sql, [ ':userId' => $linkId]);
+                if ( $nextLinks) $this->_getAccessTables( $nextLinks, $access & $link[ 'access'], $path.$this->_getUserNameById( $link[ 'targetId']));
             } else {
                 // It's a doc (or a collection)
                 $this->cache[ 'D'.$linkId] = $link;
                 // Get info
                 $name = $this->_getDocNameById( $link[ 'targetId']);
                 $path .= '/'.$name;
-                // Check for links collection
+                // Check for links from this collection
                 $sql = "SELECT * FROM CollectionLinks WHERE collectionId=:collectionId;";
                 $nextLinks = $this->_query( $sql, [ ':collectionId' => $linkId]);
                 if ( $nextLinks) $this->_getAccessTables( $nextLinks, $access & $link[ 'access'], $path);
             }
         }
+    }
+
+    function _getUserNameById( $id) {
+        $r = $this->_query( 'SELECT * FROM Users WHERE rowid=:id;', [ 'id'=>$id]);
+        return $r[0][ 'name'];
     }
 
     function _getDocNameById( $id) {

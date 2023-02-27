@@ -1,9 +1,25 @@
 <?php
 /**
  * sdbee-doc.php contains SDBEE_doc, a class to represent a SD bee (or Universal) document
+ * Copyright (C) 2023  Quentin CORNWELL
+ *  
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  * 
- * Tasks, Processes, Apps and model apps are all stored in json files. This class loads them to memory using the 
- * global $STORAGE variable and provides a set of methods to work on them.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/** 
+ * Tasks, Processes, Apps and model apps are all stored in json files. This class loads them to memory using an
+ * implementation of the SDBEE_storage class stored in the global $STORAGE variable and provides a set of methods to work on them.
  * When the class is destroyed, the file containing the document is updated if it has been modified.
  * Some information on the container is also stored in the access database. This module used the global variable 
  * $ACCESS to access (Rd/Wr) this information.
@@ -25,6 +41,7 @@ class SDBEE_doc {
     public $params;
     public $state="";
     public $progress = 0;
+    public $deadline = 0;
 
     private $doc;
     private $content;
@@ -40,6 +57,7 @@ class SDBEE_doc {
     private $modifications=[];
     private $nextEl = null;
     private $depths = [];
+    private $labelIndex = [];
 
     function __construct( $name, $dir="", $storage=null) {
         // Initialise
@@ -60,9 +78,12 @@ class SDBEE_doc {
             $this->type = $this->info[ 'type'];
             $this->model = $this->info[ 'model'];
             $this->description = $this->info[ 'description'];
-            $this->params = JSON_decode( $this->info[ 'params'], true);           
-            $this->state = $this->params[ 'state'];
-            if ( isset( $this->params[ 'progress'])) $this->progress = $this->params[ 'progress'];
+            $this->params = JSON_decode( $this->info[ 'params'], true);   
+            $this->state = $this->info[ 'state'];
+            $this->progress = $this->info[ 'progress'];
+            if ( !$this->state && isset( $this->params[ 'state'])) $this->state = $this->params[ 'state'];
+            //if ( isset( $this->params[ 'progress'])) $this->progress = $this->params[ 'progress'];
+            if ( isset( $this->info[ 'deadline'])) $this->deadline = $this->info[ 'deadline'];
         }
         // Fetch document
         $this->fetch();                      
@@ -77,6 +98,7 @@ class SDBEE_doc {
         $this->top[ 'nstyle'] = $this->model;
         $this->params[ 'state'] = $this->state;
         $this->params[ 'progress'] = $this->progress;
+        $this->params[ 'deadline'] = $this->deadline;
         $this->top[ 'textra']['system'] = $this->params;
         $this->content[ $this->name] = $this->top;
         if ( $this->modifiedInfo && $this->access) {
@@ -86,10 +108,10 @@ class SDBEE_doc {
             $this->info[ 'model'] = $this->model;
             $this->info[ 'description'] = $this->description;
             $this->info[ 'state'] = $this->state;
-            $this->info[ 'progress'] = $this->progress;            
+            $this->info[ 'progress'] = $this->progress;  
+            // $this->info[ 'deadline'] = $this->deadline;          
             $this->info[ 'params'] = JSON_encode( $this->params);
-            $this->access->updateDocInfo( $this->name, $this->info);
-            $this->content[ $this->name] = $this->top;            
+            $this->access->updateDocInfo( $this->name, $this->info);           
         }
         if ( count( $this->modifications) || $this->modifiedInfo) {
             $this->doc[ 'content']  = $this->content;            
@@ -110,11 +132,12 @@ class SDBEE_doc {
         $this->modifiedInfo = false;
     }
 
-    function sendToClient( $params=[]) {    
+    function sendToClient( $params=[ 'mode' => 'edit']) {    
         // Create UD with this as dataset
-        $context = [ 'mode'=>"edit", 'displayPart'=>"default", 'cacheModels'=>false, 'cssFile'=>false];
+        $context = [ 'mode'=>$params[ 'mode'], 'displayPart'=>"default", 'cacheModels'=>false, 'cssFile'=>false];
         $ud = new UniversalDoc( $context, $this->fctLib);
-        $ud->loadData( "_FILE_UniversalDocElement-{$this->name}--21-{$this->info[ 'id']}", $this);
+        if ( $params[ 'mode'] == "model") $ud->loadModel( $this->name, false);
+        else $ud->loadData( "_FILE_UniversalDocElement-{$this->name}--21-{$this->info[ 'id']}", $this);
         // Generate HTML
         $ud->initialiseClient();
     }
@@ -164,6 +187,7 @@ class SDBEE_doc {
             $this->params = $this->top[ 'textra'][ 'system'];
             if ( isset( $this->params[ 'state'])) $this->state = $this->params[ 'state'];
             if ( isset( $this->params[ 'progress'])) $this->progress = $this->params[ 'progress'];
+            if ( isset( $this->params[ 'deadline'])) $this->deadline = $this->params[ 'deadline'];
         }
         $this->index = Array_keys( $this->content);
         $this->next = 0;       
@@ -186,9 +210,17 @@ class SDBEE_doc {
             $this->nextEl = null;
             return $el;
         }
-        $el = $this->content[ $this->index[ $this->next]];
-        $textra = $el[ 'textra'];       
-        $el[ 'nname'] = $this->index[ $this->next++];
+        $lang = LF_env( 'lang');
+        $keep = false;
+        while ( !$keep && !$this->eof()) {
+            $el = $this->content[ $this->index[ $this->next]];
+            $textra = $el[ 'textra'];       
+            $el[ 'nname'] = $this->index[ $this->next++];
+            $elLang =  $el[ 'nlanguage'];
+            if ( in_array( $el[ 'stype'], [ UD_document, UD_model])) $keep = true;
+            elseif ( $el[ 'stype'] == UD_view) $keep = ( !$elLang || strpos( $elLang, $lang) !== false);            
+            $keep = true;
+        }
         if ( $jsonise) {
             // JSONise tcontent, textra, iaccessRequest
             if ( $el[ 'tcontent'] && !is_string( $el[ 'tcontent'])) {
@@ -218,8 +250,8 @@ class SDBEE_doc {
                 if ( $path == "DOC") {
                     // Use OID provided in request
                     $currentOID = LF_env( 'OID');
-                    // $path = '__FILE__UniversalDocElement-{$this->user[ 'home']--21-1'; // testing
-                    $path = '__FILE__UniversalDocElement-A0012345678920001_trialhome--21-1'; // testing
+                    $path = "__FILE__UniversalDocElement-{$this->user[ 'home']}--21-1"; // testing
+                    //$path = '__FILE__UniversalDocElement-A0012345678920001_trialhome--21-1'; // testing
                     //$path = "__FILE__UniversalDocElement-$currentOID--21-1";
                 }
             } else {
@@ -268,8 +300,27 @@ class SDBEE_doc {
         return $this->index[ $index];
     }
 
+    function existsElement( $elementId) { return isset( $this->content[ $elementId]);}
+
     function readElement( $elementId) {
-        return $this->_jsonResponse( $this->content[ $elementId]);
+        if ( isset( $this->content[ $elementId])) return $this->_jsonResponse( $this->content[ $elementId]);
+        return $this->_jsonResponse( [ 'msg'=>"No $elementId in {$this->name}"], 'KO');
+    }
+
+    function readElementByLabel( $label) {
+        if ( !$this->labelIndex) {
+            $saveNext = $this->next;
+            $this->next = 0;
+            $labelIndex = [];
+            while ( !$this->eof()) {
+                $el = $this->next();
+                if ( $el[ 'nlabel']) $labelIndex[ $el[ 'nlabel']] = $el[ 'nname'];
+            }
+            $this->labelIndex = $labelIndex;
+            $this->next = $saveNext;
+        }
+        if ( isset( $this->labelIndex[ $label])) return $this->readElement( $this->labelIndex[ $label]);
+        return $this->_jsonResponse( [ 'msg'=>"No element labelled $label in {$this->name}"], 'KO');
     }
 
     function doModifications( $modifications) {
@@ -294,6 +345,11 @@ class SDBEE_doc {
         foreach( $data as $key=>$value) {
             if ( in_array( $key, [ 'input_oid', 'form'])) continue;
             //if ( !isset( $element[ $key])) continue;
+            $value = urldecode( $value);
+            if ( in_array( $key, [ 'tcontent', 'textra', 'iaccessRequest'])) {
+                $jsonValue = JSON_decode( $value, true);
+                if ( $jsonValue) $value = $jsonValue;
+            }
             $element[ $key] = $value;
             // If name delete old elementId and write new
         }
@@ -301,15 +357,23 @@ class SDBEE_doc {
         $this->content[ $elementId] = $element;
         // Store modification
         $this->modifications[] = [ 'action'=>'update', 'elementId'=>$elementId, 'data'=>$data];
-        if ( 
-            ( $element[ 'stype'] == UD_document || $element[ 'stype'] == UD_model)
-            && isset( $data[ 'nstyle'])
-        ) {
-            // Change of model
-            $this->model = $data[ 'nstyle'];
-            echo "model set as {$this->model}";
-            $this->modifiedInfo = true;
-            //$this->initialiseFromModel(); // Or we could detect new at loading
+        // Check if modification affects top element (for access database update)
+        if ( $element[ 'stype'] == UD_document || $element[ 'stype'] == UD_model) {
+            // Top element is modified
+            $this->top = $element;
+            if ( isset( $data[ 'nstyle'])) {
+                // Change of model
+                $this->model = $element[ 'nstyle'];
+                echo "model set as {$this->model}";
+                //$this->initialiseFromModel(); // Or we could detect new at loading
+            }
+            if ( isset( $data[ 'textra']) && isset($element[ 'textra'][ 'system'])) {
+                // Parameters changed
+                $this->params = $element[ 'textra'][ 'system'];
+                if ( isset( $this->params[ 'state'])) $this->state = $this->params[ 'state'];
+                if ( isset( $this->params[ 'progress'])) $this->progress = $this->params[ 'progress'];
+            }   
+            $this->modifiedInfo = true;        
         }
         return $this->_jsonResponse( $element);
     }
@@ -367,11 +431,12 @@ class SDBEE_doc {
         return $this->_jsonResponse( $element);
     }
 
-    function _jsonResponse( $element) {
+    function _jsonResponse( $element, $result="OK", $msg = "") {
         $rep = $element;
         $rep [ 'you'] = ($this->user) ? $this->user[ 'id'] : 12;
         $rep["modifiableBy"] =  ($this->user) ? $this->user[ 'id'] : 12;
-        $rep[ 'result'] = "OK";
+        $rep[ 'result'] = $result;
+        if ( $msg) $rep[ 'msg'] = $msg;
         $rep[ 'users'] = [];
         $rep[ 'newElements'] = [];
         return JSON_encode( $rep);
@@ -436,7 +501,8 @@ class SDBEE_doc {
         // Check status
         if ( !$this->state == "new" || !$this->model) return;
         // Get model
-        $model = new SDBEE_doc( $this->model, 'models');
+        global $PUBLIC;
+        $model = new SDBEE_doc( $this->model, 'models', $PUBLIC);
         // Get views to copy
         $views = $model->params[ 'copyParts'];
         // Empty existing content except container and manage view (BVU0000000000000M_manage)
@@ -483,6 +549,8 @@ class SDBEE_doc {
         $this->params = array_merge( $this->params, $requiredValues);
         // Update status
         $this->state = "initialised";
+        $this->progress = 0;
+        $this->deadline = time() + ( ( isset( $this->params[ 'duration'])) ? $this->params[ 'duration'] * 86400 : 7 * 86400);
         $this->modifiedInfo = true;
         // Reset to top
         $this->next = 0;

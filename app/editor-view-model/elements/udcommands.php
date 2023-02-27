@@ -809,8 +809,8 @@ class UDcommands extends UDelement {
     $forgottenTest = LinksAPI::startTerm."Enter your first and last name".LinksAPI::endTerm;
     // Get icons
     $icons = LF_env( 'WEBDESK_images');
-    $idIcon = "/".$icons['Id'];
-    $lockIcon = "/".$icons['Lock'];
+    $idIcon = ( strpos( $icons[ 'Id'], "http") === false) ? "/".$icons['Id'] : $icons['Id'] ;
+    $lockIcon = ( strpos( $icons[ 'Lock'], "http") === false) ? "/".$icons['Lock'] : $icons['Lock']; 
     $stayConnected = LinksAPI::startTerm."Stay connected".LinksAPI::endTerm;
     // HTML for form
     // Forgot password action

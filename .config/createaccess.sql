@@ -8,7 +8,8 @@
 DROP TABLE IF EXISTS `Users`;
 CREATE TABLE `Users` (
   name text NOT NULL,               /* User's login */
-  password text NOT NULL,           /* User's password */
+  password text DEFAULT NULL,       /* User's password */
+  language text DEFAULT NULL,       /* User's language
   'doc-storage' text NOT NULL,      /*Name of storage to use for documents */
   'resource-storage' text,          /* Name of storage to use for private (not built-in) resources */
   'service-gateway' text,           /* Name of service gateway */
@@ -21,7 +22,8 @@ CREATE TABLE `Users` (
   
 );
 INSERT INTO `Users` VALUES
-    ('demo', 'CRYPT(demo)', 'private-storage', '', 'https://www.sd-bee.com/webdesk/', 'demo', 'demo', '', 'A0012345678920001_trialhome', 'ymbNpnZm8', '');
+    ('{admin-user}', 'CRYPT(admin-pass)', 'private-storage', '', 'https://www.sd-bee.com/webdesk/', '{adminUser}', '{adminPass}', '', 'A0012345678920001_trialhome', 'ymbNpnZm8', ''),
+     ('demo', 'CRYPT(demo)', 'private-storage', '', 'https://www.sd-bee.com/webdesk/', 'demo', 'demo', '', 'A0012345678920001_trialhome', 'ymbNpnZm8', '');
 
 /**
 * Members = remember me cookies
@@ -47,11 +49,12 @@ CREATE TABLE `Docs` (
   created int(11) DEFAULT NULL,
   updated int(11) DEFAULT NULL,
   state text DEFAULT NULL,
-  progress int(5) 
+  progress int(5),
+  deadline int(11)
 );
 INSERT INTO `Docs` VALUES
-    ('A0012345678920001_trialhome', 'trialhome', 1, 'none', 'trial dir', '', '', 0, 0, '', 0),
-    ('A0000002NHSEB0000M_Repageaf', 'trial doc', 2, 'ASS000000000301_System', 'test doc derived from repage test', '', '', 0, 0, '', 0);
+    ('A00123456789200001_trialhome', 'trialhome', 1, 'none', 'trial dir', '', '', 0, 0, '', 0, 0),
+    ('A0000002NHSEB0000M_Repageaf', 'trial doc', 2, 'ASS000000000301_System', 'test doc derived from repage test', '', '', 0, 0, '', 0, 0);
 
 /* UserLinks : userId, isUser, targetId, access, */
 DROP TABLE IF EXISTS `UserLinks`;
@@ -62,7 +65,7 @@ CREATE TABLE `UserLinks` (
   access int(11) DEFAULT NULL,
   PRIMARY KEY( userId, isUser, targetId)
 ) WITHOUT ROWID;
-INSERT INTO `UserLinks` VALUES ( 1, 0, 1, 7);
+INSERT INTO `UserLinks` VALUES ( 2, 0, 1, 7);
 
 /*  CollectionLinks : collectionId, isDoc, targetId, access*/
 DROP TABLE IF EXISTS `CollectionLinks`;

@@ -1,6 +1,20 @@
 <?php
 /**
  * sdbee-index.php -- Main end point for UD server
+ * Copyright (C) 2023  Quentin CORNWELL
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 require __DIR__.'/../../vendor/autoload.php';
@@ -13,7 +27,8 @@ include_once "sdbee-doc.php";
 include_once __DIR__."/../Basic/uddatamodel.php";
 include_once __DIR__."/../../ud-view-model/ud.php";
 
-//error_reporting( E_ERROR & ALL); // & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED);
+error_reporting( E_ERROR | E_WARNING); // & ~E_STRICT & ~E_DEPRECATED);
+//var_dump( error_reporting()); die();
 ini_set("allow_url_fopen", true);
 
 $TEST = false; //( strpos( $_SERVER[ 'HTTP_HOST'], "ud-server") === false);
@@ -56,7 +71,7 @@ if ( !$USER) {
     $DM = new DataModel( $PUBLIC);
     $home = "A0000001IPLHB0000M_Bienvenu2";
     $doc = new SDBEE_doc( $home, 'models', $PUBLIC);
-    $doc->sendToClient();
+    $doc->sendToClient( [ 'mode'=>'model']);
     session_write_close();
     exit();
 }
@@ -68,13 +83,25 @@ $DM = new DataModel( $STORAGE);
 
 // Run request
 $request = SDBEE_getRequest();
-//var_dump( $request); die();
+//if ( count( $request) >0) {var_dump( $request); die();}
 if ( count( $request)) {
     // Request has data
     $post = $request;       
     if ( isset(  $request[ 'logout'])) {
         // Clear session & member cookies
-        // redirect
+        if ( $ACCESS) $ACCESS->logout();
+        $USER = null;
+        // Home page or redirect
+        header("Location: /");
+        /*
+        LF_env( 'UD_accountLink', "API.switchView( 'connect');");
+        $DM = new DataModel( $PUBLIC);
+        $home = "A0000001IPLHB0000M_Bienvenu2";
+        $doc = new SDBEE_doc( $home, 'models', $PUBLIC);
+        $doc->sendToClient();
+        */
+        session_write_close();
+        exit();
     } elseif ( isset( $request[ 'post'])) {
         var_dump( $request); die();
     } elseif ( isset(  $request[ 'test'])) {
@@ -105,8 +132,34 @@ if ( count( $request)) {
                 echo '</pre>';
                 die();
             }
+        } elseif ( $test == "user") {
+            echo "Test creating a user <br>";
+            $request = [
+                'nname' => "TestUser8",
+                'tpasswd' => 'test',
+                'stype' => 1,
+                'tdomain' => 'Test'
+            ];
+            include ( "post-endpoints/sdbee-add-user.php");
+            $testUser = $ACCESS->getUserInfo( 'TestUser8');
+            exit();
+        } elseif ( $test == "service") {
+            echo "Test service call<br>";
+            //A0000002NHSEB0000M_Repageaf
+            $request = [
+                'nServiceRequest' => '{
+                    "service":"doc",
+                    "provider":"default",
+                    "action" :"getNamedContent",
+                    "dir" :"",
+                    "docName" : "A0000002NHSEB0000M_Repageaf",
+                    "elementName" : "Doc"
+                }'
+            ];
+            include ( "post-endpoints/sdbee-service-gateway.php");
+            exit();
         }
-        echo "no tests configurated";
+        echo "no test $test configurated";
     } elseif ( isset( $request[ 'act'])) {
         $act = $request[ 'act']; 
         if ( $act == 'fetch') {
@@ -130,6 +183,10 @@ if ( count( $request)) {
         } elseif ( $form == "INPUT_addApage" || $form == "INPUT_ajouterUnePage") {
             //echo "Adding a page"; var_dump( $request); die();
             include ( "post-endpoints/sdbee-add-doc.php");
+        } elseif ( $form == "INPUT_createUser") {
+            include ( "post-endpoints/sdbee-add-user.php");
+            //echo "Adding a user"; var_dump( $request); //die();
+            
         } /*elseif ( $form == "AddAPage" || $form == "AjouterUnePage") {
         //echo "Adding a page"; var_dump( $request); die();
         include ( "post-endpoints/sdbee-add-doc.php");
@@ -150,7 +207,7 @@ if ( count( $request)) {
     // 2DO use home default logic
     // LF_env( 'UD_accountLink', "API.switchView( 'connect');");
     $home =  "Basic model for home directories"; 
-    $doc = new SDBEE_doc( $home, 'models');
+    $doc = new SDBEE_doc( $home, 'models', $PUBLIC);
     $doc->sendToClient();
     //SDBEE_showModel( $home);
 }    
@@ -171,7 +228,7 @@ function SDBEE_getRequest() {
     $oidParts = explode( '--', $oid);
     $oidNameParts = explode( '-', $oidParts[0]);
     $name = $oidNameParts[ count( $oidNameParts) - 1];
-    $action = $uriParts[3];
+    $action = ( in_array( "logout", $uriParts)) ? "logout" : $uriParts[3];
     $actionMap = [
         'logout' =>[ 'logout' => 'yes'],
         'AJAX_listContainers' => [ 'collection'=>$name, 'act'=>'list'],
@@ -185,7 +242,11 @@ function SDBEE_getRequest() {
             $request[ $key] = $value;
         }
     }
-    $requestKeys = array( 'test', 'e', 'form', 'nServiceRequest', 'task', 'model', 'collection', 'act', 'input_oid', 'nname', 'nlabel', 'stype', 'nstyle', 'tcontent', 'thtml', 'nlang', 'textra', 'ngivenname', 'nParams', 'lastTime', 'ticks');
+    $requestKeys = array( 
+        'test', 'e', 'form', 'nServiceRequest', 'task', 'model', 'collection', 'act', 'input_oid', 
+        'nname', 'nlabel', 'stype', 'nstyle', 'tcontent', 'thtml', 'nlang', 'textra', 'ngivenname', 'nParams', 'lastTime', 'ticks',
+        'tpasswd', 'tdomain', '_stype', '_tdomain'
+    );
     foreach( $requestKeys as $key) {
         if ( isset( $_REQUEST[ $key])) $request[ $key] = $_REQUEST[ $key];
     }
@@ -195,7 +256,8 @@ function SDBEE_getRequest() {
 // Trials only
 function SDBEE_loadUser() {
     global $USER;
-    $USER = [ 'id' => 12, 'storageService'=>"gs", 'keyFile' => "require-version/local-config/gctest211130-567804cfadc6.json", 'source' => "gcstest211130", 'top-dir' => '', 'prefix'=>"ymbNpnZm8"];
+    $USER = [ 'id' => 12, 'storageService'=>"gs", 'keyFile' => "require-version/local-config/gctest211130-567804cfadc6.json", 
+    'source' => "gcstest211130", 'top-dir' => '', 'home'=>'A0012345678920001_trialhome', 'prefix'=>"ymbNpnZm8"];
     return $USER;
 }
 

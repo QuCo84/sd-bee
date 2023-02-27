@@ -89,7 +89,7 @@ class UDdocument extends UDelement
             $recycleClick = ( $this->shortOid) ? "$$$.deleteDoc('{$this->shortOid}');" : "";   
             // Build HTML
             // Grab content from the thumbnail/dir resource file
-            $html = UD_fetchResource( 'resources/thumbnails/dir.vue', 'html', 'bulma');
+            $html = UD_fetchResource( 'resources/thumbnails/dir.vue', $ext, 'html', 'bulma');
             $r .= "<div ";
             // $this->type=255; // to avoid change thumbnail styles
             $this->style = "card";

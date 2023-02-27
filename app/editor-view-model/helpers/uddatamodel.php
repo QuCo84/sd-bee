@@ -1,7 +1,13 @@
 <?php
  /**
+  * Adaptation class for ud-view-model that was initially built for SOILinks and uses some functions and classes.
   * Provide a DataModel class that UniversalDoc will use to exchange data with the server.
   */
+
+  define ( 'RD', 1);
+  define ( 'WR', 2);
+  define( 'DEL', 4);
+
  class DataModel
  {
     public $isMobile = false;
@@ -242,7 +248,16 @@
                 "{document}\n<script type=\"text/javascript\" lang=\"javascript\">\nwindow.onload = function(){\n{onload}\n};}\n"
             );
         }
-        // Translate
+        // Translate;
+        foreach( LF_env( 'UD_terms') as $term=>$value) {
+            // $value = LF_preDisplay("n", $value);
+            if ($term != "" && $value !="") { 
+                //if ( $lang != "EN" && strpos( $r, LinksAPI::startTerm.$term.LinksAPI::endTerm))
+                    $output = str_replace(LinksAPI::startTerm.$term.LinksAPI::endTerm, $value, $output);
+                //elseif ( $lang == "EN" && strpos( $r, LinksAPI::startTerm.$value.LinksAPI::endTerm))
+                //  $r = str_replace(LinksAPI::startTerm.$value.LinksAPI::endTerm, $term, $r);
+            }         
+        }
         $output = str_replace( [ '{!', '!}'], [ '',''], $output);
         echo $output;
         
@@ -302,17 +317,84 @@
     } // DataModel->newOID()    
 
     function getModelAsDataset( $model) {
+        global $PUBLIC;
+        if ( !$this->storage && !$PUBLIC) {
+            //echo "No storage";
+            return [];
+        }
+        $content = "";
+        $storage = $this->storage;
+        if ( $this->storage) $content = $this->storage->read( 'models', $model.".json");
+        if ( !$content && $PUBLIC) {
+            $content = $PUBLIC->read( 'models', $model.".json");
+            $storage = $PUBLIC;
+        }
+        if ( !$content) return [];
+        $dm = new DataModel( $storage);
+        $dm->load(  $this->convertJSONtoData( $content));
+        return $dm;
+    }
+
+    function getDocAsData( $name) {
         if ( !$this->storage) {
-            echo "No storage";
+            // echo "No storage";
             return [];
         }
         $content = $this->storage->read( 'models', $model.".json");
-        $dm = new DataModel( $this->storage);
-        $dm->load( UDfile::convertJSONtoData( $content));
-        return $dm;
+        $data =  $this->convertJSONtoData( $content);
+        return $data;
+    }
+
+    function convertJSONtoData( $json) {
+        $data = JSON_decode( $json, true);
+        if ( !$data) { var_dump( $json); return null;}
+        // Extract UD elements
+        $content = ( isset( $data[ 'content'])) ? $data[ 'content'] : $data;   
+        // Get filename from 1st element
+        $filename =  array_keys( $content)[0];
+        // Build data
+        $lang =  LF_env( 'lang');
+        $keep = false;            
+        $id = 100;
+        $data = [[ 'id', 'nname', 'nlabel', 'stype', 'tcontent', 'thtml', 'textra', 'nlanguage', 'iaccessRequest', 'tlabel']];
+        foreach( $content as $name => $record) {
+            $record[ 'id'] = $id;
+            $record[ 'nname'] = $name;
+            $record[ 'tlabel'] = "owns";
+            // JSONise tcontent, textra, iaccessRequest
+            if ( $record[ 'tcontent'] && !is_string( $record[ 'tcontent'])) {
+                $record[ 'tcontent'] = JSON_encode( $record[ 'tcontent']);
+            }
+            if ( $record[ 'textra'] && !is_string( $record[ 'textra'])) {
+                $record[ 'textra'] = JSON_encode( $record[ 'textra']);
+            }
+            if ( $record[ 'iacessRequest'] && !is_string( $record[ 'iaccessRequest'])) {
+                $record[ 'iacessRequest'] = JSON_encode( $record[ 'iaccessRequest']);
+            }
+            // Build pseudo OID
+            // 2DO use depth or useDepth in UD
+            $permissions = $record[ 'permissions'];
+            $oid = "_FILE_UniversalDocElement-{$filename}-_FILE_UniversalDocElement-{$name}--21-0-21-{$id}--AL|{$permissions}";
+            $record[ 'oid'] = $oid;
+            $elLang = $record[ 'nlanguage'];
+            // if ( $elLang) echo $record[ 'nname'].$elLang;
+            if ( in_array( $record[ 'stype'], [ UD_document, UD_model])) $keep = true;
+            elseif ( $record[ 'stype'] == UD_view) {
+                $keep = ( !$elLang || strpos( $elLang, $lang) !== false); 
+            } 
+            // Store record in data
+            if ( $keep) $data[] = $record;
+            // Increment pseudo id value
+            $id++;
+        }
+        return $data;
     }
  
+ 
  } // PHP class DataModel
+
+ // CONSTANTS
+ define ( 'TEST_ENVIRONMENT', false);
  
  // Fcts
 /**
@@ -334,9 +416,10 @@
     $r = $html;
     if (is_array($data)) {
       foreach( $data as $key => $value) {
-        if (!is_array($value)) {
+        if ( !is_array($value)) {
           if ($key <> "" && $key[0] == '%') $r = str_replace( "{".$key."}", $value, $r);
-          elseif (is_string($key) && !is_object($value)) $r = str_replace( "{".$key."}", LF_preDisplay( $key, $value), $r);
+          elseif (is_string($key) && !is_object($value)) $r = str_replace( "{".$key."}", $value, $r);
+          //elseif (is_string($key) && !is_object($value)) $r = str_replace( "{".$key."}", LF_preDisplay( $key, $value), $r);
         }
       }
     }
@@ -406,22 +489,31 @@
  
  function LF_env( $key, $value = null)
  {
-    global $env, $USER;
+    global $env, $USER, $CONFIG;
     if ( !$env) {
-        $env = [
-            'UD_version' => "-v-0-2-7",
-            'UD_rootPath' => '/upload/smartdoc/', // "https://www.sd-bee.com/upload/smartdoc/",
-            'UD_cache'=> 18,
-            'UD_sass' =>'node node_modules/sass/sass.js',
-            'lang' => "FR",
-            'UD_accountLink' => "window.open('/webdesk/UniversalDocElement--21--nname|Z00000010VKK80003S_UserConfig|CD|5/show/')",
-            "url" => "/",
-            "user_id" => $USER[ 'id']
-        ];
+        $env = $CONFIG[ 'App-parameters'];
+        if ( $USER) {
+            $env[ 'user_id'] = $USER[ 'id'];
+            $env[ 'is_Anonymous'] = false;
+        } else {
+            $env[ 'is_Anonymous'] = true;            
+        }
+        $env[ 'oid'] = "_FILE_UniversalDocElement-doc";
+        $env[ 'url'] = "/";
+        $env[ 'cache'] = 18;       
     }
+    if ( $key == 'UD_icons') $key = 'WEBDESK_images';
     if ( $value) $env[ $key] = $value;
     elseif ( isset( $env[ $key])) return $env[ $key];
-    else return "Call to LF_env with $key not handled";
+    else {
+        $lang = ( isset( $USER[ 'lang'])) ? $USER[ 'lang'] : $env[ 'lang'];
+        if ( isset( $env[ $key.'_'.$lang])) return $env[ $key.'_'.$lang];
+        else {
+            //echo "Call to LF_env with $key not handled"; //die();
+            return "";
+        }
+    }    
+   
  }
 
  

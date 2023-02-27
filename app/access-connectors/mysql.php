@@ -1,5 +1,8 @@
 <?php
-/*
+/**
+ * mysql.php -- SDBEE_access connector for using a MySQL database
+ */
+/* under development
 class SDBEE_access_mySql {
     function __construct( $params) {
         $dsn = "mysql:host={$params[ 'dbHost']};dbname={$params[ 'dbName']};";

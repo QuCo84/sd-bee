@@ -1,8 +1,20 @@
 <?php
 /**
- *  udelement.php contains UD_element, UD_directory, UD_document, UD_para, UD_title, UD_style, UD_break, UD_apiCalls, UD_JS, UD_nonEDitable, UD_zoneToFill, 
- *  UD_filledZone and UD_pdf classes. Includes all other derived classes.
+ *  udelement.php - parent class for all SD bee (UD) elements
+ *  Copyright (C) 2023  Quentin CORNWELL
+ *  
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 require_once __DIR__.'/../helpers/udutilities.php';
 require_once( 'uddirectory.php');
