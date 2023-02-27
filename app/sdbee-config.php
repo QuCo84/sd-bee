@@ -16,9 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
- * 
- * Requires composer require adhocore/json-comment
- */
+
 require_once __DIR__.'/../vendor/autoload.php';
 use Ahc\Json\Comment;
 

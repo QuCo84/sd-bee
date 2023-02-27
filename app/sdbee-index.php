@@ -24,8 +24,8 @@ include_once "sdbee-config.php";
 include_once "sdbee-storage.php";
 include_once "sdbee-access.php";
 include_once "sdbee-doc.php";
-include_once __DIR__."/../Basic/uddatamodel.php";
-include_once __DIR__."/../../ud-view-model/ud.php";
+include_once "editor-view-model/helpers/uddatamodel.php";
+include_once "editor-view-model/ud-view-model/ud.php";
 
 error_reporting( E_ERROR | E_WARNING); // & ~E_STRICT & ~E_DEPRECATED);
 //var_dump( error_reporting()); die();

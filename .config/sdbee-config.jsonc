@@ -80,14 +80,14 @@
         "UD_accountLink" : "window.open('/webdesk/UniversalDocElement--21--nname|Z00000010VKK80003S_UserConfig|CD|5/show/')",
         "url" : "/",
         "zip" : {
-            "default" : false,
+            "default" : false
             //"<model>" : false,
         },
         "archive" : {
             "storage" : "<storage-name>",
             "zip" : true,
             "days" : {
-                "default": 90,
+                "default": 90
                 //"<model>" : <nb of days>
             }
         },
