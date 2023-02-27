@@ -26,7 +26,9 @@
         "keyFile" : "<json credentials file for GCS>", 
         "bucket" : "<bucket>", 
         "top-dir" : "", 
-        "prefix" : "{autoPrefix_admin}"
+        "prefix" : "{autoPrefix_admin}",
+        "crypt-algo" :"DES",
+        "crypt-key" : ""
     },
     /**
      * private section - default values for where to store users' private files and how to protect
@@ -37,18 +39,38 @@
         "keyFile" : "<json credentials file for GCS>", 
         "bucket" : "<bucket>", 
         "top-dir" : "", // "users", 
-        "prefix" : "{autoPrefix_private}"
+        "prefix" : "{autoPrefix_private}",
+        "crypt-algo" : "DES",
+        "crypt-key" : ""
     },
-
+    /**
+     * archive section - where to store archived tasks
+     */
+     "archive-storage": {
+        "storageService" : "sftp",
+        "keyFile" : "<json credentials file for GCS>", 
+        "bucket" : "<bucket>", 
+        "top-dir" : "", // "users", 
+        "prefix" : "{autoPrefix_private}",
+        "crypt-algo" : "DES",
+        "crypt-key" : ""
+    },
+    /**
+     * access database section - where to store the databse used for controling access
+     */
     "access-database" : {
         "type" : "sqlite",
         "database" : "gs:system/sdbee-test2.db",
         "use-storage" : "admin-storage",            // set for file transfert to tmp
+        "crypt-algo" : "DES",
+        "crypt-key" : "",
         "homeModel" : "A0000001IPLHB0000M_bienvenu2",
         "admin-user" : "admin",
         "admin-pass" : "admin54!!"
     },
-
+    /**
+     * App parameters section - paramaters for the SD bee App
+     */
     "App-parameters" : {
         "UD_version" : "-v-0-2-7",
         "UD_rootPath" : "/upload/smartdoc/", // "https://www.sd-bee.com/upload/smartdoc/",
