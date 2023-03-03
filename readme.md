@@ -26,24 +26,22 @@ see LICENSE.md
 ARCHITECTURE
 
 The sdbee-index.php handles all requests and dispatches them to files in the endpoints directory according to the request received after setting up data access in line with parameters provided by the sdbee-config.jsonc file. Endpoints are :
-    Full page endpoints (GET)
-        / home  Display home page if not connected or main task directory if connected    
-        do     name  Execute a task
-        edit   name    Edit a process, app or app model
-    Get AJAX calls
-        collection List tasks in a container
-        fetch-element Return an element
-        changes Return a list of elements that have been changed
-        edit Display a task or model for editing
-        marketplace Display a selection of models
-    Post AJAX calls
-        modify-element (create, update, delete)
-        service-gateway Handle a call to a local or remote service
-        add-doc Add a new document (task, model)
-        add-user Add a new user
-        delete-user
-        delete-doc
-        
+    <ul>li>Full page endpoints (GET)</li>
+        <ul><li>/ home  Display home page if not connected or main task directory if connected</li>
+        <li>edit   name    Edit a process, app or app model</li></ul>
+    <li>Get AJAX calls</li>
+        <ul><li>collection List tasks in a container</li>
+        <li>fetch-element Return an element</li>
+        <li>changes Return a list of elements that have been changed</li>
+        <li>edit Display a task or model for editing</li>
+        <li>marketplace Display a selection of models</li></ul>
+    <li>Post AJAX calls</li>
+        <ul><li>modify-element (create, update, delete)</li>
+        <li>service-gateway Handle a call to a local or remote service</li>
+        <li>add-doc Add a new document (task, model)</li>
+        <li>add-user Add a new user</li>        
+        <li>TODO delete-user</li>
+        <li>TODO delete-doc</li>        
 
 All endpoint scripts access data via the sdbee-storage class and the sdbee-access setup by sdbee-index.  These in turn use classes defined in the storage-connectors and access-connectors to adapt to different environments. 
 
