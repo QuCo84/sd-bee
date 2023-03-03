@@ -1,6 +1,6 @@
 
 <p align="center>
-![Simply Done Bee](https://www.sd-bee.com/upload/O0W1b3s20_logosite.png)
+<img src="https://www.sd-bee.com/upload/O0W1b3s20_logosite.png" alt="Simply Done Bee" />
 SD bee - Simply Done
 Design, automate and deploy processes for digtla tasks
 </p>
