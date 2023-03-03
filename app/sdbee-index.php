@@ -42,7 +42,6 @@ session_start();
 
 // Configuration
 $CONFIG = SDBEE_getconfig();
-
 // ACCESS DATABASE CONNECTION
 try {
     $ACCESS = new SDBEE_access( $CONFIG[ 'access-database']);
@@ -50,6 +49,7 @@ try {
     $ACCESS->login( 'tusername', 'tpassword');
     // Get user info
     $USER = $ACCESS->getUserInfo();
+    // if ( !$USER[ 'prefix']) $USER = SDBEE_loadUser();
 } catch ( PDOException $ex) {
     if ( $TEST) echo "A PDO Error occured in main! ".$ex->getMessage()."<br>\n";
     // Fall back to cabled test user data for now
@@ -156,6 +156,11 @@ if ( count( $request)) {
             ];
             include ( "post-endpoints/sdbee-service-gateway.php");
             exit();
+        } elseif ( $test == "config") {
+            $taskName = 'Z00000010VKK800001_UserConfig';
+            $doc = new SDBEE_doc( $taskName);
+            $doc->sendToClient();
+            exit();
         }
         echo "no test $test configurated";
     } elseif ( isset( $request[ 'act'])) {
@@ -172,6 +177,8 @@ if ( count( $request)) {
         } elseif ( $act == "edit" || $act == "do" || $act == "show") {
             // Edit a task, processus or app
             include( "get-endpoints/sdbee-edit.php");
+        } else {
+            echo "No such action";
         }
     } elseif ( isset( $request[ 'form'])) {
         // FORM data
@@ -226,12 +233,15 @@ function SDBEE_getRequest() {
     $oidParts = explode( '--', $oid);
     $oidNameParts = explode( '-', $oidParts[0]);
     $name = $oidNameParts[ count( $oidNameParts) - 1];
-    $action = ( in_array( "logout", $uriParts)) ? "logout" : $uriParts[3];
+    if ( in_array( $name, [ 'AJAX_addDirOr', 'AJAX_addDirOrFile', 'logout'])) $action = $name;
+    else $action = ( in_array( "logout", $uriParts)) ? "logout" : $uriParts[3];
     $actionMap = [
         'logout' =>[ 'logout' => 'yes'],
         'AJAX_listContainers' => [ 'collection'=>$name, 'act'=>'list'],
         'AJAX_fetch' => [ 'task'=>$oidNameParts[ 1], 'element'=>$name, 'act'=>'fetch'],
-        'AJAX_getChanged' => [ 'act' => 'changes', 'task'=>$name]        
+        'AJAX_getChanged' => [ 'act' => 'changes', 'task'=>$name],
+        'AJAX_addDirOr' =>[ 'act' => 'ignore'],
+        'AJAX_addDirOrFile' =>[ 'act' => 'ignore'],
     ];
     // Map 
     if ( isset( $actionMap[ $action])) {
@@ -253,14 +263,13 @@ function SDBEE_getRequest() {
 
 // Trials only
 function SDBEE_testUser() {
-    global $USER;
-    $USER = [ 
+    $usr = [ 
         'id'=>2, 'name'=>'demo', 'language'=>'FR',
         'doc-storage'=>"private-storage",
         'top-dir'=>'', 'home'=>'A0012345678920001_trialhome', 
         'prefix'=>""
     ];
-    return $USER;
+    return $usr;
 }
 
 function SDBEE_service( ) {}
