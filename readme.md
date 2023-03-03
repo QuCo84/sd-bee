@@ -1,4 +1,9 @@
 
+<p align="center>
+![Simply Done Bee](https://www.sd-bee.com/upload/O0W1b3s20_logosite.png)
+SD bee - Simply Done
+Design, automate and deploy processes for digtla tasks
+</p>
 
 "SD bee" (hereafter the software) is a software program for delivering web pages and web apps for designing, automating and deploying processes required for digitalisation.
 
@@ -38,7 +43,7 @@ The sdbee-index.php handles all requests and dispatches them to files in the end
         <ul><li>form=INPUT_UDE_FETCH modify-element (create, update, delete)</li>
         <li>nServiceRequest=JSON service-gateway Handle a call to a local or remote service</li>
         <li>form=INPUT_addApage add-doc Add a new document (task, model)</li>
-        <li>form=INPUT_createUser add-user Add a new user</li>        
+        <li>form=INPUT_createUser add-user Add a new user</li>
         <li>TODO delete-user</li>
         <li>TODO delete-doc</li></ul>       
 
