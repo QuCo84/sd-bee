@@ -2,7 +2,7 @@
 <p align="center">
 <img src="https://www.sd-bee.com/upload/O0W1b3s20_logosite.png" alt="Simply Done Bee" /><br>
 SD bee - Simply Done<br>
-    <strong>Design, automate and deploy processes for digtal tasks</strong>
+    <strong>Design, automate and deploy processes for digital tasks</strong>
 </p>
 
 "SD bee" (hereafter the software) is a software program for delivering web pages and web apps for designing, automating and deploying processes required for digitalisation.
