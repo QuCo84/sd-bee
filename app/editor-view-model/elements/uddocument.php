@@ -8,6 +8,7 @@
  */
 class UDdocument extends UDelement
  {
+    public static $thumbTemplate = "";
     public  $title;
     private $subTitle;
     public $reload = false;
@@ -29,9 +30,9 @@ class UDdocument extends UDelement
         $model = $this->style;
         if ( $this->type == UD_docThumb || $this->type == UD_modelThumb) {
             $this->displayThumbnail = true;
-            $this->onclick = $datarow[ '_onclick'];
-            $this->link = $datarow[ '_link'];
-            if ( $datarow[ '_image']) $this->image = $datarow[ '_image'];
+            if ( isset( $datarow[ '_onclick'])) $this->onclick = $datarow[ '_onclick'];
+            if ( isset( $datarow[ '_link'])) $this->link = $datarow[ '_link'];
+            if ( isset( $datarow[ '_image'])) $this->image = $datarow[ '_image'];
             return;            
         } 
         /* handled by SDBEE_ doc in OS/cloud version
@@ -75,7 +76,7 @@ class UDdocument extends UDelement
             if ( !$thumbImage) {
                 // Use default
                 // $thumbImage = "/upload/W48H48_4U1wvUaUS_file.jpg";
-                $thumbImage = "/upload/smartdoc/resources/images/task.png";
+                $thumbImage = "https://www.sd-bee.com/upload/smartdoc/resources/images/task.png";
             }
             // Build link to document
             $viewId = "API.dom.getView( '{$this->name}').id";
@@ -89,13 +90,13 @@ class UDdocument extends UDelement
             $recycleClick = ( $this->shortOid) ? "$$$.deleteDoc('{$this->shortOid}');" : "";   
             // Build HTML
             // Grab content from the thumbnail/dir resource file
-            $html = UD_fetchResource( 'resources/thumbnails/dir.vue', $ext, 'html', 'bulma');
+            if ( !self::$thumbTemplate) self::$thumbTemplate = UD_fetchResource( 'resources/thumbnails/dir.vue', $filename, $ext, 'html', 'bulma');
             $r .= "<div ";
             // $this->type=255; // to avoid change thumbnail styles
             $this->style = "card";
             $r .= $this->getHTMLattributes( $active, false);
             $r .= ">";
-            $r .= LF_substitute( $html, [ 
+            $r .= LF_substitute( self::$thumbTemplate, [ 
                 '%image' => $thumbImage, 
                 '%title' => $this->title, 
                 '%content' => $this->subTitle, 

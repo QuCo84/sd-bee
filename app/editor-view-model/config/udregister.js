@@ -1,5 +1,5 @@
 /**
- * UD register is a JS file that defines parameters shared between the server & client side
+ * UD register is a JS file that defines constants shared between the server & client side
  *  
  * !!! IMPORTANT all data must be defined in JSON format, ie keys are placed between ""
  */
@@ -758,8 +758,9 @@ const UD_register = {
         "register" : {
             "store-labels-by-view":false
         },
-        "elementUpdateAction" : "",
-        "public-resource-storage": "https://www.sd-bee.com/upload/smartdoc/",
+        "elementUpdateAction" : "AJAX_update",
+        "required_modules" : [],
+        "public-resource-storage" : "https://www.sd-bee.com/upload/smartdoc/",
         "private-resource-storage": ""
     },
     "UD_services" : {

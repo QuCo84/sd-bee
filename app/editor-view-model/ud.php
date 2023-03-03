@@ -92,8 +92,8 @@ class UniversalDoc {
     // Static
     private static $elementClasses = []; 
     // General
-    private $cacheModels = true; // A model can disactivate caching 
-    private $cssFile = true;     // True to use a CSS file, false to use inline CSS. Modified by construct context variable
+    private $cacheModels = false; // A model can disactivate caching 
+    private $cssFile = false;     // True to use a CSS file, false to use inline CSS. Modified by construct context variable
     public  $dataModel = null;  // Instance of DataModel class for exchanging with Database (needed by UDutilities)
     public  $dm = null;         // Instance of DataModel = $LF if SOILinks
     public  $mode;              // editing mode : display (ie no editing), edit or model (ie not primary doc)
@@ -138,10 +138,11 @@ class UniversalDoc {
     public $pager = null;
     // Modules
     private $requiredModules = [ 
-        'ude-view/udecalc_css',  // Used by Styler tool
+        //'ude-view/udecalc_css',  // Used by Styler tool
         'modules/editors/udelist', // Manage has a list so always required
+        'modules/editors/udetable', // Loads badly on GCP if left to UDE
         'modules/editors/udedraw', // Loaded by UDE for new elements
-        'ude-view/udeideas'  // Under test
+       // 'ude-view/udeideas'  // Under test
     ]; // [ 'modules/connectors/udeconnector.js'];
     // User parameters for this document
     private $userParams = [];
@@ -283,10 +284,10 @@ class UniversalDoc {
         $public = ( $this->mode == "public"); 
         while ( !$dataset->eof()) {           
             if ( !($elementData = $dataset->next())) continue;  
-            // Trace
-            LF_debug( "Processing element id: {$elementData['id']} name: {$elementData['nname']} type:$type autoload:{$this->autoload}", "UD", 5);   
             // Get element's type
             $type = (int) $elementData['stype'];
+            // Trace
+            LF_debug( "Processing element id: {$elementData['id']} name: {$elementData['nname']} type:$type autoload:{$this->autoload}", "UD", 5);            
             // Add permissions and mode attributes( mode, doc type, lang, level) to element
             $this->addPermissionsToElement( $elementData);
             $this->addModeAttributesToElement( $elementData);
@@ -666,7 +667,9 @@ EOT;
         $tagAndClassInfo = UD_getInfoAsJSON();
         $historyData = LF_env( 'UD_history');
         $history = ( $historyData) ? implode( ',', $historyData) : '';  
-        $loadable = file_get_contents( __DIR__.'/../resources/loadable.json');
+        global $PUBLIC;
+        if ( isset( $PUBLIC) && $PUBLIC) $loadable = $PUBLIC->read( 'resources', 'loadable.json');
+        else $loadable = file_get_contents( __DIR__.'/../resources/loadable.json');
         // Icons
         $icons = LF_env( 'UD_icons');
         $preloadIcons = "";
@@ -701,10 +704,10 @@ EOT;
             //#2222007 "<div id=\"UD_tagAndClassInfo\">{$tagAndClassInfo}</div>".
             "<div id=\"UD_registerModifications\">".UD_getModifiedResources()."</div>".
             "<div id=\"UD_history\">{$history}</div>".
-            "<div id=\"UD_icons\">{$iconsJSON}</div>".
+           // "<div id=\"UD_icons\">{$iconsJSON}</div>".
             '<div id="UD_nextViewIds">'.JSON_encode( $this->pager->nextPartIds).'</div>'.
             '<div id="UD_userParams" ud_oid="'.$this->userParamsOID.'">'.JSON_encode( $this->userParams).'</div>'.
-            "<div id=\"UD_loadedIcons\">{$preloadIcons}</div>".
+           // "<div id=\"UD_loadedIcons\">{$preloadIcons}</div>".
             "<div id=\"UD_models\">{$this->models}</div>".
             "<div id=\"UD_spare\">{\"dummy\":\"dummy\"}</div>",
             'body/main/UD_resources'
@@ -1030,8 +1033,8 @@ EOT;
         }
         if ( isset( $system['pageBreak']) ) $this->pager->autoPageBreak = $system['pageBreak'];
         // Get version for data formats and include code to adjust of required
-        $dataVersion = LF_lov( $system, "dataVersion");         
-        if ( $dataVersion) include_once( __DIR__."/../modules/data-versions/uddataversion-{$dataVersion}.php");   
+        // $dataVersion = LF_lov( $system, "dataVersion");         
+        // if ( $dataVersion) include_once( __DIR__."/../modules/data-versions/uddataversion-{$dataVersion}.php");   
         // Get Views parameter = control of View menu
         // 2DO seperate param for edit & display modes or only for edit mode       
         /*if ( $this->mode != "edit" && isset( $system['views']) ) { $this->views = array_map( 'strtoupper', $system['views']);}*/

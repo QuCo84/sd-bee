@@ -1,5 +1,4 @@
-
- <?php
+<?php
  /* *******************************************************************************************
  *  uddirectory.php
  *
@@ -9,6 +8,7 @@
  *
  */
  class UDdirectory extends UDelement {
+    public static $thumbTemplate = "";
     public  $title;
     private $subTitle;
     private $displayThumbnail;
@@ -33,7 +33,7 @@
         if ( $this->type == UD_dirThumb) {
             // Element is a directory thumbnail
             $this->displayThumbnail = true;
-            $this->link = $datarow[ '_link'];
+           if ( isset( $this->link)) $this->link = $datarow[ '_link'];
             if ( !$this->link) {
                /*
                 * Display a thumbnail to a user's directory named with the dirName extra parameter
@@ -102,13 +102,13 @@
             // 2DO Delete block nothing for add New task
             // Build HTML
             // Grab content from the thumbnail/dir resource file
-            $html = UD_fetchResource( 'resources/thumbnails/dir.vue', $ext, 'html', 'bulma');
+            if ( !self::$thumbTemplate) self::$thumbTemplate = UD_fetchResource( 'resources/thumbnails/dir.vue', $filename, $ext, 'html', 'bulma');
             $r .= "<div ";
             // $this->type=255; // to avoid change thumbnail styles
             $this->style = "card";
             $r .= $this->getHTMLattributes( $active, false);
             $r .= ">";
-            $r .= LF_substitute( $html, [ 
+            $r .= LF_substitute( self::$thumbTemplate, [ 
                 '%image' => $thumbImage, 
                 '%title' => $this->title, 
                 '%content' => $this->subTitle, 

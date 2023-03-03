@@ -27,6 +27,7 @@ require_once( 'udtable.php');
 require_once( 'udgraphic.php');
 require_once( 'udtext.php');
 require_once( 'udstyle.php');
+require_once( 'udresource.php');
 require_once( 'udapicalls.php');
 require_once( 'udcommands.php');
 require_once( 'udjs.php');
@@ -384,8 +385,8 @@ class UDelement {
                 $elementName = $elementData[ 'nname'];
                 LF_debug( "Analysed composite element $elementName with JSON", "UD", 5);                 
             } else {
-                var_dump( $json, $elementData);
-                echo "OLd format {$elementData[ 'nname']}<br>\n";
+                //var_dump( $json, $elementData);
+                //echo "OLd format {$elementData[ 'nname']}<br>\n";
             }
             // Increment text index for all elements derived from text
             if ( $type >= UD_commands && $type <= UD_apiCalls) { $captionIndexes[ 'text']++;}

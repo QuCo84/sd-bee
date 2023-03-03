@@ -1,6 +1,6 @@
 <?php
  /**
-  * Adaptation class for ud-view-model that was initially built for SOILinks and uses some functions and classes.
+  * uddatamodel.php - Adaptation class for editor-view-model that was initially built for SOILinks and uses some functions and classes.
   * Provide a DataModel class that UniversalDoc will use to exchange data with the server.
   */
 
@@ -233,14 +233,20 @@
     {
         if ( $mode == 'page') {
             // Get layout
-            $layout = file_get_contents( __DIR__."/../sdbee-layout.html");
+            global $debug;
+            $layout = file_get_contents( __DIR__."/../config/sdbee-layout.html");
             // Substitute dynamic content
             $accountClick = LF_env( 'UD_accountLink'); 
             $output = str_replace( 
-                [ '{accountClick}', '{document}', '{style}', '{script}', '{onload}', '{resources}'],
-                [ $accountClick, self::$document, self::$style, self::$script, self::$onload, self::$resources],
+                [ '{accountClick}', '{document}', '{style}', '{script}', '{onload}', '{resources}', '{corelog}'],
+                [ $accountClick, self::$document, self::$style, self::$script, self::$onload, self::$resources, $debug],
                 $layout
             );            
+            $output = str_replace( 
+                [ '{%color0}', '{%color1}','{%color2}','{%color3}','{%color4}', '{%color5}', '{%color6}', '{%color7}','{%color8}','{%color9}'],
+                [ "rgba(208, 234, 241, 1)", "#fff8dc", "#ffffff", "#000000", "rgba( 51, 51, 51, 1)", "#eee7cb", "#333333", "#ddd6ba", "#fffadb", "#f3f3ca"],
+                 $output
+            );
         } elseif ( $mode == 'ajax') {
             $output = str_replace( 
                 [ '{document}', '{onload}'],
@@ -321,7 +327,7 @@
         if ( !$this->storage && !$PUBLIC) {
             //echo "No storage";
             return [];
-        }
+        }        
         $content = "";
         $storage = $this->storage;
         if ( $this->storage) $content = $this->storage->read( 'models', $model.".json");
@@ -448,9 +454,31 @@
 	return $r;
 }
 
- function LF_debug( $msg, $module, $level)
+ function LF_debug( $msg, $module, $level, $ctrl = "", $error_msg = "", $newLevel = 0)
  {
-
+    global $debug, $LF_debug_start_time;
+    if ($debug =="") $debug ="TIME&nbsp;&nbsp;&nbsp;&nbsp;MEM&nbsp;&nbsp;&nbsp;<span style=\"display:inline-block; width:10em;\">MODULE</span>TRACE<br />";
+    $msg_size = 500;
+    if ($LF_debug_start_time==0) $LF_debug_start_time = microtime(true);
+    $time = ((microtime(true) - $LF_debug_start_time));
+    $msg .= sprintf( "%1.5f %05d ", $time,  memory_get_usage()/1000);
+    $msg .= "<span style=\"display:inline-block; width:10em;\">".$context."</span>";  
+    if (is_string($variable)) $msgTxt .= substr($variable, 0, $msg_size);
+    elseif ($variable == NULL) $msgTxt .= "NULL";
+    else $msgTxt .= substr( print_r($variable, true), 0, $msg_size); 
+    if (strpos( $msgTxt, "tpassword") === false)
+    {
+        $debug .= $msg.$msgTxt."<br>";
+        $debugTxt .= "$context:$msgTxt\n";
+        $lastDebugMsg = $msgTxt;
+    }
+    else
+    {
+        // Hide password info
+        $p1 = strpos( $msgTxt, "tpassword");
+        $debug .= $msg.substr( $msgTxt, 0, $p1).strpos( $msgTxt, $p1+14)."<br>";
+        $debugTxt .= $context.substr( $msgTxt, 0, $p1).strpos( $msgTxt, $p1+14)."\n";
+    }    
  }
  
  // Horrible ! will be replaced by call to DataModel->permissions( oid)
@@ -492,9 +520,13 @@
     global $env, $USER, $CONFIG;
     if ( !$env) {
         $env = $CONFIG[ 'App-parameters'];
+        // User-specifc parameters
         if ( $USER) {
             $env[ 'user_id'] = $USER[ 'id'];
             $env[ 'is_Anonymous'] = false;
+            $usr32 = strToUpper( base_convert( $USER[ 'id'], 10, 32));
+            $usr32 = substr( "00000".$usr32, strlen( $usr32)); 
+            $env[ 'UD_accountLink'] = "window.open('?task=Z00000010VKK8{$usr32}_UserConfig')";
         } else {
             $env[ 'is_Anonymous'] = true;            
         }
@@ -537,26 +569,30 @@ function LF_fileServer() {
     $uriParts = explode( '/', $uri);
     array_shift( $uriParts);
     $topDir = $uriParts[0];
-    if ( !in_array( $topDir, ["upload", "tmp", "download"])) return false;
-    $fileParts = explode( '.', $uriParts[ count( $uriParts) - 1]);
+    if ( !in_array( $topDir, ["editor-view-model", "editor-view", "upload", "tmp", "download", "fonts", "favicon.ico"])) return false;
+    $filename = $uriParts[ count( $uriParts) - 1];
+    $fileParts = explode( '.', $filename);
     $ext = $fileParts[ count( $fileParts) - 1];    
-    if ( count( $fileParts) < 2) return false;
-    if ( $ext != 'js') {
-        header( 'Location: https://www.sd-bee.com/'.$uri);
-        return true;
+    if ( count( $fileParts) < 2) return false;    
+    if ( $ext != 'js' || !in_array( $filename, [ 'requireconfig.js', 'udajax.js'])) {
+        // Get from SD bee
+        //header( 'Location: https://www.sd-bee.com/'.$uri);
+        //return true;
+        $path = 'https://www.sd-bee.com/'.implode( '/', $uriParts); // LF_env( 'UD_rootPath')
+    } else {
+        // Available locally
+        //array_shift( $uriParts); // upload
+        //array_shift( $uriParts); // smartdoc
+        $path = implode( '/', $uriParts);
     }
-    array_shift( $uriParts); // upload
-    array_shift( $uriParts); // smartdoc
-    $path = implode( '/', $uriParts);
-    return LF_sendFile( $path);
+    return LF_sendFile( $path, $ext);
 }
 
-function LF_sendFile( $path) {   
-    $path = __DIR__.'/../../'.str_replace( [ '-v-0-2-7', '-v-0-2'], [ '', ''], $path);
-    //var_dump( $path, file_exists( $path)); die();
-    if ( file_exists( $path)) {
-        $dotParts = explode( ".", $path);
-        $ext = $dotParts[ LF_count( $dotParts) - 1];
+function LF_sendFile( $path, $ext) { 
+    if ( strpos( $path, "http") === false) $path = __DIR__.'/../../'.str_replace( [ '-v-0-2-7', '-v-0-2'], [ '', ''], $path);
+    if ( true || file_exists( $path)) {
+        //$dotParts = explode( ".", $path);
+        //$ext = $dotParts[ LF_count( $dotParts) - 1];
         // !!! important resource files cannot use hyphens (-)
         $filename = $pathParts[ LF_count( $pathParts) - 1];
         $filenameVersionPos = strpos( $filename, '-v-');
@@ -570,67 +606,76 @@ function LF_sendFile( $path) {
         switch ($ext) {
             case "jpg"  :
             case "jpeg" : 
-            header("Content-type: image/jpeg");
-            break;
+                header("Content-type: image/jpeg");
+                break;
             case "png"  :
-            case "gif"  :
-            header("Content-type: image/".$ext);
-            break;
+            case "gif"  :                
+                header("Content-type: image/".$ext);
+             break;
+            case "gif"  :                
+                header("Content-type: image/x-icon");
+                break;
             case "wav" :
-            header("Content-type: audio/x-wav");
-            break;
+                header("Content-type: audio/x-wav");
+                break;
             case "js" :
-            header("Content-type: application/javascript");
-            break;
+                header("Content-type: application/javascript");
+                break;
             case "pdf" :
-            header("Content-type: application/pdf; Content-Disposition:inline;");
-            break;
+                header("Content-type: application/pdf; Content-Disposition:inline;");
+                break;
             case "html" :
-            header("Content-type: text/html");
-            break;
+                header("Content-type: text/html");
+                break;
             case "css" :
-            header("Content-type: text/css");
-            break;
+                header("Content-type: text/css");
+                break;
             case "manifest" :
-            header("Content-type: text/cache-manifest");
-            break;
+                header("Content-type: text/cache-manifest");
+                break;
             case "mp4" :
-            header("Content-type: video/mp4");	
-            break;
+            case "webm" :
+                header("Content-type: video/{$ext}");	
+                break;
             case "ogg" :
-            header("Content-type: video/ogg");	
-            break;
+                header("Content-type: video/ogg");	
+                break;
             case "xml" :
-            header("Content-type: application/xml");	
-            // echo "www".$path.' '.$requestedFile; die();
-            break;
-
+                header("Content-type: application/xml");	
+                // echo "www".$path.' '.$requestedFile; die();
+                break;
+            case "ttf" :
+                header("Content-type: application/x-font-ttf");	
+                break;
+            case "otf" :
+                header("Content-type: application/x-font-opentype");	
+                break;
             default:
             header("Content-type: application/octet-stream");
             header('Content-Disposition: attachment; filename="' .$requestedFile. '"');
             break;
         }        
         /*if (!$fileContents)  header("Content-Length: ". filesize($path.$oid_str));
-        else*/ header("Content-Length: ". strlen($fileContents));
+        else*/ 
+        header("Content-Length: ". strlen($fileContents));
         //header("Last-Modified: ".gmdate('D, d M Y H:i:s \G\M\T', time() + 3600));
         /*
         // ETag 2DO keep version no discarded above
         $w = explode("_", $oid_str);
         if ($cache && count($w))  header("Etag: ".$w[0]."1");
         elseif ( count($w))  header("Etag: ".$w[0]."0");
-        if ($cache==0 /*|| $fileContents* /) {
+        */
+        if ( true /* $cache==0 || $fileContents*/) {
             $life =  15552000; // 180*24*60*60 
             header("Vary: Accept-Encoding");
             header("Cache-Control: max-age={$life}, public");
             header("Pragma:");
             header("Expires: ".gmdate('D, d M Y H:i:s \G\M\T', time() + $life));
-        }  
-        else*/
-        {
+        } else {
             //session_cache_limiter("nocache");
             /* header("Cache-Control: no-cache, must-revalidate"); 
-            header("Pragma: no-cache"); */
-            $life = ($ext == "js") ? 2 : 60; 
+            header("Pragma: cache"); */
+            $life = ($ext == "js") ? 2 : 60;
             header("Vary: Accept-Encoding");
             header("Cache-Control: max-age={$life}, public");
             header("Pragma:");
@@ -680,7 +725,7 @@ Class LinksAPI {
     );
     $swap_no = hexdec($w[12])&3;
     for ($i=0; $i<12;$i+=3) {
-      $r .= $swap[$swap_no][hexdec($w[$i])*4+ (int)hexdec($w[$i+1])/4];
+      $r .= $swap[$swap_no][hexdec($w[$i])*4+ (int) (hexdec($w[$i+1])/4) ];
       $r .= $swap[$swap_no][(hexdec($w[$i+1])&12)*4 + hexdec($w[$i+2])&3];
     }
     $r .= $swap[0][hexdec($w[12])*4+$nominatif*2];
@@ -702,8 +747,8 @@ Class LinksAPI {
  }
  
  $_TEST = false;
- include_once __DIR__."/../html.php";
- include_once __DIR__."/../LF_PHP_lib.php";
+ include_once "html.php";
+ include_once "LF_PHP_lib.php";
 
  // Auto-test
  if ( $argv[0] && strpos( $argv[0], "uddatamodel.php") !== false) {

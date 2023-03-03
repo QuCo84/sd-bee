@@ -1,9 +1,16 @@
 require.config({
-    baseUrl: 'sdbee/app',
+    baseUrl: 'https://www.sd-bee.com/upload/smartdoc',
     paths: {
         /* for compatability with OVH setup, dayjs & moment copied to vendor after installation with npm. moment-with-locales.min copied up to mai dir */
-        'moment': "node_modules/moment.js/moment-with-locales.min",
-        'ejs' : "node_modules/ejs/ejs.min"
+        'moment': "https://www.sd-bee.com/upload/smartdoc/node_modules/moment.js/moment-with-locales.min",
+        /*
+        'node_modules/dayjs/dayjs.min.js' : 'https://www.sd-bee.com/upload/smartdoc/node_modules/dayjs/dayjs.min.js',
+        'node_modules/dayjs/plugin/relativeTime.js' : 'https://www.sd-bee.com/upload/smartdoc/node_modules/dayjs/plugin/relativeTime.js', 
+        'node_modules/dayjs/plugin/customParseFormat.js' : 'https://www.sd-bee.com/upload/smartdoc/node_modules/dayjs/plugin/customParseFormat.js',
+        'node_modules/dayjs/plugin/weekOfYear.js' : 'https://www.sd-bee.com/upload/smartdoc/node_modules/dayjs/plugin/weekOfYear.js',
+        'node_modules/dayjs/locale/fr.js' : 'https://www.sd-bee.com/upload/smartdoc/node_modules/dayjs/locale/fr.js',
+        */
+        'ejs' : "https://www.sd-bee.com/upload/smartdoc/node_modules/ejs/ejs.min"
     },
     waitSeconds : 25
 });
@@ -38,25 +45,47 @@ function app_load( user, path) {
     window.UD_SERVER = ( path.indexOf( 'smartdoc_prod') > -1) ? "https://www.sd-bee.com" : "http://dev.rfolks.com";
     window.UD_SERVICE = "webdesk"; 
     // 2DO look for cloudshell in $_SERVER urm
-    // window.UD_SERVER = window.location.href.split('/')[0]
-    window.UD_SERVER = "ud-server-372110.oa.r.appspot.com"; //https://8080-cs-482142111769-default.cs-europe-west1-iuzs.cloudshell.dev/";
-    window.UD_SERVICE = ""; 
+    $url = window.location.href;
+    $urlParts = $url.split( '/');
+    window.UD_SERVER = $urlParts[ 0]+"//"+$urlParts[ 2]; //"https://ud-server-372110.oa.r.appspot.com"; //https://8080-cs-482142111769-default.cs-europe-west1-iuzs.cloudshell.dev/";
+    window.UD_SERVICE = "sdbee"; 
     window.version = version; 
     window.global = window;
     //require.config( { baseUrl :( path.indexOf( 'smartdoc_prod') > -1) ?  '/upload/smartdoc_prod': 'https://www.sd-bee.com/upload/smartdoc'});
-    require.config( { baseUrl: window.UDincludePath});
+    //require.config( { baseUrl: window.UDincludePath});
     require.onError = function(e) {
         console.log( e.stack);
         alert( "Loading error Please reload page " + e.message);
     };
-    modules = [
-        'node_modules/dayjs/dayjs.min', 
-        'node_modules/dayjs/plugin/relativeTime', 
-        'node_modules/dayjs/plugin/customParseFormat',
+    // !!! Uodate standard modules in udconstants.php when changing loaded modules under modules/    / *'ude-view/udecalc_css'+version,* /
+    /*
+    node_modules/dayjs/dayjs.min', 'node_modules/dayjs/plugin/relativeTime', 'node_modules/dayjs/plugin/customParseFormat',
+        //'node_modules/dayjs/locale/fr',
         'node_modules/dayjs/plugin/weekOfYear',
-        'moment', // has to be here until we configure chart.js to use dayjs or don't add v string
-        'editor-config/udregister'+version,
-        'editor-view/ude-min'+version,
+    */
+    modules = [
+        'node_modules/dayjs/dayjs.min', 'node_modules/dayjs/plugin/plugin/relativeTime', 
+        'node_modules/dayjs/plugin/customParseFormat', 'node_modules/dayjs/plugin/weekOfYear', //'node_modules/dayjs/locale/fr',
+        'https://www.sd-bee.com/upload/smartdoc/moment.js', // has to be here until we configure chart.js to use dayjs or don't add v string
+        //'config/udregister'+version,
+        'https://www.sd-bee.com/upload/smartdoc/require-version/udregister-v-0-3-1.js',
+        //'https://www.sd-bee.com/upload/smartdoc/browser/udajax-v-0-3-1.js',
+        'https://www.sd-bee.com/upload/ude-min-v-0-3-1.js',
+        '/editor-view/udajax.js',
+        /*
+        'debug/debug'+version,
+        'ud-view-model/udconstants'+version, 'ud-view-model/udregister'+version,
+        'ud-utilities/udjson'+version, 
+        'browser/domcursor'+version, 'browser/domvalue'+version, 'browser/dom'+version, 'browser/udajax'+version,
+        'ude-view/udeconstants'+version, 'ude-view/udecalc'+version, 
+        'ude-view/udemenu'+version, 'ude-view/udelayout'+version, 
+        'ude-view/udeclickhandler'+version, 'ude-view/ude'+version, 
+        'modules/editors/udetext'+version,
+        'api/apiset1'+version, 'api/apiset2'+version, 'api/udapi'+version, 'api/udmodule'+version, 'ud-utilities/udutilities'+version,
+        'ud-utilities/udresources'+version,'ud-utilities/udcontent'+version,
+        'modules/tools/zone'+version,
+        'ud-view-model/ud'+version,
+        */
     ];
     let led = document.getElementById( 'STATUS_busy');
     if (led) {
@@ -91,3 +120,4 @@ function app_load( user, path) {
         });
     }
 }
+

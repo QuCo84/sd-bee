@@ -10,11 +10,11 @@ THE SOFTWARE
 
 SD bee makes it easy to design and automate processes required for digitalisation and then to execute tasks based on these processes.
 
-The SD bee package provides a minimal PHP server program for setting up SD bee. It uses resources available on the sdb-bee.com website.
+The SD bee package provides a minimal PHP server program for setting up SD bee. It uses resources available on the sd-bee.com website.
 It has a modular design so it can be adapted to diffierent cloud environments.
 
 For modifiying Javascript code used on the client side, please see the "SD bee client" project on GitHub.
-For configuring and extending Services available to SD bee apps, please the "SD bee services"project on GitHub.
+For configuring and extending Services available to SD bee apps, please the "SD bee services" project on GitHub.
 
 For all enquires and assistance, please fill in the contact form at www.sd-bee.com (padlock or Start button)
 
@@ -51,31 +51,89 @@ Client-side programs and resources are initially setup to come from a public CDN
 
 Payable services are configured to use the sd-bee.com service where an account must be created and credits bought.
 
-For a minimal setup on GCP you will need :
-- a Google account with API access
-- a Google Cloud Storage bucket
+For a minimal setup on Google Cloud Platform (hereafter GCP), you will need :
+- a Google account with facturation setup
+- API access 
+- at least one Google Cloud Storage bucket
 
 For a minimal setup on a web server or trial setup on a PC, you will need :
 - an HTTP server setup
 - a directory where to place files
 
+DOWNLOAD
+
+To install the Software, from your main directory (contact in GCP) download from git using
+git clone https://github.com/QuCo84/sd-bee
+
+This will create a directory sd-bee and populate it with the program's files.
+Enter the sd-bee directory.
 
 CONFIGURATION
 
-The sdbee-config.json defines a set of configuration parameters :
+Before configurating, create a file .gitignore with .config so that your configuration changes are not overwritten if you pull an update of the Software.
+
+The .config/sdbee-config.json defines a set of configuration parameters :
 
 public - Where to find public resources
-   home
-   models
-   editor
-   ...
-admin - Where to find access database for controling 
-  storage  - URL where access database is stored
-  db type  - Type of DB used for access database
-  dbName   - Name of the access database
-private - where to find private user files protected by token 
-  pattern
-  crypt
+Leave the default settings to use the sd-bee CDN or sd-bee.com website for access to public resources.
 
+ACCESS DATABASE
+ 1) ON GOOGLE CLOUD STORAGE
+  To use Google Cloud Storage for the access database, 
+    save your credentials file in the .config directory in a file named sd-bee-gcs.json.
+    create a bucket, eg sd-bee-access, to store the access database
+      you can choose the region adapted to your use and do not give public access to this bucket.
+  Then configure the "admin-storage" section with :
+    "storage-service" : "gs",
+    "keyFile" :".config/sd-bee-gcs.json",
+    "bucket" : "sd-bee-access",
+    "top-dir" : "",
+    "prefix" : "",
+ 2) ON A SERVER
+    Create a directory to store system data such as the access database
+    Configure the "admin-storage" section with :
+      "storage-service" : "file",
+      "top-dir" : "<full path to the directory>", 
+      "prefix" : ""
 
-  
+USERS'S DATA
+  1) ON GOOGLE CLOUD STORAGE
+    create a bucket, eg sd-bee-users, to store users' documents
+     you can choose the region adapted to your use and do not give public access to this bucket.
+    Then configure the "private-storage" section with :
+      "storage-service" : "gs",
+      "keyFile" :".config/sd-bee-gcs.json",
+      "bucket" : "sd-bee-users",
+      "top-dir" : "",
+      "prefix" : ""
+  2) ON A SERVER
+    Create a directory to store system data such as the access database
+    Configure the "provate-storage" section with :
+      "storage-service" : "file",
+      "top-dir" : "<full path to the directory>", 
+      "prefix" : ""
+
+RUNNING LOCALLY
+If you wish to run a local test, some packages are required. Execute in the main directory :
+   composer require google/cloud-storage
+
+Create access to Google CLoud STorage (see bloww) and add the test task to your pribvate storage with the default prefix.
+
+Start local server with 
+php -S localhost:8080 index.php
+
+Use the "See on the web" button top right to visualise the local server.
+
+DEPLOYMENT
+
+1) ON GCP WITH APP ENGINE
+Access to Google CLoud Storage
+  Create a service account
+  Get JSON file from API/Identifiants and save in the .config file under the name "sd-bee-gcs.json".
+Deploy  
+  gcloud app deploy 
+
+2) ON A SERVER
+No configuration should be required
+
+KEYS

@@ -1,6 +1,5 @@
 <?php
 require_once 'udconstants.php';
-require_once __DIR__.'/../../../vendor/autoload.php';
 use ScssPhp\ScssPhp\Compiler;
 
 /*
@@ -41,12 +40,8 @@ function UD_getConstantsAsJSON()
 function UD_getExTagAndClassInfo( $exTagOrClass, $param = "") {
     global $UD_exTagAndClassInfo, $UD_wellKnown, $UD_parameters, $UD_changedResources;
     if ( !$UD_exTagAndClassInfo) {
-        /* DEPRECATED 220528
-        $json$json = file_get_contents( __DIR__.'/../ud-view-model/udconstants.json');
-        $UD_exTagAndClassInfo = JSON_decode( $json, true)[ 'UD_exTagAndClassInfo'];
-        */
         // Get JSON data loaded also in JS
-        $js = file_get_contents( __DIR__.'/../require-version/udregister.js');
+        $js = file_get_contents( __DIR__.'/udregister.js');
         $firstAcco = strpos( $js, '{');
         $jsonLen = strrpos( $js, '}', -10) - $firstAcco + 1; // 10 characters to avoid end of "if process is object" block
         $json = substr( $js, $firstAcco, $jsonLen);
@@ -367,7 +362,7 @@ function UD_autoFillResourcePath( &$path) {
     */     
     function UD_loadResourceFile( $fullPath, &$resources=null) {
         $html = $js = $style = $models = "";    
-        $r = UD_fetchResource( $fullPath, $fileExt); 
+        $r = UD_fetchResource( $fullPath, $filename,  $fileExt); 
         /*
         // Analyse file's full path
         $filenameParts = explode( '/', $fullPath);
@@ -417,14 +412,14 @@ function UD_autoFillResourcePath( &$path) {
         */
         // Process resource according to extension
         if ( $fileExt == "scss") {
-            // $cssFile = str_replace( '.scss', '.css', $fileUsed);
-            $cssFile = "css/".str_replace( '.scss', '.css', $filename);
-            if ( $cssFile && file_exists( $cssFile)) {
-                // Use already compiled CSS file
-                $css = file_get_contents( $cssFile);
-            } else {
-                // Convert SASS to CSS 
-                // 2DO compile wih scssphp for App engine
+            $builtinDir = UD_getParameter( 'public-resource-storage');
+            if( $buildinDir) $cssFile = "{$builtinDir}css/".str_replace( '.scss', '.css', $filename);
+            else $cssFile = __DIR__."/../css/".str_replace( '.scss', '.css', $filename);
+            $css = file_get_contents( $cssFile);
+            if ( !$css) {
+                // Convert SASS to CSS wih scssphp (compatible App engine)
+                // Conversion does not support import currently
+                // 2DO TRy setImportPaths( 'https...)
                 $css = UD_convertSASStoCSS( $r, str_replace( "{$filename}", '', $fileUsed));
             }
             // Load CSS
@@ -489,11 +484,13 @@ function UD_autoFillResourcePath( &$path) {
     *  Used by UD_processResourceSet() and some elements
     *  @param {string} $fullPath Full path to a folder
     */     
-    function UD_fetchResource( $fullPath, &$ext, $block="", $blockId="") {
+    function UD_fetchResource( $fullPath, &$filename, &$ext, $block="", $blockId="") {
         $r = "";          
         // Analyse resource path
         $filenameParts = explode( '/', $fullPath);
         $filename =  array_pop( $filenameParts);
+        // $fileParts = explode( '.', $filename);$fileParts[ LF_count( $fileParts) - 1];
+        $ext = array_pop( explode( '.', $filename)); 
         if ( !$filenameParts[0])  {  // Syntax /domain/path/filename.ext
             array_shift( $filenameParts);
             $domain = array_shift( $filenameParts);
@@ -502,11 +499,12 @@ function UD_autoFillResourcePath( &$path) {
             // !!Transition Some models were created with 'resources' in path
             if ( $filenameParts[0] != "resources")  $category = "resources/" . implode( '/', $filenameParts);
             $category = implode( '/', $filenameParts);
-        }
+        } else $category = $ext;
+        
         // Prepare candidates  
         $builtinDir = UD_getParameter( 'public-resource-storage');
-        $builtin = "{$builtinDir}/{$category}/{$filename}";
-        //$builtin =  __DIR__."/../{$category}/{$filename}";
+        if ( $builtinDir) $builtin = "{$builtinDir}{$category}/{$filename}";
+        else $builtin =  __DIR__."/../{$category}/{$filename}";
         $localFTP = LF_env( 'ftpPath');
         $local = ($localFTP) ? $local = "upload/{$localFTP}/{$filename}" : "";
         // Hook for extrenal storage - new architecture 230214
@@ -518,10 +516,11 @@ function UD_autoFillResourcePath( &$path) {
             $localCopyOfExternalFile = FILE_FTP_copyFrom( $fullPath, $domain);        
         }       
         */
-        // Get file contents according to candidate priority               
-        if ( file_exists( $builtin)) {
+        // Get file contents according to candidate priority       
+        $r = file_get_contents( $builtin);        
+        if ( $r) {
             // Priority is built-in resources
-            $r = file_get_contents( $builtin);
+            // $r = file_get_contents( $builtin);
         } elseif ( $local && file_exists( $local)) {
             // User user's local FTP space if no standard file found (SOILInks only)
             $r = file_get_contents( $local);
@@ -581,7 +580,8 @@ function UD_autoFillResourcePath( &$path) {
             'nname' => $filename,
             'stype' => UD_css,
             'tcontent' => $tcontent,
-            '_textContent' => explode( "\n", $css) // avoids analyseContent() call
+            '_textContent' => explode( "\n", $css),
+            '_analysis' => "OK" //!!! avoid analyseContent() call
         ];
         $cssElement = new UDstyle( $elementData, true);
         // Return processed CSS
@@ -832,10 +832,10 @@ function UD_autoFillResourcePath( &$path) {
     */ 
     function UD_convertSASStoCSS( $sass, $path=null) {
         // Adjust imports, assuming SASS comes from resource
-        //$sass = str_replace( "@import '../", "@import '../upload/smartdoc/resources/", $sass);
-        $compiler = new Compiler();
-        $compiler->setImportPaths($path);
+        //$sass = str_replace( "@import '../", "@import '../upload/smartdoc/resources/", $sass);        
         try {
+            $compiler = new Compiler();
+            $compiler->setImportPaths($path);
             $css = $compiler->compileString( $sass)->getCss();
         } catch( \Exception $e) {
             echo "$path $sass ".$e->getMessage()."<br>\n";

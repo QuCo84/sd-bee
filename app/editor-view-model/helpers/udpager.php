@@ -73,16 +73,17 @@ class UDpager
         if ( in_array( $type, [ UD_page])) { $force = true; $pageElement = false;}
         elseif ( $type == UD_view) {
             // Decide if view is displayable and needs paging
-            $this->skip = true;
+            $this->skip = false;
+            /*
             $partName = $elementData[ 'nlabel'] ? mb_strtoupper( $elementData[ 'nlabel']) : mb_strtoupper( $elementData[ '_title']);
             $mode = $elementData[ '_mode'];
             if ( $mode == "edit") {
                 $this->skip = false;
             } elseif ( $mode == "model") {
-                // No access to model unless specified in list of views to display
+                // No access to model unless specified in list of views to display or !copied
                 if ( LF_count( $this->views)) {         
                     $this->skip = !in_array( $partName, $this->views);
-                } 
+                } //elseif ( strpos( $style, "LAY_") !== false) $this->skip = false;
             } else { // if ( $this->ud->mode == "display") {
                 // Display mode - always display default,   and public mode              
                 if ( !LF_count( $this->views)) {
@@ -90,7 +91,7 @@ class UDpager
                 } else {         
                     $this->skip = !in_array( $partName, $this->views);
                 }
-            }
+            }*/
             if ( !$this->skip) {            
                 // Fix page height for this view
                 $this->currentPageHeight = 9000; // to force new page if paging

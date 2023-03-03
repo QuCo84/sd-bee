@@ -100,5 +100,8 @@ function SDBEE_addUser_addDoc( $name, $record, $userName, $parent="") {
     // Create children
     foreach ( $children as $childName => $childRecord) SDBEE_addUser_addDoc( $childName, $childRecord, $username, $name);
 }
-echo "ADD USER<br>";
-SDBEE_form_addUser( $request);
+
+if ($request) {
+    echo "ADD USER<br>";
+    SDBEE_form_addUser( $request);
+}

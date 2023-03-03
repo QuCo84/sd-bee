@@ -62,6 +62,7 @@ global $request;
 SDBEE_endpoint_collection( $request[ 'collection'],$request[ 'act']);
 
 function SDBEE_endpoint_collection_test() {
+    global $DM;
     // TEST Data
     $data = [ 
         [ 'nname', 'tlabel', 'stype', 'nstyle', 'tcontent', 'tparams'],

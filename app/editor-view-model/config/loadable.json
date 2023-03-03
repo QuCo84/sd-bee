@@ -1,0 +1,16 @@
+{
+    "animateViewOrZone": "resources/buildPage",
+    "demoTab": "resources/playtext",
+    "buildNewsletter": "resources/newsletter",
+    "testCampaign": "resources/newsletter",
+    "sendCampaign": "resources/newsletter",
+    "updateCampaignResults": "resources/newsletter",
+    "analyseCampaignResults": "resources/newsletter",
+    "taskDashboard" : "resources/taskman",
+    "nextTask": "resources/taskman",
+    "nextQuestion" : "resources/questions",
+    "questionFormPromise" : "resources/questions",
+    "inputTextPromise" : "resources/guidedtextinput",
+    "nextInputText" : "resources/guidedtextinput",
+    "testFct1" : "resources/testmod"
+}

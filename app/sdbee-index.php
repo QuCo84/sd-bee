@@ -17,7 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-require __DIR__.'/../../vendor/autoload.php';
 use Google\Cloud\Storage\StorageClient;
 
 include_once "sdbee-config.php";
@@ -25,7 +24,7 @@ include_once "sdbee-storage.php";
 include_once "sdbee-access.php";
 include_once "sdbee-doc.php";
 include_once "editor-view-model/helpers/uddatamodel.php";
-include_once "editor-view-model/ud-view-model/ud.php";
+include_once "editor-view-model/ud.php";
 
 error_reporting( E_ERROR | E_WARNING); // & ~E_STRICT & ~E_DEPRECATED);
 //var_dump( error_reporting()); die();
@@ -51,15 +50,14 @@ try {
     $ACCESS->login( 'tusername', 'tpassword');
     // Get user info
     $USER = $ACCESS->getUserInfo();
-    // if ( !$USER[ 'prefix']) $USER = SDBEE_loadUser();
 } catch ( PDOException $ex) {
     if ( $TEST) echo "A PDO Error occured in main! ".$ex->getMessage()."<br>\n";
     // Fall back to cabled test user data for now
-    $USER = SDBEE_loadUser();
+    $USER = SDBEE_testUser();
 } catch ( \Exception $ex) {
     if ( $TEST) echo "An Error occured in main! ".$ex->getMessage()."<br>\n";
     // Fall back to cabled test user data for now
-    $USER = SDBEE_loadUser();
+    $USER = SDBEE_testUser();
 }
 
 // Set up Public storage
@@ -254,10 +252,14 @@ function SDBEE_getRequest() {
 }
 
 // Trials only
-function SDBEE_loadUser() {
+function SDBEE_testUser() {
     global $USER;
-    $USER = [ 'id' => 12, 'storageService'=>"gs", 'keyFile' => "require-version/local-config/gctest211130-567804cfadc6.json", 
-    'source' => "gcstest211130", 'top-dir' => '', 'home'=>'A0012345678920001_trialhome', 'prefix'=>"ymbNpnZm8"];
+    $USER = [ 
+        'id'=>2, 'name'=>'demo', 'language'=>'FR',
+        'doc-storage'=>"private-storage",
+        'top-dir'=>'', 'home'=>'A0012345678920001_trialhome', 
+        'prefix'=>""
+    ];
     return $USER;
 }
 

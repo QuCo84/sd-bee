@@ -22,7 +22,7 @@ function SDBEE_endpoint_changes( $task) {
     $lastTime = (int) $_REQUEST['lastTime'] - 1;
     $doc = new SDBEE_doc( $task);
     $parents = [];
-    $changed = ['USER' => [ 'content'=>$USER[ 'id']]];
+    $changed = ['UD_user' => [ 'content'=>"me"]]; // 2DO $USER name
     while ( !$doc->eof())  {
         $element = $doc->next();
         if ( $element[ 'modified'] > $lastTime) {

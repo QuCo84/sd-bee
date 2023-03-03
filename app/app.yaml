@@ -1,0 +1,32 @@
+runtime: php74
+
+# Defaults to "serve index.php" and "serve public/index.php". Can be used to
+# serve a custom PHP front controller (e.g. "serve backend/index.php") or to
+# run a long-running PHP script as a worker process (e.g. "php worker.php").
+#
+# more info : https://cloud.google.com/appengine/docs/standard/reference/app-yaml?tab=php
+
+handlers:
+# Serve a directory as a static resource.
+#url /sdbee/([^-]+)-v-([0-9\-]+).(gif|png|jpg)$
+# static_files: \1.\3 #skipping version
+- url: /stylesheets
+  static_dir: stylesheets
+
+# Serve images as static resources.
+#- url: /upload/(.+\.(gif|png|jpg))$
+#  static_files: https://www.sd-bee.com/upload/\1
+#  upload: https://www.sd-bee.com/upload/\1
+
+#env_variables
+# MY_VAR: "my val"
+
+# Serve your app through a front controller.
+#- url: */AJAX_fetch/
+#  script server/app/get-endpoints/fetch.php
+
+#- url: */AJAX_update/
+#  script server/app/post-endpoints/sdbee-modify-element.php
+
+- url: .*
+  script: index.php

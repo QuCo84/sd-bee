@@ -375,6 +375,10 @@ class UDcommands extends UDelement {
    // 2DO Detect already done
    function FinsertTable( $id, $cssClass, $source, $columns=null, $headerRows=null, $data=null)
    {     
+    if ( function_exists( 'LF_fileServer')) {
+        // Function not required and not available for OS version
+        return [ 'content'=>"", 'js'=>""];
+    }
      // 2DO source = DOM events (JS filled) or OID (static)
      // Temp detect . in row and no data
      $jsFilled = false;
@@ -728,14 +732,15 @@ class UDcommands extends UDelement {
    function FaddTool( $set, $name, $call, $help="")
    {
         $js = "";
+        return ["content"=>"", "program"=>$js];
         $divs = ['title'=>$set.'-tool-title', 'selector'=>$set.'-tool-selector', 'zone'=>$set.'-tool-zone']; 
         $images = LF_env("WEBDESK_images");
         $imageMap = [ 'Repertoire' => "AddDir", 'Page' => "AddDoc", 'Modèle' => "AddModel"];      
         $name = str_replace( [ '&nbsp;', '&amp;nbsp;'],[ '', ''], $name);
         $imageName = $name;
         if ( isset( $imageMap[ $imageName])) $imageName = $imageMap[ $imageName];
-        if ($images[ $imageName]) $image = "/".FILE_getimageFile( $images[ $imageName], 64, 64); 
-        else $image = "/".FILE_getImageFile( $images[ "Generic tool icon"], 64, 64); 
+        $image = ( isset( $images[ $imageName])) ?  $images[ $imageName] : $images[ "Generic tool icon"];
+        $image = str_replace( '/upload/', '/tmp/W64H64_', $image);
         $name = LINKSAPI::startTerm.$name.LINKSAPI::endTerm;
         $js .= "ud.addTool('{$divs['selector']}', '$name', '$image', '$call', '$help');";
         //if (LF_env('req') == "AJAX")  

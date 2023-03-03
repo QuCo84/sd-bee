@@ -74,10 +74,13 @@ class SDBEE_access {
             if ( $r === false || !count( $r)) {
                 echo "Initialising database\n";
                 // Get instructions for initialisation
-                $sql = file_get_contents( '../.config/createaccess.sql');
+                $sql = file_get_contents( __DIR__.'/../.config/createaccess.sql');
                 // Substitue parameters
-                LF_substitute( $sql, $params);
-                $this->_load( $sql); 
+                LF_env( 'user_id', 1);
+                $params[ 'docName'] = UD_utilities::getContainerName();
+                $params[ 'token'] = LF_getToken();
+                $sql = LF_substitute( $sql, $params);
+                $this->_load( ".config/createaccess.sql", explode( "\n", $sql));
                 $this->helper->save();                 
             }
         }
@@ -291,7 +294,7 @@ class SDBEE_access {
                 $content[ '_link'] = "?task={$targetName}"; // !!!important force link used in dir listing
                 $contents[] = $content; 
             } else $contents[] = $info;
-        }
+        }        
         return $contents;
     }
 
@@ -707,13 +710,13 @@ names = [fields[1] for fields in desc]
      * @param string $filename Full file path
      * @return string Report of operations Completed and no KO = OK
      */
-    function _load( $filename) {
+    function _load( $filename, $lines=[]) {
         // Loop through each line and run query
         $q = '';
         $r = false;
         $report = "";
         // Read in entire file
-        $lines = file( __DIR__.'/'.$filename);
+        if ( !$lines) $lines = file( __DIR__.'/'.$filename);
         // Loop through each line
         $multilineComment = false;
         foreach ($lines as $line)
@@ -738,12 +741,12 @@ names = [fields[1] for fields in desc]
             }
             // Add this line to the current query
             $q .= trim( $line);
-            //echo $line."<br>\n";
             // If it has a semicolon at the end, run query
             if (substr( $line, -1, 1) == ';')
             {
                 // Pre-processing
-                if ( ( $p1 = strpos( $q, 'CRYPT('))) {
+                $safe = 5;
+                while ( ( $p1 = strpos( $q, 'CRYPT(')) && $safe--) {
                     $p2 = strpos( $q, ')', $p1);
                     $val = substr( $q, $p1+strlen( 'CRYPT('), $p2-$p1-strlen( 'CRYPT('));
                     $crypt = password_hash( $val, PASSWORD_DEFAULT);
@@ -764,20 +767,21 @@ names = [fields[1] for fields in desc]
             }
         }
         if ( !$this->helper->lastError) $report .= "Import completed\n"; 
-        $q = "INSERT INTO `LoadedFiles` VALUES (".time().", :filename, :report);";
-        $r = $this->_query( $q, [ ':filename'=>$filename, ':report'=>$report]);
-        echo $q.' '.$this->helper->lastError."<br>\n";  
+        $q = "INSERT INTO `LoadedFiles` VALUES ( :time, :filename, :report);";
+        $r = $this->_query( $q, [ ':time'=>time(), ':filename'=>$filename, ':report'=>$report]);
+        if ( $this->lastError) echo $q.' '.$this->lastError."<br>\n";  
         return $report;      
     }
 }
 
 // Auto-test
-if ( $argv[0] && strpos( $argv[0], "sdbee-access.php") !== false)
+if ( isset( $argv[0]) && strpos( $argv[0], "sdbee-access.php") !== false)
 {
     // CLI launched for tests
     session_start();
     echo "Syntax sdbee-access.php OK\n";
     include_once( 'editor-view-model/helpers/uddatamodel.php');
+    include_once( 'editor-view-model/ud.php');
     global $TEST;
     $TEST = "PC";
     include_once( 'sdbee-config.php');
@@ -785,7 +789,7 @@ if ( $argv[0] && strpos( $argv[0], "sdbee-access.php") !== false)
     $CONFIG = SDBEE_getConfig();
     $params = [
         'type' => 'sqlite',
-        'source' => 'sqlite:sdbee-test2.db',
+        'database' => 'sqlite:sdbee-test2.db',
     ];
     $access = new SDBEE_access( $params);
     if ( $access->state) echo "Connect : OK\n"; else echo "Connect : KO\n";
@@ -795,10 +799,11 @@ if ( $argv[0] && strpos( $argv[0], "sdbee-access.php") !== false)
         var_dump( $access->_query( $sql, [])); // [ ':collectionId' => $linkId]));
         die();
         */        
-        $_SESSION[ 'user_id'] = 1;
+        $_SESSION[ 'user_id'] = 2;
         $access->login( 'tusername', 'tpassword', [ 'tusername'=>'demo', 'tpassword'=>'demo']);
         $user = $access->getUserInfo();
         var_dump( $user);
+        exit();
         $doc = $access->getDocInfo( "A0000002NHSEB0000M_Repageaf");
         var_dump( $doc);
         $access->updateUserInfo( $user[ 'rowid'], [ 'credentials'=>"/var/www/core/gctest211130-567804cfadc6.json"]);

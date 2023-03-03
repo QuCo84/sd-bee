@@ -45,6 +45,7 @@ class SDBEE_doc {
 
     private $doc;
     private $content;
+    private $topName;
     private $index = [];
     private $next=0;
     private $info;
@@ -58,6 +59,7 @@ class SDBEE_doc {
     private $nextEl = null;
     private $depths = [];
     private $labelIndex = [];
+    private $nextKeep = true;
 
     function __construct( $name, $dir="", $storage=null) {
         // Initialise
@@ -68,6 +70,7 @@ class SDBEE_doc {
         $this->fctLib = $DM;
         $this->dir = ( $dir) ? $dir : $USER[ 'top-dir'];
         $this->name = $name;
+        $this->topName= 'A'.substr( $name, 1);
        // if ( $this->storage != $STORAGE && $dir != "models") var_dump( $name, $this->storage);
         // Check access
         if ( $this->access && $this->dir != "models") {
@@ -100,7 +103,7 @@ class SDBEE_doc {
         $this->params[ 'progress'] = $this->progress;
         $this->params[ 'deadline'] = $this->deadline;
         $this->top[ 'textra']['system'] = $this->params;
-        $this->content[ $this->name] = $this->top;
+        $this->content[ 'A'.substr( $this->name, 1)] = $this->top; // Z becomes A for doc content
         if ( $this->modifiedInfo && $this->access) {
             // Update access database
             $this->info[ 'label'] = $this->label;
@@ -166,12 +169,12 @@ class SDBEE_doc {
                 '%marketplace' => str_replace( '"', '\"', $marketplace),
                 '%time' => time()
             ];
-            $this->doc = JSON_decode( LF_substitute( file_get_contents( __DIR__.'/../.config/newDocument.json'), $data), true);            
+            $this->doc = JSON_decode( LF_substitute( file_get_contents( __DIR__.'/editor-view-model/config/newDocument.json'), $data), true);            
         }
-        $this->content = $this->doc[ 'content'];
-        $this->top = $this->content[ $this->name];
+        $this->content = $this->doc[ 'content'];        
+        $this->top = $this->content[ $this->topName];
         //$this->storage->write( $this->dir, $this->name.".json", JSON_encode( $this->doc, JSON_PRETTY_PRINT));
-        include_once __DIR__."/../html.php";
+        include_once "editor-view-model/helpers/html.php";
         $titles = HTML_getContentsByTag( $this->top[ 'tcontent'], "span"); 
         if ( !$titles) $titles = [  $this->top[ 'tcontent'], ''];
         if ( $this->label) $this->top[ 'nlabel'] = $this->label;
@@ -193,7 +196,7 @@ class SDBEE_doc {
         $this->next = 0;       
         // Initialise if needed        
         if ( $this->state =="new" && $this->model && $this->model != "ASS000000000301_System" && $this->model != "None") {
-            //echo "Initialse {$this->name} {$this->model}"; die();
+            //echo "Initialse {$this->name} {$this->model}";
             $this->initialiseFromModel();
         }
     }
@@ -202,7 +205,7 @@ class SDBEE_doc {
 
     }
 
-    function next( $jsonise=true) {
+    function next( $jsonise=true, $filterLang = true) {
         if ( $this->next >= count( $this->index)) return [];
         if ( $this->nextEl) {
             // Return special element, prepared during last next
@@ -211,15 +214,26 @@ class SDBEE_doc {
             return $el;
         }
         $lang = LF_env( 'lang');
-        $keep = false;
-        while ( !$keep && !$this->eof()) {
-            $el = $this->content[ $this->index[ $this->next]];
-            $textra = $el[ 'textra'];       
-            $el[ 'nname'] = $this->index[ $this->next++];
+        // Read next element
+        $el = $this->content[ $this->index[ $this->next]];
+        $textra = $el[ 'textra'];       
+        $el[ 'nname'] = $this->index[ $this->next++];
+        if ( $filterLang)  {
+            // Filter if not right language
             $elLang =  $el[ 'nlanguage'];
-            if ( in_array( $el[ 'stype'], [ UD_document, UD_model])) $keep = true;
-            elseif ( $el[ 'stype'] == UD_view) $keep = ( !$elLang || strpos( $elLang, $lang) !== false);            
-            $keep = true;
+            $type = (int) $el[ 'stype'];
+            if ( in_array( $type, [ UD_document, UD_model])) $this->nextKeep = true;
+            elseif ( $type == UD_view) $this->nextKeep = ( $elLang == "" || strpos( $elLang, $lang) !== false);  
+            // Move ahead to next non filtered element
+            while ( !$this->nextKeep && !$this->eof()) {
+                $el = $this->content[ $this->index[ $this->next]];
+                $textra = $el[ 'textra'];       
+                $el[ 'nname'] = $this->index[ $this->next++];
+                $elLang =  $el[ 'nlanguage'];
+                $type = (int) $el[ 'stype'];
+                if ( in_array( $type, [ UD_document, UD_model])) $this->nextKeep = true;
+                elseif ( $type == UD_view) $this->nextKeep = ( $elLang == "" || strpos( $elLang, $lang) !== false);           
+            }
         }
         if ( $jsonise) {
             // JSONise tcontent, textra, iaccessRequest
@@ -265,6 +279,7 @@ class SDBEE_doc {
                 'tcontent'=> "JS\n$$$.updateZone('{$path}/AJAX_listContainers/updateOid|off/', '{$el['nname']}');\n\n\n"    
             ];
         }        
+        //var_dump( $el);
         return $el;
     }
 
@@ -507,7 +522,7 @@ class SDBEE_doc {
         $views = $model->params[ 'copyParts'];
         // Empty existing content except container and manage view (BVU0000000000000M_manage)
         $this->next = 1;
-        $content = [ $this->name => $this->content[ $this->name]];
+        $content = [ $this->topName => $this->content[ $this->topName]];
         $copy = false;
         while( !$this->eof()) { 
             $el = $this->next();        
@@ -526,7 +541,7 @@ class SDBEE_doc {
         // Copy model content to $content
         $copy = false;
         while( !$model->eof()) {        
-            $el = $model->next( false);
+            $el = $model->next( false, false);
             $type = $el[ 'stype'];
             if ( $type == UD_model) continue;
             if ( $type == UD_view) {

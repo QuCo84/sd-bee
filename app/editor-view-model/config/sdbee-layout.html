@@ -1,0 +1,636 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<script langage="JavaScript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1" />
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<!--- <link href="/tmp/cssCache/03a049f35378ac0bf029a38ac85529db_A000000000101000M_basicDir.css" rel="stylesheet"> -->
+<!--- <link rel="icon"  type="image/x-icon" href="/favicon.ico" /><link rel="shortcut_icon"  type="image/x-icon" href="/favicon.ico" /> -->
+<script>
+function TIPS_manager( tipName="", position={x:100, y:100, from:"bottomLeft"}, duration = 2000, elementsToHighlight=[])
+{
+     let tipDiv = document.getElementById( "tips");
+     let tips = tipDiv.childNodes;
+     if ( tipName == "")
+     {
+     	  // Clear previous tip
+     	  if ( window.TIPS_name)
+     	  {
+     		let tip = document.getElementById( window.TIPS_name);    	  
+     	     	tip.classList.add( "hidden");
+     	     	window.TIPS_name = "";
+        	tipDiv.style.display = "none";
+     	  }
+     	  if ( window.TIPS_highlight)
+     	  {
+     	      for ( let highli=0; highli < window.TIPS_highlight.length; highli++)
+     	         API.switchHighlight( TIPS_highlight[ highli]);
+     	      /*
+     	      {
+     	          let element = document.getElementById( TIPS_highlight[ highli]);
+     	          element.classList.remove( "highlight");     	          
+     	      }*/
+     	  }
+     	  if (typeof TIP_TO != "undefined" && TIP_TO) { clearTimeout( TIP_TO); TIP_TO = 0};
+     }
+     else if ( tipName)
+     {
+        let tip =  document.getElementById( tipName);
+        if ( tip) {
+          switch ( position.from)
+          {
+            case "bottomLeft" :
+                tipDiv.style.left = position.x+"px"; 
+                tipDiv.style.bottom = position.y+"px";
+                break;
+          }
+          tip.classList.remove( "hidden");
+          tipDiv.style.display = "block";        
+          if ( duration) TIP_TO = setTimeout( function() {TIPS_manager();}, duration);
+          for (  let highli=0; highli < elementsToHighlight.length; highli++) {
+      	    API.switchHighlight( elementsToHighlight[ highli]);
+      	  }
+     	  window.TIPS_name = tipName;
+     	  window.TIPS_highlight = elementsToHighlight;
+     	}
+     }
+} // TIPS_manager()
+{script}
+</script>
+
+<style>
+  /* Layout */
+  body { 
+    margin:0;
+   box-sizing: content-box; /* required for bulma and maybe other CSS libs as was designed with this default value */
+  }
+  #main {
+    min-width: 300px;
+    max-width: 1900px;
+    width:100%;
+    margin:0px auto;
+    font-size:14pt;
+  }
+ 
+  @font-face {
+ 	font-family: "Rajdhani";
+ 	src: url("/fonts/Rajdhani-Regular.ttf") format("truetype"),
+ 	url("/fonts/Rajdhani-Bold.ttf") format("truetype"),
+        
+        url("/fonts/Rajdhani-SemiBold.ttf") format("truetype"),
+        url("/fonts/Rajdhani-Light.ttf") format("truetype");
+  }
+  @font-face {
+ 	font-family: "Now";
+ 	src: url("/fonts/Now-Regular.otf") format("opentype"),
+ 	url("/fonts/Now-Bold.otf") format("opentype"),
+        
+        url("/fonts/Now-Medium.otf") format("opentype"),
+        url("/fonts/Now-Light.otf") format("opentype");
+  }
+  #header { 
+    width:100%; 
+    height: 50px;
+    background-color:white;
+    position:sticky;
+    top:0px;
+    padding:10px 0px 10px 0px;
+    z-index:200;
+    font-family:Rajdhani;
+  }
+  #header div:not(.hero-body){ 
+    float: left; 
+    margin : 0px 0.5% 0px 0.5%;
+    padding: 0px 0.7% 0px 0.7%;
+    min-width: 6%;
+    width:10%;
+  }
+  #header div.rightIcon{ 
+    float: right; 
+    margin : 0px 0.5% 0px 0.5%;
+    padding: 0px 0.7% 0px 0.7%;
+    min-width: 3%;
+    width:3%;
+  }
+  
+  #header span{
+    line-height: 50px;
+  }
+ 
+  #banner {
+    text-align: center;
+    vertical-align: middle;
+    height: 100%;
+    width: 47% !important; 
+    font-size:1.4em;
+    font-weight:bold;
+    background-color: {%color0};
+    color: {%color4};
+    white-space:pre-wrap;
+  }  
+  #menu {
+    text-align: center;
+    vertical-align: middle;
+    height: 100%;
+    width: 72% !important; 
+    font-weight:bold;
+    white-space:pre-wrap;
+    overflow : hidden;
+    overflow-wrap:anywhere;
+    line-height:1em;
+  }
+  #menu span.mainMenu { 
+      max-width:27%; 
+      font-family:Now;
+      font-size:0.9em; 
+      padding:0 0px 0 5%;
+      display:inline-block;
+      float:left;
+      line-height:1.2em;
+  }
+  #menu span.mainMenu a { text-decoration:unset; color:unset;}
+  #menu span.mainMenu.disactivated { color:rgba( 136, 136, 136, 1);}
+    
+  @media screen and (max-width:1280px) {
+      #menu span.mainMenu {font-size:0.7em;}
+  
+  }
+  
+  
+  #content {
+    width: 100%;
+    display: block;
+    height: 820px;
+    position: relative;
+    /*background-image: url('/upload/ym0MIM1Mu_backgrounds.png');*/
+    background-attachment:fixed;
+    background-position:center;
+    background-repeat: repeat;
+    background-size:auto;
+
+  }
+  #leftColumn {
+    width: 0px;
+    max-width: 350px;
+    padding-left: 15px;
+    height: 100%;
+    background-color: {%color1};
+    color:{%color4};
+    font-size: 0.8em;
+    /*float:left;*/
+    position: absolute;
+    opacity: 95%;
+    top: 0px;
+    left: 0px;
+    z-index : 140;
+    overflow-x: hidden;
+  }
+  
+  #leftColumn h1 {
+    text-align: center;
+  }
+  #leftColumn a {
+    text-decoration : none;
+    color: {%color4};
+  }
+  div.toolset-title{
+    background-color: {%color5};
+    color: {%color6};
+    text-align:center;
+    width:100%;
+    display: none;
+  }  
+  div.toolset-selector {
+    display: grid;
+    grid-template-columns: repeat( 2, 1fr);
+    width:100%;
+  }
+  div.tool-icon{
+    display: inline-grid;
+    min-width: 80px;
+    min-height : 80px;
+    text-align: center;
+  }  
+  div.tool-icon.selected{
+    background-color:{%color7};
+  }
+  .tool-zone{
+    margin-top:20px;
+  }
+  #content div .closed{ width:20px;}
+  
+  #middleColumn {
+   /* flex-grow:100;
+    float:left;*/
+    height:100%;
+    Width :100%;
+    /* background-color:{%color0};*/
+    position: absolute;
+    left:0px;
+    top:0px;
+  }
+  #scroll { height:100%; overflow-y:scroll;width:98%;}
+  #rightColumn
+  {
+    width:0px;
+    max-width: 350px;
+    padding-left:15px;
+   /* float:right;*/
+    height:100%;
+    background-color: {%color1};
+    color:#050505;
+    position: absolute;
+    right:0px;
+    top:0px;
+    z-index: 150;
+    overflow-x: hidden;
+
+  }
+  #rightColumn h1 {
+    text-align: center;
+  }
+  #rightColumn a {
+    text-decoration : none;
+    color: {%color4};
+  }
+  #footer {
+    width: 100%;
+    min-height : 30px;
+    background-color: rgba( 51, 51, 51, 1);
+    color : rgba( 208,234,241,1);
+    font-size:0.7em;
+    position:sticky;
+    bottom:0px;
+    z-index:200;
+  }
+  
+  #footer a {
+    color : inherit;
+    text-decoration:inherit;
+  }
+  
+  #footer span.footerItem {
+    vertical-align:middle;
+    text-align:center;
+    display:inline-block;
+    width:8em;    
+  }
+  span.footerItem.right { margin-left:20px;float:right;}
+  span.footerItem.left { margin-top: 0.4em; margin-right:20px;float:left;}
+ 
+  
+  #UD_resources {
+    display:none;
+  } 
+  #floating-menu {
+     display: none;
+     position :  absolute;
+     z-index : 100;
+     top : 0px;
+     left : 0px;
+     width : 10px;
+     height : 15px;
+     font-size:0.8em;
+     transition : opacity 1s;
+     border-top: 1px solid rgb( 20,20,20);
+     margin:0;
+     padding:0;
+     pointer-events:none;
+  }
+  .menu-on{ box-shadow:0 0.5em 1em -0.125em rgb(10 10 10 / 10%), 0 0px 0 1px rgb(10 10 10 / 2%);}
+  
+  #fmenu { height:15px; margin:-7px 5px 0 5px; pointer-events:all;}
+  #fconfig { display:none;}
+  
+  #system-message-popup {
+     display:none;
+     position: absolute;
+     top : 25%;
+     left : 30%;
+     width: 40%;
+     height: 50%;
+     background-color : rgba( 255, 255, 255, 1);
+     color : rgb( 5, 5, 5);
+     z-index:200;
+  }
+  #system-message-popup.show { display: block;}
+  
+  #leftColumn.floating-menu div { margin-top:20px; clear:both;}
+  #leftColumn.floating-menu #MenuCopy { border:1px solid black; min-height:50px; font-size:1.2em;}
+  
+  .leftSmallButton {
+    color: rgb( 50, 50, 50); /*#aaaaaa;*/
+    background-color: rgb( 235, 228, 211); /*rgb( 210, 150, 10); #4444aa;*/
+    font-size: 0.6em;
+    float:left;
+    width:50px;
+    text-align:center;
+    margin-right: 10px;
+    cursor:pointer;
+  }
+  .leftSmallButton:hover { background-color: rgba( 255, 255, 255, 1);} /*rgba( 0, 0, 0, 1);}*/
+  img.leftSmallButton { width:15px;}
+  
+  .rightSmallButton {
+     color : rgb( 50, 50, 50); /*#aaaaaa;*/
+     background-color: rgb( 208, 234, 241); /*#054a05;*/
+     font-size: 0.6em;
+     float: right;
+     width:50px;
+     text-align:center;
+     margin-left: 10px;
+     cursor:pointer;
+  }
+
+  .left { float: left;}
+  .right { float: right;}
+  /* Remove default bullets */
+ul #outline {
+  list-style-type: none;
+}
+
+
+/* Style the caret/arrow */
+.caret {
+  cursor: pointer;
+  user-select: none; /* Prevent text selection */
+}
+
+/* Create the caret/arrow with a unicode, and style it 25B6*/
+/*
+.caret::before {
+  content: "\B6";
+  color: black;
+  display: inline-block;
+  margin-right: 6px;
+}
+*/
+/* Rotate the caret/arrow icon when clicked on (using JavaScript) */
+.caret-down::before {
+  transform: rotate(90deg);
+}
+
+/* Hide the nested list */
+.nested {
+  display: block;
+}
+
+/* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */
+.active {
+  display: block;
+}
+
+table.textContent tbody tr:nth-child(odd)
+{
+  background-color: {%color8};
+  display:block; 
+  width:100%
+}
+table.textContent tbody tr:nth-child(even)
+{
+  background-color: {%color9};
+  display:block; 
+  width:100%
+}
+
+@media screen and (max-width: 850px)
+{
+#banner {font-size:0.8em; width:50%;}
+#footer span.footerItem.if800 { display:none;}
+#footer span.footerItem.left { margin-top:0.6em;}
+#main { font-size:12pt;}     
+}
+   
+@media screen and (max-width: 690px)
+{
+#main { font-size:10pt;}  
+#header div { 
+        float: left; 
+        margin : 0px 3px 0px 3px;
+        padding: 0px 5px 0px 5px;
+        min-width: 6%;
+}
+#logo, #rightToolIcon { display:none;}
+#footer span.footerItem.if800 { display:none;}
+#footer span.footerItem.left { margin-top:1.2em;}
+.leftSmallButton, .rightSmallButton { font-size:0.9em;}
+#header div.rightIcon { width:10%;}
+}
+
+@media screen and (max-width: 410px)
+{ 
+  #header div, #header div.rightIcon { 
+        margin : 0px 2px 0px 2px;
+        padding: 0px 0px 0px 0px;
+  }
+  #banner { width:74% !important; font-size:1.2em;}
+  .leftSmallButton, .rightSmallButton { font-size:0.9em;}
+  }
+
+/* Mobile menu styles */
+/* Breakpoints */
+#mobileMenuIcon {
+  display: none;
+  width: 50px;
+  height: 50px;
+}
+@media (max-width: 768px) {
+  #mobileMenuIcon {
+    display: block;
+  }
+}
+
+#header #mobileMenu {
+  display: none;
+  background-color: rgba(200, 200, 200, 0.96);
+  position: absolute;
+  top: 15px;
+  left: 10px;
+  z-index: 200;
+  width: auto;
+}
+#header #mobileMenu span.mainMenu {
+  display: block;
+  width: 300px;
+  text-align: left;
+  line-height: 12px;
+  padding: 10px;
+  margin: 10px;
+}
+#header #mobileMenu span.mainMenu a {
+  text-decoration: unset;
+  color: unset;
+}
+
+@media (max-width: 768px) {
+  #header #menu {
+    display: none;
+  }
+}
+/*# sourceMappingURL=mobilemenu.css.map */
+span.footerItem.highlight {border:2px solid yellow;}:root { --indoc-menu-font-size:0.9em; --indoc-menu-tab-size: 25%;}
+
+#view-selector{
+     width:60%;
+     min-width:380px;
+     height:20px;
+     background-color:white;
+     border-bottom:2px solid #dddddd;
+     font-family:Now;
+     font-size:0.9em; 
+     margin:0 auto;
+     opacity:0.05;
+     color:white;
+     transition:opacity 2s, color 2s;
+  }
+  div#view-selector:hover { opacity:1; color:#555555;}
+
+#view-selector span.tab {
+  /*color: #555555;*/
+  background-color: #dddddd;
+  font-size: var( --indoc-menu-font-size);
+  float:left;
+  min-width:50px;
+  width: var( --indoc-menu-tab-size);
+  text-align:center;
+  margin-right: 10px;
+  cursor:pointer;
+  border-top: 2px solid #dddddd;
+  border-left: 2px solid #dddddd;
+  border-right: 2px solid #dddddd;
+}
+  
+#view-selector span.left { float: left;}
+#view-selector span.right { float: right;}
+
+#view-selector span.tab.active {
+    background-color: #ffffff; 
+    /*color : #555555;*/
+}
+{style}
+</style>
+</head>
+<body>
+<div id="main">
+  <div id="header">
+    <div id="logo"><a href="javascript:" onclick="API.back();"><img src="/upload/O0W1b3s20_logosite.png" style="display:block; max-width:100%; max-height:100%;"/></a></div><div id="leftToolIcon" onclick="leftColumn.switchDisplayMode();"><img src="/upload/g0Ma7Ao0K_tools.png" style="display:block; max-width:100%; max-height:100%;"/></div><div id="mainMenu" class="hidden"></div><div id="banner" onclick="window.ud.ude.leave2stageEditing( false);" ontouch="window.ud.ude.leave2stageEditing( false);"><span id="bannerMessage">Banner zone</span>  <div id="UDErequest" style="display:none;"></div>
+      <div id="UDEreply" style="display:none;"></div>
+      <div id="UDEcursorInfo" style="display:none;"></div>
+      <div id="UDEclipboard" style="display:none;"></div></div><div id="logout" class="rightIcon"><a href="/webdesk//logout/"><img src="/upload/yMInMmcNO_logout.png" style="display:block; max-width:100%; max-height:100%;" alt="Logout" title="Logout"/></a></div><div id="account" class="rightIcon"><a href="javascript:" onclick="{accountClick}"><img src="/upload/CvrVYVywC_account.png" style="display:block; max-width:100%; max-height:100%;" alt="see my account" title="see my account"/></a></div><div id="rightToolIcon" class="rightIcon" onclick="rightColumn.switchDisplayMode();"><img src="/upload/g0Ma7Ao0K_tools.png" style="display:block; max-width:100%; max-height:100%;"/></div>
+  </div> <!-- header -->
+<div id="content">
+<div id="leftColumn">
+  <div id="left-tool-title" class="toolset-title">Home tool set left</div><div id="left-tool-selector" class="toolset-selector"></div><div id="left-tool-zone" class="tool-zone"></div>
+</div> <!-- leftColumn -->
+<div id="middleColumn">
+  <div class="system view-selector" id="view-selector"></div>
+  <div id="scroll">
+      <div id="floating-menu"><div id="fmenu">Floating menu</div></div><div id="system-message-popup"></div>
+      <div id="document">{document}</div> <!-- document -->      
+  </div> <!-- scroll -->
+</div> <!-- middleColumn -->
+<div id="rightColumn">
+<div id="right-tool-title" class="toolset-title">Home tool set right</div><div id="right-tool-selector" class="toolset-selector"></div><div id="right-tool-zone" class="tool-zone"></div>
+</div> <!-- rightColumn -->
+</div> <!-- content -->
+<div id="footer">
+<span class="footerItem left">©sd-bee</span><span id="RGPD" class="footerItem left"><a href="javascript:" onclick="window.open('/webdesk/rgpd/', 'rgpd')">GRPD - Privacy</a></span><span id="TandC" class="footerItem left"><a href="javascript:" onclick="window.open('/webdesk/tandc/', 'CGU')">Terms of Use</a></span><span id="DEV" class="footerItem left if800"><a href="javascript:" onclick="window.open('/webdesk/doc/', 'dev')">Developers</a></span></span><span class="footerItem right if800"><img src="/upload/Hay01AdaK_db.png" width="30" height="30"><svg width="30" height="30"><circle id="STATUS_db" cx="15" cy="15" r="6"  stroke="lightgreen" stroke-width="1" fill="lightgreen"/></svg></span><span class="footerItem right if800"><img src="/tmp/W50H50_H0V0l1h0a_wifi.png" width="30" height="30" /><svg width="30" height="30"><circle id="STATUS_network" cx="15" cy="15" r="6"  stroke="lightgreen" stroke-width="1" fill="lightgreen"/></svg></span><span class="footerItem right" onclick="API.showBotlog();"><img src="/tmp/W50H50_N373r1k1G_brain.png" width="30" height="30"><svg width="30" height="30"><circle id="STATUS_busy" cx="15" cy="15" r="6"  stroke="lightgreen" stroke-width="1" fill="lightgreen"/></svg></span>
+</div> <!-- footer -->
+<div id="UD_resources">
+  {resources}
+</div> <!-- UD_resources -->
+<div id="p9">
+  <span style="font-size:8pt; color:#aaaaaa;">powered by <a href="http://www.cornwell.fr/soilinks/" target="soilinks" style="text-decoration:none; color:#aaaaaa;">soilinks</a> <a href="javascript::" onclick="document.getElementById('debug').style.display = 'block';"  style="text-decoration:none; color:#aaaaaa;">.</a></span>
+    <div id="debug" style="display:none;">
+      <script langage="JavaScript" type="text/javascript">
+      // Global variables
+      var group_index = 0;
+      var block_indexes = new Array();
+      var blocks = new Array();           // block names
+
+      /* --------------------------------------------------------------------------------
+      *   RegisterBlock( group, block)
+      *     register a block for event manager
+      */ 
+      function RegisterBlock( group, block) {
+        var grp;
+        if ( group < 10) { 
+          // Create new group(s)
+          while (group_index <= group) {
+            grp = new Array();
+            block_indexes[ group_index] = 0;
+            blocks[ group_index++] = grp;
+          }  
+          grp = blocks[ group];
+          grp[ block_indexes[ group]] = block;
+          block_indexes[group]++;
+          blocks[ group] = grp;    
+      }
+      return true;
+    } // RegisterBlock()
+
+    /* --------------------------------------------------------------------------------
+    *   ShowBlock( group, name)
+    *     make  a block visible and all others of the same group invisible
+    */ 
+    function ShowBlock( group, name) {
+      var o;
+      var grp;
+      grp = blocks[ group];
+      for (var i in grp) {
+        o = document.getElementById( grp[i]);
+        if ( grp[i] == name) {
+          // Make visible
+          o.style.display='block'; 
+          o.style.visibility = 'visible';
+        } else {
+          // Make invisible
+          o.style.display = 'none'; 
+          o.style.visibility = 'hidden';   
+        }
+      }
+    } // ShowBlock()
+        // Reguster 3 blocks
+        RegisterBlock( 9, 'corelog');
+        RegisterBlock( 9, 'bugreporter');
+        RegisterBlock( 9, 'values');
+    </script>
+      <div style="display:inline;width:100px;font-size:10;color:#888888;"><u><a onclick="ShowBlock( 9, 'corelog');">Core log</a></u> </div>
+      <div style="display:inline;width:100px;font-size:10;color:#888888;"><u><a onclick="ShowBlock( 9, 'bugreporter');">Report bugs</a></u> </div>
+      <div style="display:inline;width:100px;font-size:10;color:#888888;"> <u><a onclick="ShowBlock( 9, 'values');">Values</a></u></div>
+      <div id="corelog" style="display:none;font-family:monospace;">
+        {corelog}
+      </div>
+      <div id="bugreporter" style="display:none;">
+        <form method="post" action="#">
+          <input type="hidden" name="form" value ="BUGREPORT_form" />
+          <input type="hidden" name="nname" value ="TechDirBugReport" />
+          <input type="hidden" name="stype" value ="2" />
+          <input type="hidden" name="tparams" value ="" />
+          <textarea rows="5" cols="40" type="" name="tmsg">TechDir reports a bug at http://dev.rfolks.com/webdesk/</textarea><br />
+          <input type="hidden" name="user" value ="2" />
+          <input type="submit" value="Report" />
+        </form>
+        <u><a onclick="document.getElementById('bugreporter').style.display='none';">Forgetit</a></u>
+      </div>
+    </div>
+  </div> <!-- p9 -->
+</div> <!-- main -->
+
+<div id="tips">
+<div id="rsmartdocs content" class="tip hidden"><p>Content for (ou)rSmartdocs</p></div><div id="Help and tips EN" class="tip hidden"><p></p></div><div id="DemoTip1" class="tip hidden"><p>Discover SD bee's main tools by reading the paragraph surrounded by an orange dotted border.</p></div><div id="Tip1" class="tip hidden"><p>We protect and respect the privacy of the data that you store on our site. <br>To function correctly, our site uses 1 cookie with a lifespan of 1 hour.<br>To learn about our privacy policyn please consult the RGPD-Privacy link at the bottom of the page.<br>Please indicate you accept this cookie by clicking on <span class="button" onclick="TIPS_manager(); API.env( 'RGPD', '1');">OK</span</p></div><div id="Views tip" class="tip hidden"><p>Views provide a convenient way of grouping content, styles and programs. Different views can be used to determine display adapted to a particular screen size, the user\'s language or the degree of detail wanted. When creating a document, the model\'s parameters specify which views are copied and which will be taken from the model.</p></div>
+</div> <!-- tips -->
+
+<script type="text/javascript" lang="javascript">
+  window.onload = function(){     
+    window.onloadapp = function(){ 
+      {onload}
+    };
+    require([ '/editor-view-model/config/requireconfig.js'], function() { app_load( 22, "upload/smartdoc/require-version/");});
+  }  
+</script>
+</body>
+<div id="tracking">
+</div> <!-- tracking -->
+</html>

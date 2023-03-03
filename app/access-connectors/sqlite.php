@@ -103,6 +103,7 @@ class SDBEE_access_sqlite {
             $dbOrder = $this->db->prepare( $sql);               
             if ( !$dbOrder) {
                 $this->lastError = "Bad SQL query $sql \n"; 
+                // echo $this->lastError; die();
                 return $r;       
             }
             $querySuccess = $dbOrder->execute( $data);
