@@ -26,7 +26,7 @@ see LICENSE.md
 ARCHITECTURE
 
 The sdbee-index.php handles all requests and dispatches them to files in the endpoints directory according to the request received after setting up data access in line with parameters provided by the sdbee-config.jsonc file. Endpoints are :
-    <ul>li>Full page endpoints (GET)</li>
+    <ul><li>Full page endpoints (GET)</li>
         <ul><li>/ home  Display home page if not connected or main task directory if connected</li>
         <li>edit   name    Edit a process, app or app model</li></ul>
     <li>Get AJAX calls</li>
