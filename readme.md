@@ -1,7 +1,7 @@
 
 <p align="center">
-<img src="https://www.sd-bee.com/upload/O0W1b3s20_logosite.png" alt="Simply Done Bee" />
-SD bee - Simply Done
+<img src="https://www.sd-bee.com/upload/O0W1b3s20_logosite.png" alt="Simply Done Bee" /><br>
+SD bee - Simply Done<br>
 Design, automate and deploy processes for digtal tasks
 </p>
 
