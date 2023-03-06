@@ -15,11 +15,13 @@ THE CONCEPT
 
 SD bee provides a collaborative document editor with several distinct features :
 <ul>
-  <li>documents are a stack of elements saved in JSON format</li>
+  <li>easy-to-parse JSON is used to store documents as a stack of elements</li>
   <li>every document is based on a model document and every element can have zero, one or more style classes</li>
-  <li>the top level of a document are view containers used to display a specific part of a document at a time</li>
-  <li>no general menus, only contextual ones - all styling and formatting is achieved by selecting from a short list of classes provided by the model the document is based on</li>
-  <li>elements include containers, titles, paragraphs, lists, tables, drawings, connectors, user interface controls, style instructions and program code</li>
+  <li>the top level of a document is composed of view containers used so only a specific part of a document is display at a time</li>
+  <li>uses only a short contextual menu - all styling and formatting is achieved by selecting from a short list of classes provided by the model the document is based on</li>
+  <li>elements include containers, titles, paragraphs, fields, buttons, lists, tables, images, illustrations, graphs, connectors, user interface controls, styles, resource loading instructions and program code</li>
+  <li>formulas can be placed in table cells and any other element</li>
+  <li>all elements can be named and these names are used in formulas and programs</li>
   <li>views have a type used to determine which elements can be inserted there, helping for example to group style and programs in dedidcated views</li>
   <li>program code and styling may draw from an extensible resource library using a variety of style and programming formats</li>
   <li>progam code accesses third-party applications via an extensible service gateway with in-built throttling (for invoiced services) and secure credentals management</li>
@@ -44,8 +46,7 @@ WHAT'S INCLUDED
 The SD bee package provides the PHP programs for setting up a SD bee server. It uses resources available from the sd-bee.com website and has a modular design so it can be adapted to different cloud environments.
 The admin user, created automatically, is setup with an initial "Get started" task.
 
-For modifiying Javascript code used on the client side, please see the "SD bee client" project on GitHub.
-For configuring and extending Services available to SD bee apps, please the "SD bee services" project on GitHub.
+For modifiying Javascript code used on the client side, please see the "SD bee client" project on GitHub (available march 2023). For configuring and extending Services available to SD bee apps, please the "SD bee services" project on GitHub (available april 2023).
 
 For all enquires and assistance, please fill in the contact form at www.sd-bee.com (padlock or Start button)
 
