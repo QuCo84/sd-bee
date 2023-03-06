@@ -171,20 +171,20 @@ The .config/sdbee-config.json defines a set of configuration parameters :
           <li>"prefix" : "<0-8 characters>"</li>
         </ul>
       </ul>
-    </ol>
-  </li>
-  <li>on a server
-    <ul>
-      <li>Create a directory to store users' data, eg sdbee-users</li>
-      <li>Configure the "provate-storage" section with :
-        <ul>
-          <li>"storage-service" : "file",</li>
-          <li>"top-dir" : "<full path to the directory>", </li>
-          <li>"prefix" : "<0-8 characters>"</li>
-        </ul>
-      </li>
-    </ul>
-  </li>
+    </li>
+    <li>on a server
+      <ul>
+        <li>Create a directory to store users' data, eg sdbee-users</li>
+        <li>Configure the "provate-storage" section with :
+          <ul>
+            <li>"storage-service" : "file",</li>
+            <li>"top-dir" : "<full path to the directory>", </li>
+            <li>"prefix" : "<0-8 characters>"</li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ol>
 </ul>
 
 RUNNING LOCALLY
