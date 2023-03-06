@@ -25,7 +25,7 @@ SD bee provides a collaborative document editor with several distinct features :
   <li>the clipboard is replaced by a permanent gallery of clips that can be initialised by the model</li>
   <li>documents contain task management information</li>
   <li>documents contain automation data for executing functions without user intervention</li>
-<ul>
+</ul>
 
 Process design and execution is based on a 3 level approach :
 <ul>
