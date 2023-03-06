@@ -37,7 +37,7 @@ Process design and execution is based on a 3 level approach :
   <li>Each <strong>Task</strong> uses a Process and represents a specific instance of that process</li>
 </ul>
 
-As an example, the Questionnaire Process-Model asks questions in a zone or view, one at a time, based on a list of conditional questions taken form a table, and writes the user's answers to a second table. The "Define a marketing target" uses this model for a specific set of questions pertinent to defining marketing targets. A user uses this process several times to define each of their marketing targets.
+As an example, the Questionnaire Process-Model asks questions in a zone or view, one at a time, based on a list of conditional questions taken form a table, and writes the user's answers to a second table. The "Define a marketing target" uses this model for a specific set of questions pertinent to defining marketing targets and then uses the answers to determine keywords. A user uses this process several times to define each of their marketing targets and the associated keywords.
 
 At connection, SD bee displays the user's top task directory with the current status and progress of each task.
 

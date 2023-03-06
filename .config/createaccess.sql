@@ -82,7 +82,25 @@ CREATE TABLE `CollectionLinks` (
 ) WITHOUT ROWID;
 INSERT INTO CollectionLinks VALUES ( 1, 1, 2, 7),( 4, 1, 5, 7);
 
-/*  LoadedFiles : date, filename, report*/
+/* Clips */
+DROP TABLE IF EXISTS 'Clips';
+CREATE TABLE 'Clips' (
+  userId int(11) NOT NULL,
+  type text NOT NULL,
+  content text DEFAULT NULL
+);
+
+/* Service log */
+DROP TABLE IF EXISTS 'ServiceLog';
+CREATE TABLE 'ServiceLog' (
+  name text NOT NULL,
+  userId int(11) NOT NULL,
+  nevent text NOT NULL,
+  iresult int( 11) DEFAULT NULL,
+  tdetails text DEFAULT NULL
+)
+
+/* LoadedFiles : date, filename, report*/
 DROP TABLE IF EXISTS 'LoadedFiles';
 CREATE TABLE 'LoadedFiles' (
   date int(11) NOT NULL,
