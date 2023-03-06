@@ -98,7 +98,7 @@ CREATE TABLE 'ServiceLog' (
   nevent text NOT NULL,
   iresult int( 11) DEFAULT NULL,
   tdetails text DEFAULT NULL
-)
+);
 
 /* LoadedFiles : date, filename, report*/
 DROP TABLE IF EXISTS 'LoadedFiles';
