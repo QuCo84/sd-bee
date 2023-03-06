@@ -187,20 +187,21 @@ The .config/sdbee-config.json defines a set of configuration parameters :
   </ol>
 </ul>
 
-RUNNING LOCALLY
-If you wish to run a local test, some packages are required. Execute in the main directory :
+RUNNING LOCALLY ON GCP
+If you wish to run a local test on GCP, some packages are required. Execute in the main directory :
    composer require google/cloud-storage
 
-Create access to GCS (see bloww) and add the test task to your pribvate storage with the default prefix.
+Create access to GCS (see below) and add the test task to your private storage with the default prefix.
 
 Start local server with 
+
 php -S localhost:8080 index.php
 
 Use the "See on the web" button top right to visualise the local server.
 
 DEPLOYMENT
 <ol>
-  <li>ON GCP WITH APP ENGINE
+  <li>on GCP with App Engine
     <ul>
       <li>Access to GCS
         <ul>
@@ -212,8 +213,8 @@ DEPLOYMENT
         <ul><li>gcloud app deploy </li></ul>
       </li>
     </ul>
-  <li>
-  <li> ON A SERVER
+  </li>
+  <li> on a server
     <ul><li>No configuration should be required</li></ul>
   </li>
 </ol>
