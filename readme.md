@@ -40,6 +40,7 @@ As an example, the Questionnaire Process-Model asks questions in a zone or view,
 At connection, SD bee displays the user's top task directory with the current status and progress of each task.
 
 WHAT'S INCLUDED
+
 The SD bee package provides the PHP programs for setting up a SD bee server. It uses resources available from the sd-bee.com website and has a modular design so it can be adapted to different cloud environments.
 The admin user, created automatically, is setup with an initial "Get started" task.
 
