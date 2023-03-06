@@ -139,6 +139,7 @@ The .config/sdbee-config.json defines a set of configuration parameters :
               <li>"top-dir" : "",</li>
               <li>"prefix" : "<0-8 characters>",</li>
             <ul>
+          </li>
         </ul>
       </li>
       <li>on a server or VPS
