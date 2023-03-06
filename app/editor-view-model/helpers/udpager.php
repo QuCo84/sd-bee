@@ -74,7 +74,7 @@ class UDpager
         elseif ( $type == UD_view) {
             // Decide if view is displayable and needs paging
             $this->skip = false;
-            /*
+            /* Disactivate skipping paging in certain cases
             $partName = $elementData[ 'nlabel'] ? mb_strtoupper( $elementData[ 'nlabel']) : mb_strtoupper( $elementData[ '_title']);
             $mode = $elementData[ '_mode'];
             if ( $mode == "edit") {
