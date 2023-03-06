@@ -16,9 +16,9 @@ THE CONCEPT
 SD bee provides a collaborative document editor with several distinct features :
 <ul>
   <li>easy-to-parse JSON is used to store documents as a stack of elements</li>
-  <li>every document is based on a model document and every element can have zero, one or more style classes</li>
-  <li>the top level of a document is composed of view containers used so only a specific part of a document is display at a time</li>
-  <li>uses only a short contextual menu - all styling and formatting is achieved by selecting from a short list of classes provided by the model the document is based on</li>
+  <li>every document is based on a model document and every element may have a display and/or layout style class</li>
+  <li>view containers are used so only a specific part of a document is displayed at one time</li>
+  <li>only a short contextual menu on edited element is required - all styling and formatting is achieved by selecting from a short list of available classes provided by the model the document is based on</li>
   <li>elements include containers, titles, paragraphs, fields, buttons, lists, tables, images, illustrations, graphs, connectors, user interface controls, styles, resource loading instructions and program code</li>
   <li>formulas can be placed in table cells and any other element</li>
   <li>all elements can be named and these names are used in formulas and programs</li>
