@@ -97,6 +97,7 @@ For a minimal setup on a web server or trial setup on a PC, you will need :
 DOWNLOAD
 
 To install the Software, from your main directory (contact in GCP) download from git using
+
 git clone https://github.com/QuCo84/sd-bee
 
 This will create a directory sd-bee and populate it with the program's files.
@@ -163,8 +164,10 @@ DEPLOYMENT
   <li>ON GCP WITH APP ENGINE
     <ul>
       <li>Access to GCS
-        <ul><li>Create a service account</li>
-        <li>Get JSON file from API/Identifiants and save in the .config file under the name "sd-bee-gcs.json".</li>
+        <ul>
+          <li>Create a service account</li>
+         <li>Get JSON file from API/Identifiants and save in the .config file under the name "sd-bee-gcs.json".</li>
+        </ul>
       </li>
       <li>Deploy  
         <ul><li>gcloud app deploy </li></ul>
