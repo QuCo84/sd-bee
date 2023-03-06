@@ -138,7 +138,7 @@ The .config/sdbee-config.json defines a set of configuration parameters :
               <li>"bucket" : "sd-bee-access",</li>
               <li>"top-dir" : "",</li>
               <li>"prefix" : "<0-8 characters>",</li>
-            <ul>
+            </ul>
           </li>
         </ul>
       </li>
