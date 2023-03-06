@@ -145,7 +145,7 @@ The .config/sdbee-config.json defines a set of configuration parameters :
       <li>on a server or VPS
         <ul>
           <li>Create a directory to store system data such as the access database eg sdbee-access</li>
-          <liConfigure the "admin-storage" section with :
+          <li>Configure the "admin-storage" section with :
             <ul>
               <li>"storage-service" : "file",</li>
               <li>"top-dir" : "<full path to the directory>", </li>
