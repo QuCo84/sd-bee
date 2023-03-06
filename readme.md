@@ -11,7 +11,7 @@ THE SD BEE README FILE
 
 This file provides an entry point to setting up SD bee after downloading the SD bee package available on GitHub at the address : https://github.com/QuCo84/sd-bee
 
-THE SOFTWARE
+THE CONCEPT
 
 SD bee provides a collaborative document editor with several distinct features :
 <ul>
@@ -21,7 +21,8 @@ SD bee provides a collaborative document editor with several distinct features :
   <li>no general menus, only contextual ones - all styling and formatting is achieved by selecting from a short list of classes provided by the model the document is based on</li>
   <li>elements include containers, titles, paragraphs, lists, tables, drawings, connectors, user interface controls, style instructions and program code</li>
   <li>views have a type used to determine which elements can be inserted there, helping for example to group style and programs in dedidcated views</li>
-  <li>code and styling can draw from a resource library and access third-party applications via a service gateway</li>
+  <li>program code and styling may draw from an extensible resource library using a variety of style and programming formats</li>
+  <li>progam code accesses third-party applications via an extensible service gateway with in-built throttling (for invoiced services) and secure credentals management</li>
   <li>the clipboard is replaced by a permanent gallery of clips that can be initialised by the model</li>
   <li>documents contain task management information</li>
   <li>documents contain automation data for executing functions without user intervention</li>
@@ -38,6 +39,7 @@ As an example, the Questionnaire Process-Model asks questions in a zone or view,
 
 At connection, SD bee displays the user's top task directory with the current status and progress of each task.
 
+WHAT'S INCLUDED
 The SD bee package provides the PHP programs for setting up a SD bee server. It uses resources available from the sd-bee.com website and has a modular design so it can be adapted to different cloud environments.
 The admin user, created automatically, is setup with an initial "Get started" task.
 
@@ -51,14 +53,16 @@ LICENSE
 The software is published under the GNU GENERAL PUBLIC LICENSE Version 3.
 see LICENSE.md
 
+CREATOR
+
+SD bee was created by Quentin Cornwell
+[Find me on LinkedIn](https://www.linkedin.com/in/quentin-cornwell-895b0a/)
+
 CONTRIBUTING
 
 SD bee is in search of software and business developpers interested in using the Software for a single company or for providing an online service.
 
-CREATOR
 
-SD bee was created by Quentin Cornwell
-[LinkedIn](https://www.linkedin.com/in/quentin-cornwell-895b0a/)
 
 ARCHITECTURE
 
