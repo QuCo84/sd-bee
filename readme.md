@@ -17,7 +17,7 @@ SD bee provides a collaborative document editor with several distinct features :
 <ul>
   <li>documents are a stack of elements saved in JSON format</li>
   <li>every document is based on a model document and every element can have zero, one or more style classes</li>
-  <li>the top level of a document are view containers used to only display a specific part of a document at a time</li>
+  <li>the top level of a document are view containers used to display a specific part of a document at a time</li>
   <li>no general menus, only contextual ones - all styling and formatting is achieved by selecting from a short list of classes provided by the model the document is based on</li>
   <li>elements include containers, titles, paragraphs, lists, tables, drawings, connectors, user interface controls, style instructions and program code</li>
   <li>views have a type used to determine which elements can be inserted there, helping for example to group style and programs in dedidcated views</li>
@@ -88,7 +88,7 @@ Payable services are configured to use the sd-bee.com service where an account m
 For a minimal setup on Google Cloud Platform (hereafter GCP), you will need :
 - a Google account with facturation setup
 - API access 
-- at least one Google Cloud Storage bucket
+- at least one bucket on Google Cloud Storage (GCS hereafter)
 
 For a minimal setup on a web server or trial setup on a PC, you will need :
 - an HTTP server setup
@@ -151,7 +151,7 @@ RUNNING LOCALLY
 If you wish to run a local test, some packages are required. Execute in the main directory :
    composer require google/cloud-storage
 
-Create access to Google CLoud STorage (see bloww) and add the test task to your pribvate storage with the default prefix.
+Create access to GCS (see bloww) and add the test task to your pribvate storage with the default prefix.
 
 Start local server with 
 php -S localhost:8080 index.php
@@ -159,15 +159,19 @@ php -S localhost:8080 index.php
 Use the "See on the web" button top right to visualise the local server.
 
 DEPLOYMENT
-
-1) ON GCP WITH APP ENGINE
-Access to Google CLoud Storage
-  Create a service account
-  Get JSON file from API/Identifiants and save in the .config file under the name "sd-bee-gcs.json".
-Deploy  
-  gcloud app deploy 
-
-2) ON A SERVER
-No configuration should be required
-
-KEYS
+<ol>
+  <li>ON GCP WITH APP ENGINE
+    <ul>
+      <li>Access to GCS
+        <ul><li>Create a service account</li>
+        <li>Get JSON file from API/Identifiants and save in the .config file under the name "sd-bee-gcs.json".</li>
+      </li>
+      <li>Deploy  
+        <ul><li>gcloud app deploy </li></ul>
+      </li>
+    </ul>
+  <li>
+  <li> ON A SERVER
+    <ul><li>No configuration should be required</li></ul>
+  </li>
+</ol>
