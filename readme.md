@@ -91,8 +91,8 @@ Client-side programs and resources are initially setup to come from a public CDN
 Payable services are configured to use the sd-bee.com service where an account must be created and credits bought.
 
 For a minimal setup on Google Cloud Platform (hereafter GCP), you will need :
-- a Google account with facturation setup
-- API access 
+- a Google account (with payment setup)
+- API access : Google Cloud Storage, 
 - at least one bucket on Google Cloud Storage (GCS hereafter)
 
 For a minimal setup on a web server or trial setup on a PC, you will need :
@@ -114,44 +114,77 @@ Before configurating, create a file .gitignore with .config so that your configu
 
 The .config/sdbee-config.json defines a set of configuration parameters :
 
-public - Where to find public resources
-Leave the default settings to use the sd-bee CDN or sd-bee.com website for access to public resources.
+<ul>
+  <li>public - Where to find public resources
 
-ACCESS DATABASE
- 1) ON GOOGLE CLOUD STORAGE
-  To use Google Cloud Storage for the access database, 
-    save your credentials file in the .config directory in a file named sd-bee-gcs.json.
-    create a bucket, eg sd-bee-access, to store the access database
-      you can choose the region adapted to your use and do not give public access to this bucket.
-  Then configure the "admin-storage" section with :
-    "storage-service" : "gs",
-    "keyFile" :".config/sd-bee-gcs.json",
-    "bucket" : "sd-bee-access",
-    "top-dir" : "",
-    "prefix" : "",
- 2) ON A SERVER
-    Create a directory to store system data such as the access database
-    Configure the "admin-storage" section with :
-      "storage-service" : "file",
-      "top-dir" : "<full path to the directory>", 
-      "prefix" : ""
+  Leave the default settings to use the sd-bee CDN or sd-bee.com website for access to public resources.
+  </li>
 
-USERS'S DATA
-  1) ON GOOGLE CLOUD STORAGE
-    create a bucket, eg sd-bee-users, to store users' documents
-     you can choose the region adapted to your use and do not give public access to this bucket.
-    Then configure the "private-storage" section with :
-      "storage-service" : "gs",
-      "keyFile" :".config/sd-bee-gcs.json",
-      "bucket" : "sd-bee-users",
-      "top-dir" : "",
-      "prefix" : ""
-  2) ON A SERVER
-    Create a directory to store system data such as the access database
-    Configure the "provate-storage" section with :
-      "storage-service" : "file",
-      "top-dir" : "<full path to the directory>", 
-      "prefix" : ""
+  <li>Access Database - control access to documents
+    <ol>
+      <li>on Google Cloud Storage( GCS hereafter)
+        <ul>
+          <li>To use Google Cloud Storage for the access database, 
+            <ul>
+              <li>save your credentials file in the .config directory in a file named sd-bee-gcs.json.</li>
+              <li>create a bucket, eg sd-bee-access, to store the access database</li>
+              <li>you can choose the region adapted to your use and do not give public access to this bucket.</li>
+            </ul>
+          </li>
+          <li>Then configure the "admin-storage" section with :
+            <ul>
+              <li>"storage-service" : "gs",</li>
+              <li>"keyFile" :".config/sd-bee-gcs.json",</li>
+              <li>"bucket" : "sd-bee-access",</li>
+              <li>"top-dir" : "",</li>
+              <li>"prefix" : "<0-8 characters>",</li>
+            <ul>
+        </ul>
+      </li>
+      <li>on a server or VPS
+        <ul>
+          <li>Create a directory to store system data such as the access database eg sdbee-access</li>
+          <liConfigure the "admin-storage" section with :
+            <ul>
+              <li>"storage-service" : "file",</li>
+              <li>"top-dir" : "<full path to the directory>", </li>
+              <li>"prefix" : "<0-8 characters>"</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ol>  
+  </li>
+  <li>Users' data
+    <ol>
+      <li>on GCS
+      <ul>
+        <li>create a bucket, eg sd-bee-users, to store users' documents</li>
+        <li>you can choose the region adapted to your use and do not give public access to this bucket.</li>
+        <li>Then configure the "private-storage" section with :
+        <ul>
+          <li>"storage-service" : "gs",</li>
+          <li>"keyFile" :".config/sd-bee-gcs.json",</li>
+          <li>"bucket" : "sd-bee-users",</li>
+          <li>"top-dir" : "",</li>
+          <li>"prefix" : "<0-8 characters>"</li>
+        </ul>
+      </ul>
+    </ol>
+  </li>
+  <li>on a server
+    <ul>
+      <li>Create a directory to store users' data, eg sdbee-users</li>
+      <li>Configure the "provate-storage" section with :
+        <ul>
+          <li>"storage-service" : "file",</li>
+          <li>"top-dir" : "<full path to the directory>", </li>
+          <li>"prefix" : "<0-8 characters>"</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
 
 RUNNING LOCALLY
 If you wish to run a local test, some packages are required. Execute in the main directory :
