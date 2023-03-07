@@ -162,7 +162,7 @@ class SDBEE_doc {
                 //echo "oops marketplace already loaded"; die();
             }
             
-            $marketplace = SDBEE_endpoint_Marketplace( [], false);
+            $marketplace = SDBEE_endpoint_marketplace( [], false);
             // Create fixed content       
             $data = [
                 '%name' => $this->name,
@@ -559,6 +559,8 @@ class SDBEE_doc {
         // Sort 
         ksort( $this->content); // !!!important sort by ids to get the right order
         $this->index = Array_keys( $this->content);
+        // Update model in content
+        $this->top[ 'nstyle'] = $this->content[ $this->topName][ 'nstyle'] = $this->model;
         // Copy params
         $requiredValues = ( $model->params[ 'requiredValues']) ? $model->params[ 'requiredValues'] : [ 'defaultPart'=> $model->params[ 'defaultPart']];
         $this->params = array_merge( $this->params, $requiredValues);

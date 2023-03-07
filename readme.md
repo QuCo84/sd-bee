@@ -156,7 +156,7 @@ The .config/sdbee-config.json defines a set of configuration parameters :
           <li>Configure the "admin-storage" section with :
             <ul>
               <li>"storage-service" : "file",</li>
-              <li>"top-dir" : "<full path to the directory>", </li>
+              <li>"top-dir" : "< full path to the directory>", </li>
               <li>"prefix" : "<0-8 characters>"</li>
             </ul>
           </li>
@@ -186,7 +186,7 @@ The .config/sdbee-config.json defines a set of configuration parameters :
         <li>Configure the "provate-storage" section with :
           <ul>
             <li>"storage-service" : "file",</li>
-            <li>"top-dir" : "<full path to the directory>", </li>
+            <li>"top-dir" : "< full path to the directory>", </li>
             <li>"prefix" : "<0-8 characters>"</li>
           </ul>
         </li>

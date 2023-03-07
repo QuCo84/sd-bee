@@ -413,7 +413,7 @@ function UD_autoFillResourcePath( &$path) {
         // Process resource according to extension
         if ( $fileExt == "scss") {
             $builtinDir = UD_getParameter( 'public-resource-storage');
-            if( $buildinDir) $cssFile = "{$builtinDir}css/".str_replace( '.scss', '.css', $filename);
+            if( $builtinDir) $cssFile = "{$builtinDir}css/".str_replace( '.scss', '.css', $filename);
             else $cssFile = __DIR__."/../css/".str_replace( '.scss', '.css', $filename);
             $css = file_get_contents( $cssFile);
             if ( !$css) {
@@ -838,7 +838,7 @@ function UD_autoFillResourcePath( &$path) {
             $compiler->setImportPaths($path);
             $css = $compiler->compileString( $sass)->getCss();
         } catch( \Exception $e) {
-            echo "$path $sass ".$e->getMessage()."<br>\n";
+            echo $e->getMessage()."<br>\n"; // "$path $sass ".$e->getMessage()."<br>\n";
         }
         return $css;
     }

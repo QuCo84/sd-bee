@@ -66,12 +66,12 @@ function app_load( user, path) {
     modules = [
         'node_modules/dayjs/dayjs.min', 'node_modules/dayjs/plugin/plugin/relativeTime', 
         'node_modules/dayjs/plugin/customParseFormat', 'node_modules/dayjs/plugin/weekOfYear', //'node_modules/dayjs/locale/fr',
-        'https://www.sd-bee.com/upload/smartdoc/moment.js', // has to be here until we configure chart.js to use dayjs or don't add v string
+        'moment', // has to be here until we configure chart.js to use dayjs or don't add v string
         //'config/udregister'+version,
         'https://www.sd-bee.com/upload/smartdoc/require-version/udregister-v-0-3-1.js',
         //'https://www.sd-bee.com/upload/smartdoc/browser/udajax-v-0-3-1.js',
         'https://www.sd-bee.com/upload/ude-min-v-0-3-1.js',
-        '/editor-view/udajax.js',
+        '/sd-bee/app/editor-view/udajax.js',
         /*
         'debug/debug'+version,
         'ud-view-model/udconstants'+version, 'ud-view-model/udregister'+version,

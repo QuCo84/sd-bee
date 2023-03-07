@@ -55,8 +55,8 @@ INSERT INTO `Docs` VALUES
     ('A00123456789200001_trialhome', 'trialhome', 1, 'none', 'trial dir', '', '', 0, 0, '', 0, 0),
     ('A0000002NHSEB0000M_Repageaf', 'trial doc', 2, 'ASS000000000301_System', 'test doc derived from repage test', '', '', 0, 0, '', 0, 0),
     ('A0000000020000002_Share', '{!Share!}', 1, 'none', '{!Shared documents!}', '', '', 0, 0, '', 0, 0),
-    ('{docName}_Tasks', '{!Tasks!}', 2, 'none', '{!My tasks!}', '{"state":"new"}', '', 0, 0, '', 0, 0),
-    ('{docName}_GettingStarted', '{!Guide de démarrage!}', 1, 'A00000001LQ09000M_Help train', '{!Tutoriaux de 10 minutes pour découvrir SD bee!}', '{"state":"new"}', '', 0, 0, '', 0, 0),
+    ('{docName}_Tasks', '{!Tasks!}', 1, 'none', '{!My tasks!}', '{"state":"new"}', '', 0, 0, '', 0, 0),
+    ('{docName}_GettingStarted', '{!Guide de démarrage!}', 2, 'A00000001LQ09000M_Help train', '{!Tutoriaux de 10 minutes pour découvrir SD bee!}', '{"state":"new"}', '', 0, 0, '', 0, 0),
     ('Z00000000100000001_wastebin', '{!Wastebin!}', 1, 'none', '{!Recycled tasks!}', '', '', 0, 0, '', 0, 0),
     ('Z00000010VKK800001_UserConfig', '{!UserConfig!}', 2, 'A0000000V3IL70000M_User2', '{!My preferences and parameters!}', '{"state":"new"}', '', 0, 0, '', 0, 0);
 

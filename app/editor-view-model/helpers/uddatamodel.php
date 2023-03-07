@@ -581,8 +581,8 @@ function LF_fileServer() {
         $path = 'https://www.sd-bee.com/'.implode( '/', $uriParts); // LF_env( 'UD_rootPath')
     } else {
         // Available locally
-        //array_shift( $uriParts); // upload
-        //array_shift( $uriParts); // smartdoc
+        array_shift( $uriParts); // upload
+        array_shift( $uriParts); // smartdoc
         $path = implode( '/', $uriParts);
     }
     return LF_sendFile( $path, $ext);
