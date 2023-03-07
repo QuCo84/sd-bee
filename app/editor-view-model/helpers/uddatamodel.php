@@ -531,7 +531,6 @@
             $env[ 'is_Anonymous'] = true;            
         }
         $env[ 'oid'] = "_FILE_UniversalDocElement-doc";
-        $env[ 'url'] = "/";
         $env[ 'cache'] = 18;       
     }
     if ( $key == 'UD_icons') $key = 'WEBDESK_images';

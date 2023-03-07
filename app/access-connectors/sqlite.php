@@ -74,7 +74,10 @@ class SDBEE_access_sqlite {
             $pathParts = explode( '/', $sourceParts[1]);
             $filename = array_pop( $pathParts);
             $path = implode( '/', $pathParts);  
-            if ( $media == "gs") {
+            if ( $media == "sqlite") {
+                $this->db = null; // !!!important ensures DB cache is emptied and file is updated  
+                if ( !$destruct) $this->db = new PDO( $source, '', '', $this->pdoParams);
+            } elseif ( $media == "gs") {
                 // DB is stored on Google storage
                // if ( $this->bucket)
                     $this->db = null; // !!!important ensures DB cache is emptied and file is updated   

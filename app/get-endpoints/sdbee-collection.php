@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-error_reporting( E_ERROR);
 
 function SDBEE_endpoint_collection( $collectionName, $action) {
     global $ACCESS, $DM;

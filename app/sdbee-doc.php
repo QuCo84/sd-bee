@@ -28,7 +28,6 @@
  *  ACCESS->getDocInfo( $name) and ->updateDocInfo( $name, $info)
  *  STORAGE->read( $dir, $filename) and ->write( $dir, $filename)
  */
-//error_reporting( E_ERROR);
 
 class SDBEE_doc {
 

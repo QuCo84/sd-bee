@@ -78,7 +78,7 @@
         "UD_sass" : "node node_modules/sass/sass.js",
         "lang" : "FR",
         "UD_accountLink" : "window.open('/webdesk/UniversalDocElement--21--nname|Z00000010VKK80003S_UserConfig|CD|5/show/')",
-        "url" : "/",
+        "url" : "/sd-bee",
         "zip" : {
             "default" : false
             //"<model>" : false,
