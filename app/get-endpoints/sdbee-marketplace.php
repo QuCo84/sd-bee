@@ -59,7 +59,7 @@ function SDBEE_endpoint_marketplace( $request, $output=false) {
         $modelName = $publicModels[ $modeli];
         if ( in_array( $modelName, $ignore)) continue;
         if ( !$PUBLIC->exists( "models", $modelName)) {
-            echo "don't exists $modelName"; 
+            echo "model not found $modelName"; 
             die(); //continue;
         }
         $model = new SDBEE_doc( str_replace( '.json', '', $modelName), 'models', $PUBLIC);        

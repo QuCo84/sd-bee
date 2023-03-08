@@ -47,11 +47,13 @@ class FileStorage extends SDBEE_storage {
 
     function write( $dir, $filename, $data) { 
         if ( strpos( $this->topDr, 'http') === 0) return "ERR:can't write to remote files";
-        return file_put_contents( $this->_getURL( $dir, $filename), $data);
+	//echo $this->_getURL( $dir, $filename);
+	$r = file_put_contents( $this->_getURL( $dir, $filename), $data);
+	echo "wrote $r to $filename";
+        return $r;
     }
 
     function _prefix( $dir, &$filename) {
-        $filename = urlencode( $filename);
         if ( !$this->isPublic( $dir, $filename)) $filename = $this->prefix.'_'.$filename;
     }
 
@@ -61,7 +63,8 @@ class FileStorage extends SDBEE_storage {
     function _getURL( $dir, $filename) {
         $this->_prefix( $dir, $filename);
         if ( $dir && substr( $dir, -1) != '/' ) $dir .= '/';
-        $full = "{$this->topDir}{$dir}{$filename}";
+	if ( strpos( $this->topDir, 'http') === 0) $full = "{$this->topDir}{$dir}".urlencode($filename);
+        else $full = "{$this->topDir}{$dir}{$filename}";
         return $full;
     }
 

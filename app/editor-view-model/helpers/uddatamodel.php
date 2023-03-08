@@ -454,7 +454,7 @@
 	return $r;
 }
 
- function LF_debug( $msg, $module, $level, $ctrl = "", $error_msg = "", $newLevel = 0)
+ function LF_debug( $variable, $context, $level, $ctrl = "", $error_msg = "", $newLevel = 0)
  {
     global $debug, $LF_debug_start_time;
     if ($debug =="") $debug ="TIME&nbsp;&nbsp;&nbsp;&nbsp;MEM&nbsp;&nbsp;&nbsp;<span style=\"display:inline-block; width:10em;\">MODULE</span>TRACE<br />";
