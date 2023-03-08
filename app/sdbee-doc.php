@@ -41,6 +41,7 @@ class SDBEE_doc {
     public $state="";
     public $progress = 0;
     public $deadline = 0;
+    public $size = 0;
 
     private $doc;
     private $content;
@@ -192,6 +193,7 @@ class SDBEE_doc {
             if ( isset( $this->params[ 'deadline'])) $this->deadline = $this->params[ 'deadline'];
         }
         $this->index = Array_keys( $this->content);
+        $this->size = count( $this->index);
         $this->next = 0;       
         // Initialise if needed        
         if ( $this->state =="new" && $this->model && $this->model != "ASS000000000301_System" && $this->model != "None") {
