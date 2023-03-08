@@ -238,8 +238,8 @@
             // Substitute dynamic content
             $accountClick = LF_env( 'UD_accountLink'); 
             $output = str_replace( 
-                [ '{accountClick}', '{document}', '{style}', '{script}', '{onload}', '{resources}', '{corelog}'],
-                [ $accountClick, self::$document, self::$style, self::$script, self::$onload, self::$resources, $debug],
+                [ '{accountClick}', '{document}', '{style}', '{script}', '{onload}', '{resources}', '{corelog}', '{base-url}'],
+                [ $accountClick, self::$document, self::$style, self::$script, self::$onload, self::$resources, $debug, LF_env( 'url')],
                 $layout
             );            
             $output = str_replace( 
