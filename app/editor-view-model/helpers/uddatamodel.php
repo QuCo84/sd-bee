@@ -466,7 +466,7 @@
     if (is_string($variable)) $msgTxt .= substr($variable, 0, $msg_size);
     elseif ($variable == NULL) $msgTxt .= "NULL";
     else $msgTxt .= substr( print_r($variable, true), 0, $msg_size); 
-    if (strpos( $msgTxt, "tpassword") === false)
+    if (strpos( $msgTxt, "password") === false)
     {
         $debug .= $msg.$msgTxt."<br>";
         $debugTxt .= "$context:$msgTxt\n";
@@ -475,7 +475,7 @@
     else
     {
         // Hide password info
-        $p1 = strpos( $msgTxt, "tpassword");
+        $p1 = strpos( $msgTxt, "password");
         $debug .= $msg.substr( $msgTxt, 0, $p1).strpos( $msgTxt, $p1+14)."<br>";
         $debugTxt .= $context.substr( $msgTxt, 0, $p1).strpos( $msgTxt, $p1+14)."\n";
     }    

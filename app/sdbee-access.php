@@ -228,6 +228,7 @@ class SDBEE_access {
                 $userInfo[ 'top-dir'] = $storage[ 'top-dir'];
                 if ( !$userInfo[ 'prefix']) $userInfo[ 'prefix'] = $storage[ 'prefix'];
             } /*else throw new Exception( "Configuration Error : no storage {$userInfo[ 'doc-storage']}");*/
+            unset( $userInfo[ 'password']);
         }
     }
 

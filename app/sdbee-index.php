@@ -75,6 +75,7 @@ if ( !$USER) {
 }
 
 // IDENTIFED USER
+LF_debug( $USER, "sdbee-index", 5);
 // Setup storage for identifed user
 $STORAGE = SDBEE_getStorage( $USER);
 $DM = new DataModel( $STORAGE);
