@@ -118,7 +118,7 @@ Enter the sd-bee directory.
 
 CONFIGURATION
 
-Before configurating, create a file .gitignore with .config so that your configuration changes are not overwritten if you pull an update of the Software.
+Before configurating, check the .gitignore file to make sure it matches your setup. By default, the directories .config and data (not created) are included in this file so that your configuration changes or any data you wish to include in the sd-bee directory are not overwritten when you pull an update of the Software.
 
 The .config/sdbee-config.json defines a set of configuration parameters :
 
