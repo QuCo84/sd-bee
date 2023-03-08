@@ -211,10 +211,12 @@ DEPLOYMENT
 <ol>
   <li>on GCP with App Engine
     <ul>
+      <li>Create a project on your Google CLoud account</li>
+      <li>Activate GCP API for the project</li>
       <li>Access to GCS
         <ul>
           <li>Create a service account</li>
-         <li>Get JSON file from API/Identifiants and save in the .config file under the name "sd-bee-gcs.json".</li>
+          <li>Get JSON file from API/Identifiants and save in the .config file under the name "sd-bee-gcs.json".</li>
         </ul>
       </li>
       <li>Deploy  
