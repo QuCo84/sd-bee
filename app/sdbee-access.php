@@ -126,6 +126,7 @@ class SDBEE_access {
                 if ( $token) {
                     // "member" cookie found (remember me)
                     $members = $this->_query( "SELECT * FROM Members WHERE token=:token;", [ ':token'=>$token]); 
+                    LF_debug( count( $members).' found for '.$token, 'sdbee-access', 5);
                     if ( count( $members)) {
                         $member = $members[0];
                         if ( $member[ 'validDate'] >= time()) {
