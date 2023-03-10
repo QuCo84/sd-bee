@@ -13,13 +13,20 @@ This file provides an entry point to setting up SD bee after downloading the SD 
 
 THE CONCEPT
 
+Process design and execution is achieved through 3 levels of documents :
+<ul>
+  <li>Each <strong>Process Model</strong> document contains the functionality required for a type of process and defines elements which the programs will use to get user input, parameters and where to display output</li>
+  <li>Each <strong>Process</strong> document uses a Process Model and includes the data required for the process being designed</li>
+  <li>Each <strong>Task</strong> uses a Process and represents a specific instance of that process</li>
+</ul>
+
 SD bee provides a collaborative document editor with several distinct features :
 <ul>
-  <li>easy-to-parse JSON is used to store documents as a stack of elements</li>
-  <li>every document is based on a model document and every element may have a display and/or layout style class</li>
-  <li>view containers are used so only a specific part of a document is displayed at one time</li>
-  <li>only a short contextual menu on edited element is required - all styling and formatting is achieved by selecting from a short list of available classes provided by the model the document is based on</li>
-  <li>elements include containers, titles, paragraphs, fields, buttons, lists, tables, images, illustrations, graphs, connectors, user interface controls, styles, resource loading instructions and program code</li>
+  <li>easy-to-parse JSON storage of element stack and task progress</li>
+  <li>50+ built-in element types and personalised ones </li>
+  <li>element compilation with multiple levels of models</li>
+  <li>multiple views (display sets) for task steps, languages, organisation and layouts</li>
+  <li>only a short contextual menu on edited element is required - all styling and formatting is achieved by selecting from a short list of available classes provided by the model the document is based on</li> 
   <li>formulas can be placed in table cells and any other element</li>
   <li>all elements can be named and these names are used in formulas and programs</li>
   <li>views have a type used to determine which elements can be inserted there, helping for example to group style and programs in dedidcated views</li>
@@ -28,13 +35,6 @@ SD bee provides a collaborative document editor with several distinct features :
   <li>the clipboard is replaced by a permanent gallery of clips that can be initialised by the model</li>
   <li>documents contain task management information</li>
   <li>documents contain automation data for executing functions without user intervention</li>
-</ul>
-
-Process design and execution is based on a 3 level approach :
-<ul>
-  <li>Each <strong>Process Model</strong> contains the functionality required for a type of process and defines elements which the programs will use to get user input, parameters and where to display output</li>
-  <li>Each <strong>Process</strong> uses a Process Model and includes the data required for the process being designed</li>
-  <li>Each <strong>Task</strong> uses a Process and represents a specific instance of that process</li>
 </ul>
 
 As an example, the Questionnaire Process-Model asks questions in a zone or view, one at a time, based on a list of conditional questions taken form a table, and writes the user's answers to a second table. The "Define a marketing target" uses this model for a specific set of questions pertinent to defining marketing targets and then uses the answers to determine keywords. A user uses this process several times to define each of their marketing targets and the associated keywords.
