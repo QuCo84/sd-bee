@@ -13,20 +13,22 @@ This file provides an entry point to setting up SD bee after downloading the SD 
 
 THE CONCEPT
 
-Process design and execution is achieved through 3 levels of documents :
+Process design and execution is achieved through 3 levels of smart documents (ie. documents including programs) :
 <ul>
   <li>Each <strong>Process Model</strong> document contains the functionality required for a type of process and defines elements which the programs will use to get user input, parameters and where to display output</li>
   <li>Each <strong>Process</strong> document uses a Process Model and includes the data required for the process being designed</li>
   <li>Each <strong>Task</strong> uses a Process and represents a specific instance of that process</li>
 </ul>
 
+As an example, the Questionnaire Process-Model asks questions in a zone or view, one at a time, based on a list of conditional questions taken form a table, and writes the user's answers to a second table. The "Define a marketing target" uses this model for a specific set of questions pertinent to defining marketing targets and then uses a library function to generate keywords from searches defined by the answers. A user uses this process several times to define each of their marketing targets and the associated keywords
+
 SD bee provides a collaborative document editor with several distinct features :
 <ul>
   <li>easy-to-parse JSON storage of element stack and task progress</li>
-  <li>50+ built-in element types and personalised ones </li>
-  <li>element compilation with multiple levels of models</li>
+  <li>50+ built-in element types extendable with personalised ones </li>
+  <li>element compilation from multiple levels of models</li>
   <li>multiple views (display sets) for task steps, languages, organisation and layouts</li>
-  <li>only a short contextual menu on edited element is required - all styling and formatting is achieved by selecting from a short list of available classes provided by the model the document is based on</li> 
+  <li>a single and short contextual menu with generic functions, controled by the model, for choosing style classes, importing content and getting suggestions</li> 
   <li>formulas can be placed in table cells and any other element</li>
   <li>all elements can be named and these names are used in formulas and programs</li>
   <li>views have a type used to determine which elements can be inserted there, helping for example to group style and programs in dedidcated views</li>
@@ -34,10 +36,7 @@ SD bee provides a collaborative document editor with several distinct features :
   <li>progam code accesses third-party applications via an extensible service gateway with in-built throttling (for invoiced services) and secure credentals management</li>
   <li>the clipboard is replaced by a permanent gallery of clips that can be initialised by the model</li>
   <li>documents contain task management information</li>
-  <li>documents contain automation data for executing functions without user intervention</li>
-</ul>
-
-As an example, the Questionnaire Process-Model asks questions in a zone or view, one at a time, based on a list of conditional questions taken form a table, and writes the user's answers to a second table. The "Define a marketing target" uses this model for a specific set of questions pertinent to defining marketing targets and then uses the answers to determine keywords. A user uses this process several times to define each of their marketing targets and the associated keywords.
+  <li>PLANNED : documents contain automation data for executing functions without user intervention</li>
 
 At connection, SD bee displays the user's top task directory with the current status and progress of each task.
 
@@ -46,7 +45,7 @@ WHAT'S INCLUDED
 The SD bee package provides the PHP programs for setting up a SD bee server. It uses resources available from the sd-bee.com website and has a modular design so it can be adapted to different cloud environments.
 The admin user, created automatically, is setup with an initial "Get started" task.
 
-For modifiying Javascript code used on the client side, please see the "SD bee client" project on GitHub (available march 2023). For configuring and extending Services available to SD bee apps, please the "SD bee services" project on GitHub (available april 2023).
+For modifiying Javascript code used on the client side, please see the "SD bee client" project on GitHub (available march 2023). For configuring and extending Services available to SD bee apps, please see the "SD bee services" project on GitHub (available april 2023).
 
 For all enquires and assistance, please fill in the contact form at www.sd-bee.com (padlock or Start button)
 
@@ -63,8 +62,6 @@ SD bee was created by Quentin Cornwell
 CONTRIBUTING
 
 SD bee is in search of software and business developpers interested in using the Software for a single company or for providing an online service.
-
-
 
 ARCHITECTURE
 
