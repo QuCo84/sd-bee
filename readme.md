@@ -22,7 +22,7 @@ Process design and execution is achieved through 3 levels of smart documents (ie
 
 As an example, the Questionnaire Process-Model asks questions in a zone or view, one at a time, based on a list of conditional questions taken form a table, and writes the user's answers to a second table. The "Define a marketing target" uses this model for a specific set of questions pertinent to defining marketing targets and then uses a library function to generate keywords from searches defined by the answers. A user uses this process several times to define each of their marketing targets and the associated keywords
 
-SD bee provides a collaborative document editor with several distinct features :
+These smart documents are created and modifued using SD bee's collaborative deitor with has some distinct features :
 <ul>
   <li>easy-to-parse JSON storage of element stack and task progress</li>
   <li>50+ built-in element types extendable with personalised ones </li>
@@ -38,6 +38,7 @@ SD bee provides a collaborative document editor with several distinct features :
   <li>documents contain task management information</li>
   <li>PLANNED : documents contain automation data for executing functions without user intervention</li>
 
+  
 At connection, SD bee displays the user's top task directory with the current status and progress of each task.
 
 WHAT'S INCLUDED
