@@ -22,7 +22,7 @@ Process design and execution is achieved through 3 levels of smart documents (ie
 
 As an example, the Questionnaire Process-Model asks questions in a zone or view, one at a time, based on a list of conditional questions taken form a table, and writes the user's answers to a second table. The "Define a marketing target" uses this model for a specific set of questions pertinent to defining marketing targets and then uses a library function to generate keywords from searches defined by the answers. A user uses this process several times to define each of their marketing targets and the associated keywords
 
-These smart documents are created and modifued using SD bee's collaborative editor with has some distinct features :
+These smart documents are created and modified using SD bee's collaborative editor with has some distinct features :
 <ul>
   <li>easy-to-parse JSON storage of element stack and task progress</li>
   <li>50+ built-in element types extendable with personalised ones </li>
@@ -194,7 +194,9 @@ The .config/sdbee-config.json defines a set of configuration parameters :
 </ul>
 
 RUNNING LOCALLY ON GCP
+  
 If you wish to run a local test on GCP, some packages are required. Execute in the main directory :
+  
    composer require google/cloud-storage
 
 Create access to GCS (see below) and add the test task to your private storage with the default prefix.
@@ -204,6 +206,7 @@ Start local server with
 php -S localhost:8080 index.php
 
 Use the "See on the web" button top right to visualise the local server.
+  
 
 DEPLOYMENT
 <ol>
@@ -223,6 +226,6 @@ DEPLOYMENT
     </ul>
   </li>
   <li> on a server
-    <ul><li>No configuration should be required</li></ul>
+    <ul><li>Configure routing (ex. .htaccess) to send appropriate requests to the index.php file in the top sd-bee directory.</li></ul>
   </li>
 </ol>
