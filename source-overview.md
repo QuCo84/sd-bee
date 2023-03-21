@@ -1,6 +1,7 @@
-Source overview
+#SOURCE OVERVIEW
 
 The index.php file in the top dirctory sends all requests to the app/sdbee-index.php file which loads the configuration, sets data access and gets user's context before dispatching requests to files in the get-endpoints and post-endpoints directories according to the request received. Endpoints are :
+
     <ul><li>Full page endpoints (GET)</li>
         <ul>
           <li>/ built-in - Display home page if not connected or main task directory if connected</li>
@@ -32,3 +33,6 @@ Client-side programs and resources are initially setup to come from a public CDN
 
 Payable services are configured to use the sd-bee.com service where an account must be created and credits bought.
 
+
+
+[Back to Readme](readme.md)

@@ -7,11 +7,11 @@ SD bee - Simply Done<br>
 
 "SD bee" (hereafter the software) is a software program for delivering web pages and web apps for designing, automating and deploying processes required for digitalisation.
 
-THE SD BEE README FILE
+# THE SD BEE README FILE
 
 This file provides an entry point to setting up SD bee after downloading the SD bee package available on GitHub at the address : https://github.com/QuCo84/sd-bee
 
-THE CONCEPT
+## THE CONCEPT
 
 Process design and execution is achieved through 3 levels of smart documents (ie. documents including programs) :
 <ul>
@@ -29,19 +29,13 @@ These smart documents are created and modified using SD bee's collaborative edit
   <li>element compilation from multiple levels of models</li>
   <li>multiple views (display sets) for task steps, languages, organisation and layouts</li>
   <li>a single and short contextual menu with generic functions, controled by the model, for choosing style classes, importing content and getting suggestions</li> 
-  <li>formulas can be placed in table cells and any other element</li>
-  <li>all elements can be named and these names are used in formulas and programs</li>
-  <li>views have a type used to determine which elements can be inserted there, helping for example to group style and programs in dedidcated views</li>
-  <li>program code and styling may draw from an extensible resource library using a variety of style and programming formats</li>
-  <li>progam code accesses third-party applications via an extensible service gateway with in-built throttling (for invoiced services) and secure credentals management</li>
-  <li>the clipboard is replaced by a permanent gallery of clips that can be initialised by the model</li>
-  <li>documents contain task management information</li>
-  <li>PLANNED : documents contain automation data for executing functions without user intervention</li>
-
+  <li>formulas</li>
+  <li>[Read more](editor-features.md)</li>
+</ul>
   
 At connection, SD bee displays the user's top task directory with the current status and progress of each task.
 
-WHAT'S INCLUDED
+## WHAT'S INCLUDED
 
 The SD bee package provides the PHP programs for setting up a SD bee server. It uses resources available from the sd-bee.com website and has a modular design so it can be adapted to different cloud environments.
 The admin user, created automatically, is setup with an initial "Get started" task.
@@ -50,21 +44,21 @@ For modifiying Javascript code used on the client side, please see the "SD bee c
 
 For all enquires and assistance, please fill in the contact form at www.sd-bee.com (padlock or Start button)
 
-LICENSE
+## LICENSE
 
 The software is published under the GNU GENERAL PUBLIC LICENSE Version 3.
 see LICENSE.md
 
-CREATOR
+## CREATOR
 
 SD bee was created by Quentin Cornwell
 [Find me on LinkedIn](https://www.linkedin.com/in/quentin-cornwell-895b0a/)
 
-CONTRIBUTING
+## CONTRIBUTING
 
 SD bee is in search of software and business developpers interested in using the Software for a single company or for providing an online service.
 
-REQUIREMENTS
+## REQUIREMENTS
 
 For a minimal setup on Google Cloud Platform (hereafter GCP), you will need :
 - a Google account (with payment setup)
@@ -75,7 +69,7 @@ For a minimal setup on a web server or trial setup on a PC, you will need :
 - an HTTP server setup
 - a directory where to place files
 
-DOWNLOAD
+## DOWNLOAD
 
 To install the Software, from your main directory (contact in GCP) download from git using
 
@@ -84,7 +78,7 @@ git clone https://github.com/QuCo84/sd-bee
 This will create a directory sd-bee and populate it with the program's files.
 Enter the sd-bee directory.
 
-CONFIGURATION
+## CONFIGURATION
 
 Before configurating, check the .gitignore file to make sure it matches your setup. By default, the directories .config and data (not created) are included in this file so that your configuration changes or any data you wish to include in the sd-bee directory are not overwritten when you pull an update of the Software.
 
@@ -164,7 +158,7 @@ The .config/sdbee-config.json defines a set of configuration parameters :
 </ul>
 
 
-RUNNING LOCALLY ON GCP
+## RUNNING LOCALLY ON GCP
   
 If you wish to run a local test on GCP, some packages are required. Execute in the main directory :
   
@@ -179,7 +173,7 @@ php -S localhost:8080 index.php
 Use the "See on the web" button top right to visualise the local server.
   
 
-DEPLOYMENT
+## DEPLOYMENT
 <ol>
   <li>on GCP with App Engine
     <ul>
@@ -203,6 +197,6 @@ DEPLOYMENT
 
 
 
-READ MORE
+## READ MORE
 
 [Source file overview](source-overview.md)
