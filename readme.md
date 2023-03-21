@@ -25,11 +25,9 @@ As an example, the Questionnaire Process-Model asks questions in a zone or view,
 These smart documents are created and modified using SD bee's collaborative editor with has some distinct features :
 <ul>
   <li>easy-to-parse JSON storage of element stack and task progress</li>
-  <li>50+ built-in element types extendable with personalised ones </li>
-  <li>element compilation from multiple levels of models</li>
-  <li>multiple views (display sets) for task steps, languages, organisation and layouts</li>
-  <li>a single and short contextual menu with generic functions, controled by the model, for choosing style classes, importing content and getting suggestions</li> 
-  <li>formulas</li>
+  <li>multiple views</li>
+  <li>adaptable contextual menu</li> 
+  <li>formulas anywhere</li>
   <li><a href="editor-features.md">Read more</a></li>
 </ul>
   
