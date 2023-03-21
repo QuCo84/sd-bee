@@ -1,4 +1,4 @@
-#EDITOR FEATURES
+# EDITOR FEATURES
 These smart documents are created and modified using SD bee's collaborative editor with has some distinct features :
 <ul>
   <li>easy-to-parse JSON storage of element stack and task progress</li>

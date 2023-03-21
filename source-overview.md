@@ -1,4 +1,4 @@
-#SOURCE OVERVIEW
+# SOURCE OVERVIEW
 
 The index.php file in the top dirctory sends all requests to the app/sdbee-index.php file which loads the configuration, sets data access and gets user's context before dispatching requests to files in the get-endpoints and post-endpoints directories according to the request received. Endpoints are :
 

@@ -30,7 +30,7 @@ These smart documents are created and modified using SD bee's collaborative edit
   <li>multiple views (display sets) for task steps, languages, organisation and layouts</li>
   <li>a single and short contextual menu with generic functions, controled by the model, for choosing style classes, importing content and getting suggestions</li> 
   <li>formulas</li>
-  <li>[Read more](editor-features.md)</li>
+  <li><a href="editor-features.md">Read more</a></li>
 </ul>
   
 At connection, SD bee displays the user's top task directory with the current status and progress of each task.
