@@ -163,6 +163,7 @@ The .config/sdbee-config.json defines a set of configuration parameters :
   </ol>
 </ul>
 
+
 RUNNING LOCALLY ON GCP
   
 If you wish to run a local test on GCP, some packages are required. Execute in the main directory :
@@ -201,5 +202,7 @@ DEPLOYMENT
 </ol>
 
 
+
 READ MORE
-[Source file overview]( https://github.com/QuCo84/sd-bee/source-overview.md)
+
+[Source file overview](source-overview.md)
