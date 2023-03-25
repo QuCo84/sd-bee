@@ -32,7 +32,8 @@
 class FileStorage extends SDBEE_storage {
 
     function __construct( $userData) {
-        $this->topDir = $userData[ 'top-dir'];
+        //$this->topDir = $userData[ 'top-dir'];
+        $this->topDir = ( strpos( $userData[ 'top-dir'], 'http') === 0) ? $userData[ 'top-dir'] : __DIR__."/../../".$userData[ 'top-dir'];
         $this->prefix = $userData[ 'prefix'];
     }
 
@@ -42,19 +43,26 @@ class FileStorage extends SDBEE_storage {
     }
 
     function read( $dir, $filename) {
-        return file_get_contents( $this->_getURL( $dir, $filename));
+        $contents = "";
+        if ( $this->exists( $dir, $filename)) {
+            try {
+                $contents = file_get_contents( $this->_getURL( $dir, $filename));
+            }
+            catch( \Exception $e) { $contents = "";}
+        }
+        return $contents;
     }
 
     function write( $dir, $filename, $data) { 
         if ( strpos( $this->topDr, 'http') === 0) return "ERR:can't write to remote files";
-	//echo $this->_getURL( $dir, $filename);
-	$r = file_put_contents( $this->_getURL( $dir, $filename), $data);
-	echo "wrote $r to $filename";
+        //echo $this->_getURL( $dir, $filename);
+        $r = file_put_contents( $this->_getURL( $dir, $filename), $data);
+       // echo "wrote $r to $filename ".$this->_getURL( $dir, $filename);
         return $r;
     }
 
     function _prefix( $dir, &$filename) {
-        if ( !$this->isPublic( $dir, $filename)) $filename = $this->prefix.'_'.$filename;
+        if ( !$this->isPublic( $dir, $filename) && $this->prefix) $filename = $this->prefix.'_'.$filename;
     }
 
     function isPublic( $dir, $filename) {
@@ -63,7 +71,7 @@ class FileStorage extends SDBEE_storage {
     function _getURL( $dir, $filename) {
         $this->_prefix( $dir, $filename);
         if ( $dir && substr( $dir, -1) != '/' ) $dir .= '/';
-	if ( strpos( $this->topDir, 'http') === 0) $full = "{$this->topDir}{$dir}".urlencode($filename);
+	    if ( strpos( $this->topDir, 'http') === 0) $full = "{$this->topDir}{$dir}".urlencode($filename);
         else $full = "{$this->topDir}{$dir}{$filename}";
         return $full;
     }

@@ -627,7 +627,8 @@ span.footerItem.highlight {border:2px solid yellow;}:root { --indoc-menu-font-si
     window.onloadapp = function(){ 
       {onload}
     };
-    require([ '{base-url}app/editor-view-model/config/requireconfig.js'], function() { app_load( 22, "upload/smartdoc/require-version/");});
+    require([ '{base-url}/app/editor-view-model/config/requireconfig.js'], function() { app_load( 22, "upload/smartdoc/require-version/");});
+    <!-- rename requireconfig and place in .config require([ '{base-url}.config/sdbee-client.js'], function() { app_load({base-url}.config);});  -->
   }  
 </script>
 </body>

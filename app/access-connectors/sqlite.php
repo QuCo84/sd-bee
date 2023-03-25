@@ -41,7 +41,11 @@ class SDBEE_access_sqlite {
         if ( $media == "sqlite") {
             // Use local sqlite DB
             try {
-                $dsn = $source;               
+                global $CONFIG;
+                $filespace = $CONFIG[ $params[ 'use-storage']];
+                //if ( $filespace) $path = $filespace[ 'top-dir'].$filespace[ 'prefix'].'_'.$filename;
+                if ( $filespace) $path = str_replace( [ 'C:', 'D:'], [ '', ''], __DIR__)."/../../".$filespace[ 'top-dir'].$filespace[ 'prefix'].'_'.$filename;
+                $dsn = 'sqlite:'.$path;         
                 $this->db = new PDO( $dsn, '', '', $this->pdoParams);
                 // var_dump( $this->db, $dsn);
             } catch(PDOException $ex) { 

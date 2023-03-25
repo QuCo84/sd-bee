@@ -20,7 +20,17 @@
     },    
     /**
      * admin section - where to find the access control database and possible cache files
+     * Leave only one of the blocks below uncommented
      */
+    // local server on windows version
+    "admin-storage" : {
+        "storageService" : "file",        
+        "top-dir" : "data/access/", // relative to base directory or, with leading /, absolute path
+        "prefix" : "yghtuu3",
+        "crypt-algo" :"DES",
+        "crypt-key" : ""
+    },
+    /* GCS version
     "admin-storage" : {
         "storageService" : "gs",
         "keyFile" : ".config/sd-bee-gcs.json", 
@@ -30,10 +40,21 @@
         "crypt-algo" :"DES",
         "crypt-key" : ""
     },
+    */
     /**
      * private section - default values for where to store users' private files and how to protect
-     * some values can be overwritten by user's info ( )
+     * some values can be overwritten by user's info ( prefix and top-dir)
+     * Leave only one of the blocks below uncommented
      */
+     /* Server version */
+     "private-storage": {
+        "storageService" : "file",        
+        "top-dir" : "data/users/", // relative to base directory or, with leading /, absolute path
+        "prefix" : "priV222e",
+        "crypt-algo" : "DES",
+        "crypt-key" : ""
+    },
+     /* GCS version
     "private-storage": {
         "storageService" : "gs",
         "keyFile" : ".config/sd-bee-gcs.json", 
@@ -43,6 +64,7 @@
         "crypt-algo" : "DES",
         "crypt-key" : ""
     },
+    */
     /**
      * archive section - where to store archived tasks
      */
@@ -60,7 +82,7 @@
      */
     "access-database" : {
         "type" : "sqlite",
-        "database" : "gs:sdbee-access.db",
+        "database" : "sqlite:sdbee-access.db",
         "use-storage" : "admin-storage",            // set for file transfert to tmp
         "crypt-algo" : "DES",
         "crypt-key" : "",

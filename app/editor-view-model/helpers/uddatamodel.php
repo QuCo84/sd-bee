@@ -568,11 +568,11 @@ function LF_fileServer() {
     $uriParts = explode( '/', $uri);
     array_shift( $uriParts);
     $topDir = $uriParts[0];
-    if ( !in_array( $topDir, ["editor-view-model", "editor-view", "upload", "tmp", "download", "fonts", "favicon.ico"])) return false;
+    if ( !in_array( $topDir, ["sd-bee", "app", "editor-view-model", "editor-view", "upload", "tmp", "download", "fonts", "favicon.ico"])) return false;
     $filename = $uriParts[ count( $uriParts) - 1];
     $fileParts = explode( '.', $filename);
     $ext = $fileParts[ count( $fileParts) - 1];    
-    if ( count( $fileParts) < 2) return false;    
+    if ( count( $fileParts) < 2) return false;   
     if ( $ext != 'js' || !in_array( $filename, [ 'requireconfig.js', 'udajax.js'])) {
         // Get from SD bee
         //header( 'Location: https://www.sd-bee.com/'.$uri);
@@ -580,15 +580,17 @@ function LF_fileServer() {
         $path = 'https://www.sd-bee.com/'.implode( '/', $uriParts); // LF_env( 'UD_rootPath')
     } else {
         // Available locally
-        array_shift( $uriParts); // upload
-        array_shift( $uriParts); // smartdoc
-        $path = implode( '/', $uriParts);
+        //if ( $filename == 'requireconfig.js') $path = __DIR__."/../config/requireconfig.js";
+        //elseif ( $filename == 'udajax.js') $path = __DIR__."/../../editor-view/udajax.js";        
+        array_shift( $uriParts); // upload or sd-bee
+        //array_shift( $uriParts); // smartdoc or app
+        $path = implode( '/', $uriParts);               
     }
     return LF_sendFile( $path, $ext);
 }
 
 function LF_sendFile( $path, $ext) { 
-    if ( strpos( $path, "http") === false) $path = __DIR__.'/../../'.str_replace( [ '-v-0-2-7', '-v-0-2'], [ '', ''], $path);
+    if ( strpos( $path, "http") === false) $path = __DIR__.'/../../../'.str_replace( [ '-v-0-2-7', '-v-0-2'], [ '', ''], $path);
     if ( true || file_exists( $path)) {
         //$dotParts = explode( ".", $path);
         //$ext = $dotParts[ LF_count( $dotParts) - 1];

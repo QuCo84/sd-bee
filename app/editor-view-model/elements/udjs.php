@@ -49,6 +49,7 @@ class UDjs extends UDelement
   */     
         // 2DO Send to script head section
         // Save to temp file
+        /*
         $hash = hash( "md5", $js);        
         $tmp = sys_get_temp_dir();     
         $file = "{$tmp}/JS{$this->id}_{$hash}.js";
@@ -71,7 +72,7 @@ class UDjs extends UDelement
             $msg = "'impossible to run JS from {$this->name} '";
             $js = "try {\n     {$js}\n}\ncatch(error){\n   console.log( {$msg});\n console.error( error);\n}\n";
             // Keep file so we don't check every time
-        }            
+        } */           
         return ['content'=>$r, 'program'=>$js];
     } // UDjs->renderAsHTMLandJS()    
     

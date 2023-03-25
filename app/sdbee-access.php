@@ -226,6 +226,8 @@ class SDBEE_access {
                 $userInfo[ 'storageService'] =  $storage[ 'storageService'];  
                 $userInfo[ 'keyFile'] = $storage[ 'keyFile'];
                 $userInfo[ 'source'] = $storage[ 'bucket'];
+                /*if ( $storage[ 'storageService'] != "file" || strpos( $storage[ 'top-dir'], 'http') === 0) $userInfo[ 'top-dir'] = $storage[ 'top-dir'];
+                else $userInfo[ 'top-dir'] = "";*/
                 $userInfo[ 'top-dir'] = $storage[ 'top-dir'];
                 if ( !$userInfo[ 'prefix']) $userInfo[ 'prefix'] = $storage[ 'prefix'];
             } /*else throw new Exception( "Configuration Error : no storage {$userInfo[ 'doc-storage']}");*/

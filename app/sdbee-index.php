@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+error_reporting( E_ERROR | E_WARNING); // & ~E_STRICT & ~E_DEPRECATED);
 
 use Google\Cloud\Storage\StorageClient;
 
@@ -26,8 +27,7 @@ include_once "sdbee-doc.php";
 include_once "editor-view-model/helpers/uddatamodel.php";
 include_once "editor-view-model/ud.php";
 
-error_reporting( E_ERROR | E_WARNING); // & ~E_STRICT & ~E_DEPRECATED);
-//var_dump( error_reporting()); die();
+
 ini_set("allow_url_fopen", true);
 
 $TEST = false; //( strpos( $_SERVER[ 'HTTP_HOST'], "ud-server") === false);

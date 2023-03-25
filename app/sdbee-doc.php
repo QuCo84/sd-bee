@@ -68,7 +68,7 @@ class SDBEE_doc {
         $this->storage = ( $storage) ? $storage : $STORAGE;
         $this->user= $USER;
         $this->fctLib = $DM;
-        $this->dir = ( $dir) ? $dir : $USER[ 'top-dir'];
+        $this->dir = $dir; //( $dir) ? $dir : $USER[ 'top-dir'];
         $this->name = $name;
         $this->topName= 'A'.substr( $name, 1);
        // if ( $this->storage != $STORAGE && $dir != "models") var_dump( $name, $this->storage);
