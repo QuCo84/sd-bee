@@ -80,6 +80,8 @@ Enter the sd-bee directory.
 
 Before configurating, check the .gitignore file to make sure it matches your setup. By default, the directories .config and data (not created) are included in this file so that your configuration changes or any data you wish to include in the sd-bee directory are not overwritten when you pull an update of the Software.
 
+To create a local directory for data, run build\build.bat from the top directory.
+
 The .config/sdbee-config.json defines a set of configuration parameters :
 
 <ul>
@@ -155,8 +157,21 @@ The .config/sdbee-config.json defines a set of configuration parameters :
   </ol>
 </ul>
 
+## RUNNING LOCALLY
 
-## RUNNING LOCALLY ON GCP
+### RUNNING LOCALLY ON WINDOWS
+
+Make sure you have created a local data directory with build\build.bat or setup the configuration to access available directories.
+
+Start local server, on port 8080 for example, with 
+
+php -S localhost:8080 index.php
+
+Open a browser tab to localhost:8080
+
+
+
+### RUNNING LOCALLY ON GCP
   
 If you wish to run a local test on GCP, some packages are required. Execute in the main directory :
   
