@@ -529,9 +529,9 @@ class UniversalDoc {
         $systemProgram .= "  $$$.dom.attr( 'document', 'ud_pageHeight', '{$this->pager->pageHeight}');\n";
         if ( $this->mode == "edit" && $this->programming == "yes") { 
             if ( $this->docType == 3) {
-               $systemProgram .= "  API.changeClass( 'model', 'document');\n";               
+               $systemProgram .= "  API.changeClass( 'model', 'document', null, false);\n";               
             } else {
-                $systemProgram .= "  API.changeClass( 'edit', 'document');\n";
+               $systemProgram .= "  API.changeClass( 'edit', 'document', null, false);\n";
             }
             $edit = ( isset( $preferences[ 'ude_edit'])) ? $preferences[ 'ude_edit'] : "on";
             $menu = ( isset( $preferences[ 'ude_menu'])) ? $preferences[ 'ude_menu'] : "on";
@@ -539,7 +539,7 @@ class UniversalDoc {
             $stage = ( isset( $preferences[ 'ude_stage'])) ? $preferences[ 'ude_stage'] : "off";
             $systemProgram .= "  $$$.dom.attr( 'document', 'ude_stage', '{$stage}');\n";
         } else { 
-            $systemProgram .= "  $$$.changeClass( 'readOnly', 'document');\n"; //document.getElementById( 'document').className ='readOnly'\n";
+            $systemProgram .= "  $$$.changeClass( 'readOnly', 'document', null, false);\n";
             $edit = "off";            
         } 
         $systemProgram .= "  $$$.dom.attr( 'document', 'ude_edit', '{$edit}');\n";

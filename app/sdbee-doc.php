@@ -157,7 +157,7 @@ class SDBEE_doc {
         } else { 
             // No doc so provide marketplace
             // Get marketplace or use AJAX
-            if ( !function_exists( 'SDBEE_endpoint_Marketplace' )) {
+            if ( !function_exists( 'SDBEE_endpoint_marketplace' )) {
                 include_once( 'get-endpoints/sdbee-marketplace.php');
                 //echo "oops marketplace already loaded"; die();
             }
@@ -299,11 +299,12 @@ class SDBEE_doc {
         $oid = "_FILE_UniversalDocElement-{$this->name}";
         for ( $depthi=0; $depthi < $depth; $depthi++) {
             $id = $this->depths[ $depthi];
-            $oid .= "-_FILE_UniversalDocElement-{$this->index[ $id]}";
+            $oid .= "-_FILE_UniversalDocElement-{$this->index[ $id - 1]}";
             $oidA[] = 21;
-            $oidA[] = $id+1;
+            $oidA[] = $id;
         }
-        $oid .= "--".implode( '-', $oidA); //."-21-{$el[ 'id']}";
+        $oid .= "-_FILE_UniversalDocElement-{$el[ 'nname']}";
+        $oid .= "--".implode( '-', $oidA)."-21-{$el[ 'id']}";
         $oid .= "--AL|{$permissions}";
         // Store id by depth
         $this->depths[ $depth] = $el[ 'id'];

@@ -49,6 +49,7 @@ try {
     $ACCESS->login( 'tusername', 'tpassword');
     // Get user info
     $USER = $ACCESS->getUserInfo();
+    LF_debug( "Logged in as user no {$USER[ 'id']}", 'index', 8);
     // if ( !$USER[ 'prefix']) $USER = SDBEE_loadUser();
 } catch ( PDOException $ex) {
     if ( $TEST) echo "A PDO Error occured in main! ".$ex->getMessage()."<br>\n";
@@ -178,6 +179,9 @@ if ( count( $request)) {
         } elseif ( $act == "edit" || $act == "do" || $act == "show") {
             // Edit a task, processus or app
             include( "get-endpoints/sdbee-edit.php");
+        } elseif ( $act == "getClipboard") {
+            // Get clipboard as HTML
+            include( "get-endpoints/sdbee-clipboard.php");
         } else {
             echo "No such action";
         }
@@ -193,9 +197,10 @@ if ( count( $request)) {
             include ( "post-endpoints/sdbee-add-user.php");
             //echo "Adding a user"; var_dump( $request); //die();
             
-        } /*elseif ( $form == "AddAPage" || $form == "AjouterUnePage") {
-        //echo "Adding a page"; var_dump( $request); die();
-        include ( "post-endpoints/sdbee-add-doc.php");
+        } /*
+        elseif ( $form == "INPUT_pasteForm") {
+            //echo "Add a clip
+            include ( "post-endpoints/sdbee-add-clip.php");
         }*/
         // 2DO Fetch element
     } elseif ( isset( $request[ 'nServiceRequest'])) {
@@ -243,6 +248,7 @@ function SDBEE_getRequest() {
         'AJAX_getChanged' => [ 'act' => 'changes', 'task'=>$name],
         'AJAX_addDirOr' =>[ 'act' => 'ignore'],
         'AJAX_addDirOrFile' =>[ 'act' => 'ignore'],
+        'AJAX_clipboardTool' => [ 'act' => 'getClipboard']
     ];
     // Map 
     if ( isset( $actionMap[ $action])) {

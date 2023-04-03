@@ -48,7 +48,7 @@ function app_load( user, path) {
     $url = window.location.href;
     $urlParts = $url.split( '/');
     window.UD_SERVER = $urlParts[ 0]+"//"+$urlParts[ 2]; //"https://ud-server-372110.oa.r.appspot.com"; //https://8080-cs-482142111769-default.cs-europe-west1-iuzs.cloudshell.dev/";
-    window.UD_SERVICE = "sdbee"; 
+    window.UD_SERVICE = ( $urlParts[3]) ? $urlParts[3] : "sd-bee"; 
     window.version = version; 
     window.global = window;
     //require.config( { baseUrl :( path.indexOf( 'smartdoc_prod') > -1) ?  '/upload/smartdoc_prod': 'https://www.sd-bee.com/upload/smartdoc'});
@@ -71,7 +71,7 @@ function app_load( user, path) {
         'https://www.sd-bee.com/upload/smartdoc/require-version/udregister-v-0-3-1.js',
         //'https://www.sd-bee.com/upload/smartdoc/browser/udajax-v-0-3-1.js',
         'https://www.sd-bee.com/upload/ude-min-v-0-3-1.js',
-        '/sd-bee/app/editor-view/udajax.js',
+        '/' + window.UD_SERVICE + '/app/editor-view/udajax.js',
         /*
         'debug/debug'+version,
         'ud-view-model/udconstants'+version, 'ud-view-model/udregister'+version,

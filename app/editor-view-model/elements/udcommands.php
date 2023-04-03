@@ -732,7 +732,6 @@ class UDcommands extends UDelement {
    function FaddTool( $set, $name, $call, $help="")
    {
         $js = "";
-        return ["content"=>"", "program"=>$js];
         $divs = ['title'=>$set.'-tool-title', 'selector'=>$set.'-tool-selector', 'zone'=>$set.'-tool-zone']; 
         $images = LF_env("WEBDESK_images");
         $imageMap = [ 'Repertoire' => "AddDir", 'Page' => "AddDoc", 'Modèle' => "AddModel"];      

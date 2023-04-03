@@ -85,6 +85,7 @@ INSERT INTO CollectionLinks VALUES ( 1, 1, 2, 7),( 4, 1, 5, 7);
 /* Clips */
 DROP TABLE IF EXISTS 'Clips';
 CREATE TABLE 'Clips' (
+  name text NOT NULL,
   userId int(11) NOT NULL,
   type text NOT NULL,
   content text DEFAULT NULL

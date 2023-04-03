@@ -405,8 +405,9 @@ class SDBEE_access {
         if ( !$collection) return $this->_error( "Cannot add document $name to unknown collection $collectionName");
         $collectionId = $collection[ 'id'];
         $data[ 'name'] = $name;
-        $data[ 'created'] = $data[ 'modified'] = time();        
-        $r = $this->_insert( 'Docs', $data, 'name label type model description params prefix created modified state progress');
+        $data[ 'created'] = $data[ 'modified'] = time();
+        $data[ 'deadline'] = time() + 7*24*60*60;   
+        $r = $this->_insert( 'Docs', $data, 'name label type model description params prefix created modified state progress deadline');
         $isDoc = ( $data[ 'type'] == UD_directory) ? 0 : 1;
         if ( $r > 0) $this->_linkToCollection( $r, $collectionId, $isDoc, $access);
         return $r;
@@ -426,8 +427,9 @@ class SDBEE_access {
         if ( !$user) return $this->_error( "Cannot add document $name to unknown user $userName");
         $userId = $user[ 'id'];
         $data[ 'name'] = $name;
-        $data[ 'created'] = $data[ 'modified'] = time();        
-        $r = $this->_insert( 'Docs', $data, 'name label type model description params prefix created modified state progress');
+        $data[ 'created'] = $data[ 'modified'] = time();
+        $data[ 'deadline'] = time() + 7*24*60*60;     
+        $r = $this->_insert( 'Docs', $data, 'name label type model description params prefix created modified state progress deadline');
         if ( $r > 0) $this->_linkToUser( $r, $userId, $isUser, $access);
         return $r;
     }
@@ -472,12 +474,12 @@ class SDBEE_access {
     function removeFromUser( $targetName, $isUser=false, $isDoc = true) {
         // Get link's source and target
         $sourceId = $this->userId;
-        $target = ( $isUSer) ? $this->getUserInfo( $targetName) : (( $isDoc) ? $this->getDocInfo( $targetName) : $this->getCollectionInfo( $targetName));
+        $target = ( $isUser) ? $this->getUserInfo( $targetName) : (( $isDoc) ? $this->getDocInfo( $targetName) : $this->getCollectionInfo( $targetName));
         if ( !$source || !$target) return $this->_error( "$collectionName Or $targetName doesn't exist");
         // Remove link record
         $sql = "DELETE FROM CollectionLinks WHERE collectionId=:collectionId AND isDOc=:isDoc AND targetId = targetId;";
         $data = [ ':collectionId'=> $source[ 'id'], ':isDoc'=>$isDoc, ':targetId'=>$target[ 'id']];
-        $this->_query( $sal, $data);
+        $this->_query( $sql, $data);
         // If no other links delete target
         $collLinks = $this->_query( 'SELECT * FROM CollectionLinks WHERE targetId=:targetId', [ ':targetId'=>$target[ 'id']]);
         $userLinks = $this->_query( 'SELECT * FROM UserLinks WHERE targetId=:targetId', [ ':targetId'=>$target[ 'id']]);
@@ -490,6 +492,29 @@ class SDBEE_access {
         return $target[ 'id'];
     }
 
+    function addClip( $name, $type, $content) {
+        if ( $this->userId == -1) return [];
+        $data = [ 'name' => $name, 'userId' => $this->userId, 'type' => $type, 'content'=>$content];
+        $this_insert( 'Clips', $data, [ 'name userId type content']);
+        return getClips();
+    }
+
+    function getClips() {
+        if ( $this->userId == -1) return [];
+        $sql = "SELECT rowId, * In Clips WHERE userId=:userId;";
+        $data = [ ':userId' => $this->userId];
+        $clips = $this->_query( $sql, $data);
+        for ( $clipi=0; $clipi < count( $clips); $clipi++) $clips[ $clipi][ 'id'] = $clips[ $clipi][ 'rowId'];
+        return $clips;
+    }
+
+    function deleteClip( $clipId) {
+        if ( $this->userId == -1) return [];
+        $sql = "DELETE FROM Clips WHERE rowId=:rowId;";
+        $data = [ ':rowId' => $clipId];
+        $clips = $this->_query( $sql, $data);
+        return $clips;
+    }
 
 
 
