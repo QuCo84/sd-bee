@@ -409,8 +409,9 @@
             $path = $textra[ 'system']['dirPath'];                  
             if ( $path == "DOC") {
                 // Use OID provided in request
+                global $USER;
                 $currentOID = LF_env( 'OID');
-                $home = ($this->user[ 'home']) ? $this->user[ 'home'] : 'home';
+                $home = ($USER[ 'home']) ? $USER[ 'home'] : 'home';
                 $path = "_FILE_UniversalDocElement-{$home}--21-1"; // testing
                 //$path = '__FILE__UniversalDocElement-A0012345678920001_trialhome--21-1'; // testing
                 //$path = "__FILE__UniversalDocElement-$currentOID--21-1";
