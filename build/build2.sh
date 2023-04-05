@@ -4,4 +4,3 @@ cp config .config
 mkdir data
 mkdir data\access
 mkdir data\users
-#OK
