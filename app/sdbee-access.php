@@ -246,7 +246,7 @@ class SDBEE_access {
         $data = [ ':name' => $name]; 
         $candidates = $this->_query( $sql, $data);
         if ( !count( $candidates)) {
-            echo "No info for $name $this->lastError<br>";
+            LF_debug( "No info for $name $this->lastError", 'ACCESS', 8);
             return [];          
         }
         $docInfo = $candidates[ 0];

@@ -49,6 +49,7 @@ try {
     $ACCESS->login( 'tusername', 'tpassword');
     // Get user info
     $USER = $ACCESS->getUserInfo();
+    //if ( !$USER || $USER == -1)
     LF_debug( "Logged in as user no {$USER[ 'id']}", 'index', 8);
     // if ( !$USER[ 'prefix']) $USER = SDBEE_loadUser();
 } catch ( PDOException $ex) {
@@ -64,7 +65,7 @@ try {
 // Set up Public storage
 $PUBLIC = SDBEE_getStorage( $CONFIG[ 'public-storage']);
 
-if ( !$USER) {
+if ( !$USER || $USER == -1) {
     // Display SD bee home page, home with error message or relogin
     LF_env( 'UD_accountLink', "API.switchView( 'connect');");
     $DM = new DataModel( $PUBLIC);
@@ -76,7 +77,6 @@ if ( !$USER) {
 }
 
 // IDENTIFED USER
-LF_debug( $USER, "sdbee-index", 5);
 // Setup storage for identifed user
 $STORAGE = SDBEE_getStorage( $USER);
 $DM = new DataModel( $STORAGE);

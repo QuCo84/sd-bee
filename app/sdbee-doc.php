@@ -265,7 +265,8 @@ class SDBEE_doc {
                 if ( $path == "DOC") {
                     // Use OID provided in request
                     $currentOID = LF_env( 'OID');
-                    $path = "__FILE__UniversalDocElement-{$this->user[ 'home']}--21-1"; // testing
+                    $home = ($this->user[ 'home']) ? $this->user[ 'home'] : 'home';
+                    $path = "_FILE_UniversalDocElement-{$home}--21-1"; // testing
                     //$path = '__FILE__UniversalDocElement-A0012345678920001_trialhome--21-1'; // testing
                     //$path = "__FILE__UniversalDocElement-$currentOID--21-1";
                 }
