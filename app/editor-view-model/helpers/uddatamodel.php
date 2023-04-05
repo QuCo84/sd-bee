@@ -392,8 +392,39 @@
             if ( $keep) $data[] = $record;
             // Increment pseudo id value
             $id++;
+            // Insert DirListing code if required
+            if ( (int) $record[ 'stype'] == UD_view && substr( $record['nname'], 0, 2) == "BE") {   
+                $data[] = $this->getDirListingElement( $record);
+                $id++;
+            }
         }
         return $data;
+    }
+
+    function getDirListingElement( $el) {
+        $textra = JSON_decode( $el[ 'textra'], true);                       
+        // Determine path to look at
+        if ( isset($textra[ 'system']['dirPath'])) {
+            // Directory provided as dirPath parameter in view's parameters 
+            $path = $textra[ 'system']['dirPath'];                  
+            if ( $path == "DOC") {
+                // Use OID provided in request
+                $currentOID = LF_env( 'OID');
+                $home = ($this->user[ 'home']) ? $this->user[ 'home'] : 'home';
+                $path = "_FILE_UniversalDocElement-{$home}--21-1"; // testing
+                //$path = '__FILE__UniversalDocElement-A0012345678920001_trialhome--21-1'; // testing
+                //$path = "__FILE__UniversalDocElement-$currentOID--21-1";
+            }
+        } else {
+            // Use view as container to display
+            $path = "UniversalDocElement--".implode( '-', LF_stringToOid( $el['oid']))."-21";
+        }
+        // Create dir view element and add to data
+        return [
+            'nname'=>substr( $el['nname'], 0, 12)."1".substr( $el['nname'], 13),
+            'stype'=>UD_js,
+            'tcontent'=> "JS\n$$$.updateZone('{$path}/AJAX_listContainers/updateOid|off/', '{$el['nname']}');\n\n\n"    
+        ];   
     }
  
  

@@ -219,7 +219,7 @@ if ( count( $request)) {
     // LF_env( 'UD_accountLink', "API.switchView( 'connect');");
     $home =  "Basic model for home directories"; 
     $doc = new SDBEE_doc( $home, 'models', $PUBLIC);
-    $doc->sendToClient();
+    $doc->sendToClient( [ 'mode' => 'model']);
     //SDBEE_showModel( $home);
 }    
 
