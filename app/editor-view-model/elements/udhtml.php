@@ -83,10 +83,10 @@ if ( !class_exists( 'UDelement')) require_once( __DIR__."/../../tests/testenv.ph
                         // Get filename
                         $p1 = strlen( '&lt;!-- UD_include src=');
                         $p2 = strpos( $line, '--&gt;');
-                        $fileName = substr( $line, $p1, $p2 - $p1 - 1);
+                        $filename = substr( $line, $p1, $p2 - $p1 - 1);
                         // Get contents                        
-                        // $includeContent = FILE_read( 'upload', '/smartdoc/resources/' . $fileName);
-                        $includeContent = UD_getResourceFileContents( $fileName);
+                        $includeContent = UD_fetchResource( 'resources/'.$filename, $filenameb,$extb);
+                        // fct disabled  $includeContent = UD_getResourceFileContents( $fileName);
                         // Remove script and style tags
                         // Add lines
                         $includeLines = explode( "\n", $includeContent);

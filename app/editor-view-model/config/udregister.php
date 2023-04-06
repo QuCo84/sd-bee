@@ -496,7 +496,7 @@ function UD_autoFillResourcePath( &$path) {
             $domain = array_shift( $filenameParts);
         }     
         if ( LF_count( $filenameParts)) {       
-            // !!Transition Some models were created with 'resources' in path
+            // !!Transition Some models were created with 'resources' assumed
             if ( $filenameParts[0] != "resources")  $category = "resources/" . implode( '/', $filenameParts);
             $category = implode( '/', $filenameParts);
         } else $category = $ext;
@@ -506,7 +506,7 @@ function UD_autoFillResourcePath( &$path) {
         if ( $builtinDir) $builtin = "{$builtinDir}{$category}/{$filename}";
         else $builtin =  __DIR__."/../{$category}/{$filename}";
         $localFTP = LF_env( 'ftpPath');
-        $local = ($localFTP) ? $local = "upload/{$localFTP}/{$filename}" : "";
+        $local = ($localFTP) ? $local = "upload/{$localFTP}/{$category}/{$filename}" : "";
         // Hook for extrenal storage - new architecture 230214
         if ( function_exists( 'SDBEE_getResourceFile')) $localCopyOfExternalFile = SDBEE_getResourceFile( $catgeory, $filename);
         /*
