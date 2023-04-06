@@ -3,7 +3,8 @@ require.config({
     paths: {
         /* for compatability with OVH setup, dayjs & moment copied to vendor after installation with npm. moment-with-locales.min copied up to mai dir */
         'moment': "https://www.sd-bee.com/upload/smartdoc/node_modules/moment.js/moment-with-locales.min",
-        'dayjs' : "https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.7/",
+        'dayjs' : "https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.7/dayjs.min",
+        'dayjscdn' : "https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.7",
         'ejs' : "https://www.sd-bee.com/upload/smartdoc/node_modules/ejs/ejs.min"
     },
     waitSeconds : 25
@@ -58,8 +59,8 @@ function app_load( user, path) {
         'node_modules/dayjs/plugin/weekOfYear',
     */
     modules = [
-        'dayjs/dayjs.min', 'dayjs/plugin/relativeTime', 
-        'dayjs/plugin/customParseFormat', 'dayjs/plugin/weekOfYear', 'dayjs/locale/fr',
+        'dayjs', 'dayjscdn/plugin/relativeTime', 
+        'dayjscdn/plugin/customParseFormat', 'dayjscdn/plugin/weekOfYear', 'dayjscdn/locale/fr',
         'moment', // has to be here until we configure chart.js to use dayjs or don't add v string
         //'config/udregister'+version,
         'https://www.sd-bee.com/upload/smartdoc/require-version/udregister-v-0-3-1.js',
