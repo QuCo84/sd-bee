@@ -328,6 +328,7 @@
             //echo "No storage";
             return [];
         }        
+        LF_debug( "Getting model {$model} as dataset", 'DM', 8);
         $content = "";
         $storage = $this->storage;
         if ( $this->storage) $content = $this->storage->read( 'models', $model.".json");

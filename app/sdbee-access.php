@@ -505,6 +505,7 @@ class SDBEE_access {
         $data = [ ':userId' => $this->userId];
         $clips = $this->_query( $sql, $data);
         for ( $clipi=0; $clipi < count( $clips); $clipi++) $clips[ $clipi][ 'id'] = $clips[ $clipi][ 'rowId'];
+        $clips[] = [ 'nname' : "Test text clip", 'ttext' => 'Some text for sample click'];
         return $clips;
     }
 

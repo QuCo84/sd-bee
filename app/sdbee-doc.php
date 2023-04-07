@@ -153,6 +153,7 @@ class SDBEE_doc {
             if ( !$jsonDoc) die( "Empty file {$this->dir}/{$this->name}");
             $this->doc = JSON_decode( $jsonDoc, true); 
             if ( !$this->doc) die( "Corrupted file {$this->dir}/{$this->name}");
+            LF_debug( "Read ".strlen( $jsonDoc)." from {$this->dir} {$this->name}", 'doc', 8);
             //if ( !$this->doc) throw new Exception( "Corrupted file {$this->dir}/{$this->name}");
         } else { 
             // No doc so provide marketplace
@@ -196,8 +197,8 @@ class SDBEE_doc {
         $this->size = count( $this->index);
         $this->next = 0;       
         // Initialise if needed        
-        if ( $this->state =="new" && $this->model && $this->model != "ASS000000000301_System" && $this->model != "None") {
-            //echo "Initialse {$this->name} {$this->model}";
+        if ( $this->state == "new" && $this->model && $this->model != "ASS000000000301_System" && $this->model != "None") {
+            LF_debug( "Initialising {$this->name} with {$this->model}", 'doc', 8);
             $this->initialiseFromModel();
         }
     }

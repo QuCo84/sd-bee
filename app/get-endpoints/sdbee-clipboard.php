@@ -83,7 +83,7 @@ EOT;
     // Display DB saved clips
     global $ACCESS;
     $clips = $ACCESS->getClips();
-    for( $clipi=count( $clips) - 1; $clipi>= 0; $clipi--) { L_displayClip( $clips[$clipi], true);}
+    for( $clipi=count( $clips) - 1; $clipi>= 0; $clipi--) { $tml .= L_getClipHTML( $clips[$clipi], true);}
     $html += "</div>";
     $html += "{onl"."oad}";
     global $DM;
@@ -95,15 +95,15 @@ EOT;
 /**
  * Generate HTML for 1 clip
  */
-function L_displayClip( $clip, $saved)
+function L_getClipHTML( $clip, $saved)
 {
-   global $LF;
    // Adjust text
+   $html = "";
    $text = str_replace( "&quo"."te;", "'", $clip['ttext']); //LF_preDisplay( 't', $clip['ttext']);
    $text = LF_substitute( $text, [ 'gimage'=>"/".$clip['gimage']]);
    //$text = trim($text);
    // Adjust name
-   $name = $clip['name'];
+   $name = $clip['nname'];
    // Get clip type from name
    $nameParts = explode( '_', $name);
    $type = "";
@@ -129,9 +129,10 @@ function L_displayClip( $clip, $saved)
    $clipContent = str_replace( "hidden", "cb_tags", $text);
    if ( !strpos( $clipContent, 'contenteditable'))
       $clipContent = str_replace( "\"cb_tags\"", "\"cb_tags\" contenteditable=\"true\" onkeydown=\"clipboarder.event( 'keydown', event);\"", $clipContent);
-   $LF->out( "<div id=\"{$name}\" class=\"CLIPBOARD_clip\" draggable=\"true\" ondragstart=\"window.ude.dataActionEvent( event);\" onclick=\"{$onclick}\" cb_type=\"{$type}\" ud_oid=\"{$clip['oid']}\" cb_tags=\"{$tags}\">"); 
-   $LF->out( $clipContent);
-   $LF->out( "</div>");
+   $html .= "<div id=\"{$name}\" class=\"CLIPBOARD_clip\" draggable=\"true\" ondragstart=\"window.ude.dataActionEvent( event);\" onclick=\"{$onclick}\" cb_type=\"{$type}\" ud_oid=\"{$clip['oid']}\" cb_tags=\"{$tags}\">"; 
+   $html .= $clipContent;
+   $html .= "</div>";
+   return $html;
    //$LF->out( "<div contenteditable=\"true\">{$tags}</div>");
    /*
    else  $LF->out( substr( $text, 0, 50));
@@ -147,6 +148,6 @@ function L_displayClip( $clip, $saved)
    }
    */
      
-} //L_displayClip()
+} 
 
 SDBEE_endpoint_clipboard( $request);

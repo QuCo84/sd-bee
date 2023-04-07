@@ -208,6 +208,7 @@ if ( count( $request)) {
     } elseif ( isset( $request[ 'task'])) {
         // Display a task        
         $taskName = $request[ 'task'];
+        LF_debug( "Displaying {$taskName}", 'index', 8);
         $doc = new SDBEE_doc( $taskName);
         $doc->sendToClient();
     } elseif( isset( $request[ 'model'])) {
