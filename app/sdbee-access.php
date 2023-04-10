@@ -340,22 +340,25 @@ class SDBEE_access {
     /**
      * Update a user's record
      */
-    function updateUserInfo( $id, $info) {
-        return $this->_update( 'Users', $id, $info, [ 'password']);
+    function updateUserInfo( $name, $info) {
+        $currentInfo = $this->getUserInfo( $name);
+        return $this->_update( 'Users', $currentInfo[ 'rowid'], $info, [ 'password']);
     }
 
     /**
      * Update a doc's record
      */
-    function updateDocInfo( $id, $info) {
-        return $this->_update( 'Docs', $id, $info, [ '']);
+    function updateDocInfo( $name, $info) {
+        $currentInfo = $this->getDocInfo( $name);
+        return $this->_update( 'Docs', $currentInfo[ 'rowid'], $info, [ 'id', 'rowid', 'access']);
     }
 
     /**
      * Update a collection's record
      */
-    function updateCollectionInfo( $id, $info) {
-        return $this->_update( 'Docs', $id, $info, [ '']);
+    function updateCollectionInfo( $name, $info) {
+        $currentInfo = $this->getDocInfo( $name);
+        return $this->_update( 'Docs', $currentInfo[ 'rowid'], $info, [ 'id', 'rowid', 'access']);
     }
 
     /**
@@ -505,7 +508,7 @@ class SDBEE_access {
         $data = [ ':userId' => $this->userId];
         $clips = $this->_query( $sql, $data);
         for ( $clipi=0; $clipi < count( $clips); $clipi++) $clips[ $clipi][ 'id'] = $clips[ $clipi][ 'rowId'];
-        $clips[] = [ 'nname' : "Test text clip", 'ttext' => 'Some text for sample click'];
+        $clips[] = [ 'nname' => "Test text clip", 'ttext' => 'Some text for sample click'];
         return $clips;
     }
 
@@ -569,7 +572,8 @@ class SDBEE_access {
         }
         // Run query and return true if no error
         $this->_query( $q, $qdata);
-        return $id; //( $this->helper->lastError == "");
+        if ( $this->lastError) return $this->lastError;
+        return $id; 
     }
 
     /**

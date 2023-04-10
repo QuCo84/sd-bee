@@ -28,7 +28,7 @@
     if ( strpos( $oid, '--SP')) {
         // Delete
         $rep = $doc->deleteElement( $elementId);
-    } else  if ( !$element) {
+    } else  if ( !$doc->existsElement( $elementId)) {
         // Creation
         //var_dump( $data);
         $rep = $doc->createElement( $elementId, $request, $depth);

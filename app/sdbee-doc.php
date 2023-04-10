@@ -137,10 +137,11 @@ class SDBEE_doc {
 
     function sendToClient( $params=[ 'mode' => 'edit']) {    
         // Create UD with this as dataset
-        $context = [ 'mode'=>$params[ 'mode'], 'displayPart'=>"default", 'cacheModels'=>false, 'cssFile'=>false];
+        $oid = "_FILE_UniversalDocElement-{$this->name}--21-{$this->info[ 'id']}";
+        $context = [ 'mode'=>$params[ 'mode'], 'oid'=>$oid, 'displayPart'=>"default", 'cacheModels'=>false, 'cssFile'=>false];
         $ud = new UniversalDoc( $context, $this->fctLib);
         if ( $params[ 'mode'] == "model") $ud->loadModel( $this->name, false);
-        else $ud->loadData( "_FILE_UniversalDocElement-{$this->name}--21-{$this->info[ 'id']}", $this);
+        else $ud->loadData( $oid, $this);
         // Generate HTML
         $ud->initialiseClient();
     }
@@ -193,6 +194,7 @@ class SDBEE_doc {
             if ( isset( $this->params[ 'progress'])) $this->progress = $this->params[ 'progress'];
             if ( isset( $this->params[ 'deadline'])) $this->deadline = $this->params[ 'deadline'];
         }
+        $this->content[ $this->topName] = $this->top;
         $this->index = Array_keys( $this->content);
         $this->size = count( $this->index);
         $this->next = 0;       
@@ -299,14 +301,16 @@ class SDBEE_doc {
         $depth = $el[ 'depth'];
         $oidA = [ 21,1];
         $oid = "_FILE_UniversalDocElement-{$this->name}";
-        for ( $depthi=0; $depthi < $depth; $depthi++) {
+        for ( $depthi=1; $depthi < $depth; $depthi++) {
             $id = $this->depths[ $depthi];
             $oid .= "-_FILE_UniversalDocElement-{$this->index[ $id - 1]}";
             $oidA[] = 21;
             $oidA[] = $id;
         }
-        $oid .= "-_FILE_UniversalDocElement-{$el[ 'nname']}";
-        $oid .= "--".implode( '-', $oidA)."-21-{$el[ 'id']}";
+        if ( $depth) {
+            $oid .= "-_FILE_UniversalDocElement-{$el[ 'nname']}";
+            $oid .= "--".implode( '-', $oidA)."-21-{$el[ 'id']}";
+        } else $oid .= "--".implode( '-', $oidA);
         $oid .= "--AL|{$permissions}";
         // Store id by depth
         $this->depths[ $depth] = $el[ 'id'];

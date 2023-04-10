@@ -55,8 +55,8 @@
         if ( uri.charAt(0) == '/') this.url = this.server+uri;
         else this.url = this.server+'/'+uri;
         
-        /* PATCH GCP*/
-       if ( method == "POST") this.url = this.server;
+       /* PATCH GCP*/
+       if ( method == "POST" && ( strpos( this.server, "appspot") || strpos( this.server, "cloudshell"))) this.url = this.server;
 
         this.method = method;
         context.uri = uri;
