@@ -182,6 +182,7 @@ class UniversalDoc {
         // Set access to data 
         if ( $dataModel) {
             $this->dm = $this->dataModel = $dataModel;
+               
             $this->user = "me";
             $this->userId = 1;
             $this->lang = "FR";            

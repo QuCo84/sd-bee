@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-include_once __DIR__."/../helpers/html.php";
+include_once __DIR__."/../editor-view-model/helpers/html.php";
 
 function SDBEE_endpoint_clipboard() {
     $html = "";
@@ -83,7 +83,7 @@ EOT;
     // Display DB saved clips
     global $ACCESS;
     $clips = $ACCESS->getClips();
-    for( $clipi=count( $clips) - 1; $clipi>= 0; $clipi--) { $tml .= L_getClipHTML( $clips[$clipi], true);}
+    for( $clipi=count( $clips) - 1; $clipi>= 0; $clipi--) { $html .= L_getClipHTML( $clips[$clipi], true);}
     $html .= "</div>";
     global $DM;
     $DM->onload( $dropZoneJS);
@@ -98,11 +98,11 @@ function L_getClipHTML( $clip, $saved)
 {
    // Adjust text
    $html = "";
-   $text = str_replace( "&quo"."te;", "'", $clip['ttext']); //LF_preDisplay( 't', $clip['ttext']);
+   $text = str_replace( "&quo"."te;", "'", $clip['content']); //LF_preDisplay( 't', $clip['ttext']);
    $text = LF_substitute( $text, [ 'gimage'=>"/".$clip['gimage']]);
    //$text = trim($text);
    // Adjust name
-   $name = $clip['nname'];
+   $name = $clip['name'];
    // Get clip type from name
    $nameParts = explode( '_', $name);
    $type = "";
@@ -120,9 +120,10 @@ function L_getClipHTML( $clip, $saved)
    elseif ( $type == "")
    {
      // $onclick = "window.ud.insertText('$text');"
-     if ( strpos( $text, "\n") !== false) $type = "text";
-     elseif ( $text[0] == '{') $type = $json;
-     elseif ( HTML_stripTags( $text) != $text) $type = "html";
+     if ( strpos( $text, "\n") !== false) $type = 'text';
+     elseif ( $text[0] == '{') $type = 'json';
+     elseif ( HTML_stripTags( $text) != $text) $type = 'html';
+     else $type = 'text';
    }  
    // Display clip
    $clipContent = str_replace( "hidden", "cb_tags", $text);

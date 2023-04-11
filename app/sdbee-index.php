@@ -165,7 +165,7 @@ if ( count( $request)) {
             exit();
         }
         echo "no test $test configurated";
-    } elseif ( isset( $request[ 'act'])) {
+    } elseif ( isset( $request[ 'act']) && $request[ 'act'] != "ignore") {
         $act = $request[ 'act']; 
         if ( $act == 'fetch') {
             $doc = new SDBEE_doc( $request[ 'task']);

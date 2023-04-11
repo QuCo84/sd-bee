@@ -87,7 +87,8 @@ class UDdocument extends UDelement
                 $onclick = "window.ud.udajax.updateZone('{$shortOid}', {$viewId});";
             }
             // Recycle link 2DO could hide button if no shortOid
-            $recycleClick = ( $this->shortOid) ? "$$$.deleteDoc('{$this->shortOid}');" : "";   
+            // $recycleClick = ( $this->shortOid) ? "$$$.deleteDoc('{$this->shortOid}');" : "";   
+            $recycleClick = "$$$.deleteDoc('{$this->oid}');";
             // Build HTML
             // Grab content from the thumbnail/dir resource file
             if ( !self::$thumbTemplate) self::$thumbTemplate = UD_fetchResource( 'resources/thumbnails/dir.vue', $filename, $ext, 'html', 'bulma');

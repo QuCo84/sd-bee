@@ -265,6 +265,31 @@ class SDBEE_access {
     }
 
     /**
+     * Get the access info of a doc's collection
+     * @param string $name Doc's name
+     * @return array Collection's access info as array with rowid, (u)name, label, model, params, type, prefix, dcreated, dmodified, access
+     */
+    function getDirectoryInfo( $docName, $docId = 0) {
+        if ( !$docId) {
+            $docInfo = $this->getDocInfo( $docName);
+            $docId = $docInfo[ 'id'];
+        }
+        $data = [ ':targetId'=>$docId, ':isDoc'=>true];
+        $where = "targetId=:targetId AND isDoc=:isDoc";
+        $existing = $this->_query( "SELECT * FROM CollectionLinks WHERE {$where};", $data);
+        if ( count( $existing)) {
+            $collectionId = $existing[ 'collectionId'];
+            $collectionInfo = $this->_query( "SELECT * FROM Docs WHERE rowId:rowId", [ ':rowId'=>$collectionId]);
+            if ( count( $collectionInfo)) {
+                $collectionInfo = $collectionInfo[0];
+                //2DO access info ?
+                return $collectionInfo;
+            }
+        }
+        return []; //
+    }
+
+    /**
      * Get a collection's contents
      * @param string $name Collection's (u)name 
      * @param boolean $useMap Map fields and data to SOILink fields and format
@@ -399,19 +424,25 @@ class SDBEE_access {
         }
     }
 
-    function addDocToCollection( $name, $collectionName, $data, $access=7) {
+    function addDocToCollection( $name, $collectionName, $data=null, $access=7) {
         // Look for existing record with unique name
         $existing = $this->getDocInfo( $name);        
-        if ( count( $existing)) return $this->_error( "Duplicate name $name in add Doc"); //$this->updateDocInfo( $existing[ 'rowid'], $data);
+        if ( count( $existing) && $data) return $this->_error( "Duplicate name $name in add Doc"); //$this->updateDocInfo( $existing[ 'rowid'], $data);
         // Get collection id
         $collection = $this->getCollectionInfo( $collectionName);
         if ( !$collection) return $this->_error( "Cannot add document $name to unknown collection $collectionName");
         $collectionId = $collection[ 'id'];
-        $data[ 'name'] = $name;
-        $data[ 'created'] = $data[ 'modified'] = time();
-        $data[ 'deadline'] = time() + 7*24*60*60;   
-        $r = $this->_insert( 'Docs', $data, 'name label type model description params prefix created modified state progress deadline');
-        $isDoc = ( $data[ 'type'] == UD_directory) ? 0 : 1;
+        if ( $data) {
+            $data[ 'name'] = $name;
+            $data[ 'created'] = $data[ 'modified'] = time();
+            $data[ 'deadline'] = time() + 7*24*60*60;   
+            $r = $this->_insert( 'Docs', $data, 'name label type model description params prefix created modified state progress deadline');
+            $isDoc = ( $data[ 'type'] == UD_directory) ? 0 : 1;
+        } else {
+            $r = $existing[ 'id'];
+            $isDoc = ( $existing[ 'type'] == UD_directory) ? 0 : 1;
+        }
+        // Link to doc to collection
         if ( $r > 0) $this->_linkToCollection( $r, $collectionId, $isDoc, $access);
         return $r;
     }
@@ -498,8 +529,8 @@ class SDBEE_access {
     function addClip( $name, $type, $content) {
         if ( $this->userId == -1) return [];
         $data = [ 'name' => $name, 'userId' => $this->userId, 'type' => $type, 'content'=>$content];
-        $this->insert( 'Clips', $data, 'name userId type content');
-        return getClips();
+        $this->_insert( 'Clips', $data, 'name userId type content');
+        return $this->getClips();
     }
 
     function getClips() {
@@ -515,7 +546,6 @@ class SDBEE_access {
     function deleteClip( $clipId) {
         if ( $this->userId == -1) return [];
         $sql = "DELETE FROM Clips WHERE rowId=:rowId;";
-        $data = [ ':rowId' => $clipId];
         $clips = $this->_query( $sql, $data);
         return $clips;
     }
