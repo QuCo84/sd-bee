@@ -51,13 +51,14 @@
     // Send a request to server and pre-process reponse before callback 
     serverRequest( uri, method="GET", postdata="", context={}, successCallback= null, errorCallback=null)
     {
+        // PATCH OS version - some tools have webdesk wired in there requests
+        uri = uri.replace( '/webdesk/', '/' + this.service + '/');
+
         // 2DO add service unless already present and replace for name change
         if ( uri.charAt(0) == '/') this.url = this.server+uri;
-        else this.url = this.server+'/'+uri;
-        // Some tools have webdesk wired in there requests
-        uri = uri.replace( '/webdesk/', '/' + this.service + '/');
+        else this.url = this.server+'/'+uri;       
         
-       /* PATCH GCP*/
+       /* PATCH OS on GCP*/
        if ( method == "POST" && ( strpos( this.server, "appspot") || strpos( this.server, "cloudshell"))) this.url = this.server;
 
         this.method = method;

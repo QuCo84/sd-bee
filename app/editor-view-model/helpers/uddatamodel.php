@@ -248,9 +248,11 @@
                  $output
             );
         } elseif ( $mode == 'ajax') {
+            // Escape { } 
+            $onload = str_replace( ['{', '}'], ['LFJ_openAcco', 'LFJ_closeAcco'], self::$onload);
             $output = str_replace( 
                 [ '{document}', '{onload}'],
-                [  self::$document, self::$onload],
+                [  self::$document, $onload],
                 "{document}\n<script type=\"text/javascript\" lang=\"javascript\">\nwindow.onload = function(){\n{onload}\n};}\n"
             );
         }
