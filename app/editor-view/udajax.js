@@ -55,7 +55,7 @@
         if ( uri.charAt(0) == '/') this.url = this.server+uri;
         else this.url = this.server+'/'+uri;
         // Some tools have webdesk wired in there requests
-        uri = uri.replace( '/webdesk/', '/'+this.service+'/');
+        uri = uri.replace( '/webdesk/', '/' + this.service + '/');
         
        /* PATCH GCP*/
        if ( method == "POST" && ( strpos( this.server, "appspot") || strpos( this.server, "cloudshell"))) this.url = this.server;

@@ -601,7 +601,7 @@ function LF_fileServer() {
     $uriParts = explode( '/', $uri);
     array_shift( $uriParts);
     $topDir = $uriParts[0];
-    if ( !in_array( $topDir, ["sd-bee", "app", "editor-view-model", "editor-view", "upload", "tmp", "download", "fonts", "favicon.ico"])) return false;
+    if ( !in_array( $topDir, ["sd-bee", "sdbee", "app", "editor-view-model", "editor-view", "upload", "tmp", "download", "fonts", "favicon.ico"])) return false;
     $filename = $uriParts[ count( $uriParts) - 1];
     $fileParts = explode( '.', $filename);
     $ext = $fileParts[ count( $fileParts) - 1];    
