@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-include_once __DIR__."/../helpers/html.php";
+include_once __DIR__."/../editor-view-model/helpers/html.php";
 
 function SDBEE_endpoint_addOrDeleteClip( $request) {
     global $ACCESS, $DM;

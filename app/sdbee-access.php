@@ -498,13 +498,13 @@ class SDBEE_access {
     function addClip( $name, $type, $content) {
         if ( $this->userId == -1) return [];
         $data = [ 'name' => $name, 'userId' => $this->userId, 'type' => $type, 'content'=>$content];
-        $this_insert( 'Clips', $data, [ 'name userId type content']);
+        $this->insert( 'Clips', $data, 'name userId type content');
         return getClips();
     }
 
     function getClips() {
         if ( $this->userId == -1) return [];
-        $sql = "SELECT rowId, * In Clips WHERE userId=:userId;";
+        $sql = "SELECT rowId,* In Clips WHERE userId=:userId;";
         $data = [ ':userId' => $this->userId];
         $clips = $this->_query( $sql, $data);
         for ( $clipi=0; $clipi < count( $clips); $clipi++) $clips[ $clipi][ 'id'] = $clips[ $clipi][ 'rowId'];
