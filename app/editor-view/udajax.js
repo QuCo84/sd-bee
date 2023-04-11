@@ -59,7 +59,7 @@
         else this.url = this.server+'/'+uri;       
         
        /* PATCH OS on GCP*/
-       if ( method == "POST" && ( strpos( this.server, "appspot") || strpos( this.server, "cloudshell"))) this.url = this.server;
+       if ( method == "POST" && ( this.server.indexOf( 'appspot') > -1 || this.server.indexOf('cloudshell') > -1)) this.url = this.server;
 
         this.method = method;
         context.uri = uri;
