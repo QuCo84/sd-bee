@@ -259,7 +259,7 @@ function SDBEE_getRequest() {
     $requestKeys = array( 
         'test', 'e', 'form', 'nServiceRequest', 'task', 'model', 'collection', 'act', 'input_oid', 
         'nname', 'nlabel', 'stype', 'nstyle', 'tcontent', 'thtml', 'nlang', 'textra', 'ngivenname', 'nParams', 'lastTime', 'ticks',
-        'tpasswd', 'tdomain', '_stype', '_tdomain'
+        'tpasswd', 'tdomain', '_stype', '_tdomain', 'ttext'
     );
     foreach( $requestKeys as $key) {
         if ( isset( $_REQUEST[ $key])) $request[ $key] = $_REQUEST[ $key];
