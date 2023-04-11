@@ -60,7 +60,7 @@
         
        /* PATCH OS on GCP*/
        if ( method == "POST" && ( this.server.indexOf( 'appspot') > -1 || this.server.indexOf('cloudshell') > -1)) this.url = this.server;
-       if ( method == "POST" && uri.indexOf( 'AJAX_clipboard') > -1) this.url = this.server+'/'+this->this.service;
+       if ( method == "POST" && uri.indexOf( 'AJAX_clipboard') > -1) this.url = this.server+'/'+this.this.service;
 
         this.method = method;
         context.uri = uri;
