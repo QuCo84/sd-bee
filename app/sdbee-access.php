@@ -535,7 +535,7 @@ class SDBEE_access {
 
     function getClips() {
         if ( $this->userId == -1) return [];
-        $sql = "SELECT rowId,* In Clips WHERE userId=:userId;";
+        $sql = "SELECT rowId,* FROM Clips WHERE userId=:userId;";
         $data = [ ':userId' => $this->userId];
         $clips = $this->_query( $sql, $data);
         for ( $clipi=0; $clipi < count( $clips); $clipi++) $clips[ $clipi][ 'id'] = $clips[ $clipi][ 'rowId'];
