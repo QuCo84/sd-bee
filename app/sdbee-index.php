@@ -195,13 +195,11 @@ if ( count( $request)) {
             include ( "post-endpoints/sdbee-add-doc.php");
         } elseif ( $form == "INPUT_createUser") {
             include ( "post-endpoints/sdbee-add-user.php");
-            //echo "Adding a user"; var_dump( $request); //die();
-            
-        } /*
-        elseif ( $form == "INPUT_pasteForm") {
+            //echo "Adding a user"; var_dump( $request); //die();            
+        } elseif ( $form == "INPUT_pasteForm") {
             //echo "Add a clip
-            include ( "post-endpoints/sdbee-add-clip.php");
-        }*/
+            include ( "post-endpoints/sdbee-add-delete-clip.php");
+        }
         // 2DO Fetch element
     } elseif ( isset( $request[ 'nServiceRequest'])) {
         // Service call
