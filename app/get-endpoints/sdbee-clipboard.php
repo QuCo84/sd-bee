@@ -66,26 +66,26 @@ EOT;
     // Display elements selected for this document     
     $onclick = "window.clipboarder.event( 'receiveClip', event);";
     $html = "<div class=\"CLIPBOARD_options\">";    
-    $html += "<span id=\"ClipboardPasteZone\" onclick=\"{$onclick}\" onpaste=\"{$onclick}\">";
-    $html += "Paste new clips here</span><br />";
-    $html += $dropZoneHTML;
+    $html .= "<span id=\"ClipboardPasteZone\" onclick=\"{$onclick}\" onpaste=\"{$onclick}\">";
+    $html .= "Paste new clips here</span><br />";
+    $html .= $dropZoneHTML;
     // 2DO UDE_formula to change text if cursor or not IF( cursor, "insert at cursor text", "click in doc")  
-    $html += "<span>Click on a clip to insert at cursor</span><br />";
-    $html += "<label for=\"CLIP_deleteAfterUse\">";
-    $html += "<input type=\"checkbox\" id=\"CLIP_DeleteAfterUse\" />Effacer après usage</label>";
-    $html += " <a href=\"javascript:\" onclick=\"window.clipboarder.deleteGroupClips('_ALL_');\">Effacer tous maintenant</a>";
+    $html .= "<span>Click on a clip to insert at cursor</span><br />";
+    $html .= "<label for=\"CLIP_deleteAfterUse\">";
+    $html .= "<input type=\"checkbox\" id=\"CLIP_DeleteAfterUse\" />Effacer après usage</label>";
+    $html .= " <a href=\"javascript:\" onclick=\"window.clipboarder.deleteGroupClips('_ALL_');\">Effacer tous maintenant</a>";
     // document.getElementById( 'UD_docTitle').textContent
-    $html += "</div>";
+    $html .= "</div>";
     // Provide space for client-side managed clips
-    $html += "<div id=\"modelClips\">{insertClips}</div>";  
+    $html .= "<div id=\"modelClips\">{insertClips}</div>";  
     // Display elements selected for this document
-    $html += "<div class=\"CLIPBOARD\">";      
+    $html .= "<div class=\"CLIPBOARD\">";      
     // Display DB saved clips
     global $ACCESS;
     $clips = $ACCESS->getClips();
     for( $clipi=count( $clips) - 1; $clipi>= 0; $clipi--) { $tml .= L_getClipHTML( $clips[$clipi], true);}
-    $html += "</div>";
-    $html += "{onl"."oad}";
+    $html .= "</div>";
+    $html .= "{onl"."oad}";
     global $DM;
     $DM->onload( $dropZoneJS);
     $DM->out( $html);   
