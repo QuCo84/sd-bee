@@ -85,7 +85,6 @@ EOT;
     $clips = $ACCESS->getClips();
     for( $clipi=count( $clips) - 1; $clipi>= 0; $clipi--) { $tml .= L_getClipHTML( $clips[$clipi], true);}
     $html .= "</div>";
-    $html .= "{onl"."oad}";
     global $DM;
     $DM->onload( $dropZoneJS);
     $DM->out( $html);   
