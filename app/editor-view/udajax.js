@@ -441,7 +441,7 @@
         if ( action=="refresh" /*|| action=="remove" || action == "insert"*/ ) setCursor = true;
      
         // Prepare AJAX call with result processing
-        let call = '';
+        let call = '/'+this.service;
         if ( this.updateAction) call +='/'+this.service + '/' + oid + '/' + this.updateAction+"/";  
         if (action == "refresh" /*|| action == "insert"*/) call = '/'+this.service+'/'+oid+"/"+this.refreshAction+"/";   
         // Prepare context for response handling
