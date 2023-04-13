@@ -385,7 +385,7 @@ class SDBEE_access {
      */
     function updateDocInfo( $name, $info) {
         $currentInfo = $this->getDocInfo( $name);
-        return $this->_update( 'Docs', $currentInfo[ 'rowid'], $info, [ 'id', 'rowid', 'access']);
+        return $this->_update( 'Docs', $currentInfo[ 'rowid'], $info, [ 'id', 'rowid', 'access', 'path']);
     }
 
     /**
@@ -393,7 +393,7 @@ class SDBEE_access {
      */
     function updateCollectionInfo( $name, $info) {
         $currentInfo = $this->getDocInfo( $name);
-        return $this->_update( 'Docs', $currentInfo[ 'rowid'], $info, [ 'id', 'rowid', 'access']);
+        return $this->_update( 'Docs', $currentInfo[ 'rowid'], $info, [ 'id', 'rowid', 'access', 'path']);
     }
 
     /**
@@ -611,7 +611,7 @@ class SDBEE_access {
         }
         // Run query and return true if no error
         $this->_query( $q, $qdata);
-        if ( $this->lastError) return $this->lastError;
+        if ( $this->lastError) { echo $this->lastError;return $this->lastError;}
         return $id; 
     }
 

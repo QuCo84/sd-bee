@@ -70,8 +70,7 @@ class SDBEE_access_sqlite {
     */
 
     function save( $destruct=false) {            
-        if ( $this->isModified) {        
-            echo "sqlite write<br>\n";    
+        if ( $this->isModified) {        ;    
             $source = $this->source;
             $sourceParts = explode( ':', $source);       
             $media = $sourceParts[0];
