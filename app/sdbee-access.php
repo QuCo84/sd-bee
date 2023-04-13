@@ -278,8 +278,8 @@ class SDBEE_access {
         $where = "targetId=:targetId AND isDoc=:isDoc";
         $existing = $this->_query( "SELECT * FROM CollectionLinks WHERE {$where};", $data);
         if ( count( $existing)) {
-            $collectionId = $existing[ 'collectionId'];
-            $collectionInfo = $this->_query( "SELECT * FROM Docs WHERE rowId:rowId", [ ':rowId'=>$collectionId]);
+            $collectionId = $existing[0][ 'collectionId'];
+            $collectionInfo = $this->_query( "SELECT * FROM Docs WHERE rowId=:rowId", [ ':rowId'=>$collectionId]);
             if ( count( $collectionInfo)) {
                 $collectionInfo = $collectionInfo[0];
                 //2DO access info ?
@@ -309,6 +309,7 @@ class SDBEE_access {
         $collId = $collInfo[ 'id'];
         $sql = "SELECT * FROM CollectionLinks WHERE collectionId=:collectionId;";
         $links = $this->_query( $sql, [ ':collectionId' => $collId]);
+        $view = "'BE00000000000000M_dirListing'"; // 2DO $$$.dom.getView()
         // Add each link's target to contents array
         for ( $conti=0; $conti < count( $links); $conti++) {
             $link = $links[ $conti];
@@ -320,9 +321,12 @@ class SDBEE_access {
                 // Map fields
                 $content = [];
                 foreach ( $map as $field=>$src) $content[ $field] = $info[ $src];
-                $content[ '_link'] = "?task={$targetName}"; // !!!important force link used in dir listing
+                if ( $info[ 'type'] == 1) {
+                    $content[ '_link'] = "_FILE_UniversalDocElement-{$targetName}--21-{$targetId}}/AJAX_listContainers/updateOid|off/";
+                } else $content[ '_link'] = "?task={$targetName}"; // !!!important force link used in dir listing
+                $content[ 'oid'] = "_FILE_UniversalDocElement-{$targetName}--21-{$targetId}";
                 $contents[] = $content; 
-            } else $contents[] = $info;
+            } else $contents[] = $info321;
         }        
         return $contents;
     }
@@ -341,17 +345,23 @@ class SDBEE_access {
             foreach ( $map as $field=>$src) $content[] = $field;
             $contents[] = $content;
         }
-        $sql = "SELECT * IN UserLinks WHERE userId=:userId AND isUser=0;";
+        $view = "'BE00000000000000M_dirListing'";
+        $sql = "SELECT * FROM UserLinks WHERE userId=:userId AND isUser=0;";
         $links = $this->_query( $sql, [ ':userId' => $this->userId]);
         // Add each link's target to contents array
         for ( $conti=0; $conti < count( $links); $conti++) {
             $link = $links[ $conti];
             $targetId = $link[ 'targetId'];
-            $info = $this->getDocInfo( $this->_getDocNameById( $targetId));           
+            $targetName = $this->_getDocNameById( $targetId);
+            $info = $this->getDocInfo( $targetName);           
             if ( isset( $useMap)) {
                 // Map fields
                 $content = [];
                 foreach ( $map as $field=>$src) $content[ $field] = $info[ $src];
+                if ( $info[ 'type'] == 1) {
+                    $content[ '_link'] = "_FILE_UniversalDocElement-{$targetName}--21-{$targetId}}/AJAX_listContainers/updateOid|off/";
+                } else $content[ '_link'] = "?task={$targetName}"; // !!!important force link used in dir listi
+                $content[ 'oid'] = "_FILE_UniversalDocElement-{$targetName}--21-{$targetId}";
                 $contents[] = $content; 
             } else $contents[] = $info;
         }
@@ -409,7 +419,6 @@ class SDBEE_access {
 
     function _linkToUser( $targetId, $userId, $isUser = false, $isDoc = false, $access=7) {
         // Look for existing link
-        $data = [ ':targetId'=>$targetId, ':userId'=>$userId, 'isUser:'=>$isUser];
         $where = "targetId=:targetId AND userId=:collectionId AND isUser=:isUser AND isDoc=:isDoc";
         $existing = $this->_query( "SELECT * FROM UserLinks WHERE {$where};", $data);
         if ( !count( $existing)) {
@@ -490,15 +499,15 @@ class SDBEE_access {
         if ( !$source || !$target) return $this->_error( "$collectionName Or $targetName doesn't exist");
         // Remove link record
         $sql = "DELETE FROM CollectionLinks WHERE collectionId=:collectionId AND isDoc=:isDoc AND targetId=:targetId;";
-        $data = [ ':collectionId'=> $source[ 'id'], ':isDoc'=>$isDoc, ':targetId'=>$target[ 'id']];
+        $data = [ ':collectionId'=>$source[ 'id'], ':isDoc'=>$isDoc, ':targetId'=>$target[ 'id']];
         $this->_query( $sql, $data);        
         // If no other links delete target
-        $data = [ ':targetId'=>$target[ 'id'], ':isDOc'=>$isDoc];
+        $data = [ ':targetId'=>$target[ 'id'], ':isDoc'=>$isDoc];
         $collLinks = $this->_query( 'SELECT * FROM CollectionLinks WHERE targetId=:targetId AND isDoc=:isDoc', $data);
         $userLinks = $this->_query( 'SELECT * FROM UserLinks WHERE targetId=:targetId AND isUser=0 AND isDoc=:isDoc', $data);
-        if ( !$collLinks  AND !$userLinks) {
+        if ( !$collLinks  && !$userLinks) {
             // Delete Doc Or Collection
-            $table = ( $isDoc) ? 'Docs' : 'Colelctions';
+            $table = ( $isDoc) ? 'Docs' : 'Collections';
             $this->_query( "DELETE FROM {$table} WHERE rowid=:key;", [ ':key'=>$target[ 'id']]);
         }
         $this->cache = [];
@@ -677,12 +686,17 @@ names = [fields[1] for fields in desc]
         // Fill lookups (docs & collections) if not already done
         if ( !$this->cache) $this->_getAccessTables();
         $access = 0;
-        if ( isset( $this->cache[ $id])) $access = $this->cache[ $id][ 'access'];
+        if ( isset( $this->cache[ $id])) {
+            $access = $this->cache[ $id][ 'access'];
+            $path =  $this->cache[ $id][ 'path'];
+        }
         //elseif ( isset( $this->collections[ $id])) $access = $this->collections[ $id][ 'access'];
         //elseif ( isset( $this->users[ $id])) $access = $this->users[ $id][ 'access'];
         if ( $info) {
-            if ( $access) $info[ 'access'] = $access;
-            else {
+            if ( $access) {
+                $info[ 'access'] = $access;
+                $info[ 'path'] = $path;
+            } else {
                 // var_dump( $id, $info, $this->cache);
                 $info = []; // [ 'access' => 0, 'error' => 'No access'];
             }
@@ -723,11 +737,11 @@ names = [fields[1] for fields in desc]
                 $this->cache[ 'D'.$linkId] = $link;
                 // Get info
                 $name = $this->_getDocNameById( $link[ 'targetId']);
-                $path .= '/'.$name;
+                $pathr = $path . '/' . $name;
                 // Check for links from this collection
                 $sql = "SELECT * FROM CollectionLinks WHERE collectionId=:collectionId;";
                 $nextLinks = $this->_query( $sql, [ ':collectionId' => $linkId]);
-                if ( $nextLinks) $this->_getAccessTables( $nextLinks, $access & $link[ 'access'], $path);
+                if ( $nextLinks) $this->_getAccessTables( $nextLinks, $access & $link[ 'access'], $pathr);
             }
         }
     }

@@ -182,7 +182,8 @@ class UniversalDoc {
         // Set access to data 
         if ( $dataModel) {
             $this->dm = $this->dataModel = $dataModel;
-               
+            $this->oidTop = ($context[ 'oid']) ? $context[ 'oid'] : LF_env( 'oid');
+            $this->oid = LF_mergeOid( $this->oidTop, [21]);   
             $this->user = "me";
             $this->userId = 1;
             $this->lang = "FR";            

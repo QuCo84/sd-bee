@@ -20,11 +20,13 @@
 function SDBEE_endpoint_collection( $collectionName, $action) {
     global $ACCESS, $DM;
     if ( !$ACCESS) return SDBEE_endpoint_collection_test();
+    $link = "$$$.updateZone('USER--21/AJAX_listContainers/updateOid|off/', 'BE00000000000000M_dirListing');";
+    $pathWithLinks = [ 'Top' => $link];
+    $view = "'BE00000000000000M_dirListing'";
     if ( !$collectionName || $collectionName == 'USER') {
         // Users top directory
-        $DOM->out( 'USER TOP<br>');
         $DM->out( UDUTILITY_breadcrumbs( $pathWithLinks));
-        $data = $ACCESS->getCollectionContents( $collectionName);
+        $data = $ACCESS->getUserContents();        
         $DM->load( $data);
         $DM->out( UDUTILITY_listContainersAsThumbnails( $DM, [ 'maxNb'=>0, 'offset'=>0, 'wrEnable' => 1]));
         $DM->flush( 'ajax');
@@ -34,16 +36,20 @@ function SDBEE_endpoint_collection( $collectionName, $action) {
         if ( !$info[ 'access'] && RD) {
             // Error page
         } elseif ( $action == "list") {
-            // Display collection's contents as HTML zone
-            $path = explode( '/', $info[ 'path']);
-            $pathWithLinks = [ 'Top' => "$$$.reload( false);"];
+            // Build path with links for breadcrumbs
+            if ( $info[ 'path']) $path = explode( '/', $info[ 'path'] . '/' . $collectionName);
+            else $path = [ $collectionName];            
             for ($pathi=0; $pathi < LF_count( $path); $pathi++) { 
                 $nodeName = $path[ $pathi];    
                 $nodeInfo =  $ACCESS->getCollectionInfo( $collectionName);
-                $nodeLabel = $pathInfo[ 'label'];            
-                $pathWithLinks[ $nodeLabel] = $nodeName;                
+                $nodeLabel = $nodeInfo[ 'label'];            
+                $link = "$$$.updateZone('_FILE_UniversalDocElement-{$collectionName}--21-{$info[ 'id']}";
+                $link .= "/AJAX_listContainers/updateOid|off/', {$view});";
+                $pathWithLinks[ $nodeLabel] = $link;                
             }
+            // Display breadcrumbs
             $DM->out( UDUTILITY_breadcrumbs( $pathWithLinks));
+            // Get and display directory contents
             $data = $ACCESS->getCollectionContents( $collectionName);
             $DM->load( $data);
             $DM->out( UDUTILITY_listContainersAsThumbnails( $DM, [ 'maxNb'=>0, 'offset'=>0, 'wrEnable' => 1]));

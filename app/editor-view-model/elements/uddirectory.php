@@ -12,7 +12,9 @@
     public  $title;
     private $subTitle;
     private $displayThumbnail;
-    private $link;    
+    private $link = "";    
+    private $onclick = "";
+    private $image = "";
 
     function __construct( $datarow)
     {
@@ -33,7 +35,9 @@
         if ( $this->type == UD_dirThumb) {
             // Element is a directory thumbnail
             $this->displayThumbnail = true;
-           if ( isset( $this->link)) $this->link = $datarow[ '_link'];
+            if ( isset( $datarow[ '_onclick'])) $this->onclick = $datarow[ '_onclick'];
+            if ( isset( $datarow[ '_link'])) $this->link = $datarow[ '_link'];
+            if ( isset( $datarow[ '_image'])) $this->image = $datarow[ '_image'];
             if ( !$this->link) {
                /*
                 * Display a thumbnail to a user's directory named with the dirName extra parameter

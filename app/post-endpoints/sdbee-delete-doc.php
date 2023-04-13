@@ -34,14 +34,15 @@ function SDBEE_endpoint_deleteDoc( $request) {
     if ( !$dirInfo) {
         // Attached to user
         // Link doc to wastebin
-        $ACCESS->addToCollection( $task,'Z00000000100000001_wastebin', true, $access);
+        $ACCESS->addDocToCollection( $task,'Z00000000100000001_wastebin', null, $access);
         // Unlink doc from collection or user
         $ACCESS->removeFromUser( $task, false, true);
     } else {
+        $dirInfo = $dirInfo[0];
         $recycled =( strpos( $dirInfo[ 'name'], "waste") !== false);
         if ( !$recycled) {
             // Link doc to wastebin
-            $ACCESS->addToCollection( $task,'Z00000000100000001_wastebin', true, $access);
+            $ACCESS->addDocToCollection( $task,'Z00000000100000001_wastebin', null, $access);
             // Unlink doc from collection or user
             $ACCESS->removeFromCollection( $task, $dirInfo[ 'name'], true);
         } else {

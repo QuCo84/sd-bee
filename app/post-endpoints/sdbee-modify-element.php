@@ -25,10 +25,14 @@
     $elementId = $w[ count( $w) - 1];
     $depth = (int) count( $w)/2 - 1;
     $doc = new SDBEE_doc( $taskName);
-    if ( strpos( $oid, '--SP')) {
-        // Delete
+    if ( isset( $request[ 'iaccess']) && $request[ 'iaccess']== "0" && $depth == 0) {
+        // Delete or recycle document
+        include( 'sdbee-delete-doc.php');
+        exit();
+    } elseif ( strpos( $oid, '--SP')) {
+        // Delete an element
         $rep = $doc->deleteElement( $elementId);
-    } else  if ( !$doc->existsElement( $elementId)) {
+    } elseif ( !$doc->existsElement( $elementId)) {
         // Creation
         //var_dump( $data);
         $rep = $doc->createElement( $elementId, $request, $depth);
