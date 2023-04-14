@@ -185,6 +185,9 @@ if ( count( $request)) {
         } else {
             echo "No such action";
         }
+    } elseif ( isset( $request[ 'nServiceRequest'])) {
+        // Service call
+        include ( "post-endpoints/sdbee-service-gateway.php");
     } elseif ( isset( $request[ 'form'])) {
         // FORM data
         $form = $request[ 'form']; 
@@ -200,9 +203,7 @@ if ( count( $request)) {
             //echo "Add a clip
             include ( "post-endpoints/sdbee-add-delete-clip.php");
         }
-        // 2DO Fetch element
-    } elseif ( isset( $request[ 'nServiceRequest'])) {
-        // Service call
+        // 2DO Fetch element    
     } elseif ( isset( $request[ 'task'])) {
         // Display a task        
         $taskName = $request[ 'task'];

@@ -706,7 +706,7 @@ EOT;
             //#2222007 "<div id=\"UD_tagAndClassInfo\">{$tagAndClassInfo}</div>".
             "<div id=\"UD_registerModifications\">".UD_getModifiedResources()."</div>".
             "<div id=\"UD_history\">{$history}</div>".
-           // "<div id=\"UD_icons\">{$iconsJSON}</div>".
+            "<div id=\"UD_icons\">{$iconsJSON}</div>".
             '<div id="UD_nextViewIds">'.JSON_encode( $this->pager->nextPartIds).'</div>'.
             '<div id="UD_userParams" ud_oid="'.$this->userParamsOID.'">'.JSON_encode( $this->userParams).'</div>'.
            // "<div id=\"UD_loadedIcons\">{$preloadIcons}</div>".

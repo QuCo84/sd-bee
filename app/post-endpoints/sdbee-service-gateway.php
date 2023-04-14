@@ -18,6 +18,7 @@
  */
 
  function SDBEE_endpoint_service( $request) {
+    global $USER;
     // Parameters
     $localServices = [ 'doc'];
     // Get request and service
@@ -32,26 +33,36 @@
         include_once __DIR__.'/../local-services/udservices.php';
         $services = new UD_services( $params);
 	    $response = $services->do( $serviceRequest);
+        echo JSON_encode( $response);
     } else {
         // Use gateway for external services
         $gateway = $USER[ 'service-gateway'];
+        // 2DO JSON_decode as map service:url, get service from $serviceRequest
         if ( !$gateway) {
             $response = '{ "result":"KO", "msg":"Not configured"}';
         } else {
-            $user = $USER[ 'service-user'];
+            /*
+             *
+             *
+             * 
+             */
+            // 2DO Throttle control
+            // 2DO Access parameters
+            $user = $USER[ 'service-username'];
             $pass = $USER[ 'service-password'];
             $opts = array('http' =>
                 array(
                     'method'  => 'POST',
-                    'header'  => 'Content-type: application/json',
-                    'content' => "tusername={$user}&tpassword={$pass}&nServiceRequest={$reqRaw}"
+                    'header'  => 'Content-type: application/x-www-form-urlencoded', // json
+                    'content' => "tusername={$user}&tpassword={$pass}&nServiceRequest=".urlencode($reqRaw)
                 )
             );
             $context = stream_context_create($opts);
+            $url = $gateway."/AJAX_service/LINKS_noRedirect|1/";
             $response = file_get_contents( $url, false, $context);
+            // 2DO update service log
+            echo $response;
         }
     }
-    // Reply    
-    echo JSON_encode( $response);
 }
 SDBEE_endpoint_service( $request);
