@@ -297,7 +297,7 @@ class SDBEE_access {
      */
     function getCollectionContents( $name, $useMap=true) {
         $contents = [];
-        $map = [ 'nname'=>'name', 'tlabel'=>'label', 'stype'=>'type', 'nstyle'=>'model', 'tcontent'=>'label', 'tparams'=>'params'];
+        $map = [ 'nname'=>'name', 'tlabel'=>'label', 'stype'=>'type', 'nstyle'=>'model', 'tcontent'=>'label', 'textra'=>'params'];
         if ( $useMap) {
             // Set column names row
             $content = [];
@@ -315,7 +315,8 @@ class SDBEE_access {
             $link = $links[ $conti];
             $targetId = $link[ 'targetId'];
             $targetName = $this->_getDocNameById( $targetId);
-            $info = $this->getDocInfo( $targetName);                        
+            $info = $this->getDocInfo( $targetName);          
+            // $info[ 'params'] = [ 'system'=> $info[ 'params']];              
             // 2DO might need to read doc to get first entry or store tcontent here
             if ( isset( $useMap)) {
                 // Map fields
