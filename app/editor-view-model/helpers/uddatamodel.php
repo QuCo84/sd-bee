@@ -618,7 +618,7 @@ function LF_fileServer() {
         // Available locally
         //if ( $filename == 'requireconfig.js') $path = __DIR__."/../config/requireconfig.js";
         //elseif ( $filename == 'udajax.js') $path = __DIR__."/../../editor-view/udajax.js";      
-        if ( !in_array( $topPart, $topList)) array_shift( $uriParts); // upload or sd-bee
+        if ( !in_array( $topDir, $topList)) array_shift( $uriParts); // upload or sd-bee
         //array_shift( $uriParts); // smartdoc or app
         $path = implode( '/', $uriParts);               
     }
