@@ -603,8 +603,9 @@ function LF_fileServer() {
     $uriParts = explode( '/', $uri);
     array_shift( $uriParts);
     $topDir = $uriParts[0];
-    $topList = ["sd-bee", "sdbee", "app", "editor-view-model", "editor-view", "upload", "tmp", "download", "fonts", "favicon.ico"];
-    if ( !in_array( $topDir, $topList)) return false;
+    $topList = ["sd-bee", "sdbee", "upload", "tmp", "download"];
+    $dirs = ["app", "fonts", "favicon.ico"];
+    if ( !in_array( $topDir, $topList) && !in_array( $topDir, $dirs)) return false;
     $filename = $uriParts[ count( $uriParts) - 1];
     $fileParts = explode( '.', $filename);
     $ext = $fileParts[ count( $fileParts) - 1];    
@@ -618,7 +619,7 @@ function LF_fileServer() {
         // Available locally
         //if ( $filename == 'requireconfig.js') $path = __DIR__."/../config/requireconfig.js";
         //elseif ( $filename == 'udajax.js') $path = __DIR__."/../../editor-view/udajax.js";      
-        if ( !in_array( $topDir, $topList)) array_shift( $uriParts); // upload or sd-bee
+        if ( in_array( $topDir, $topList)) array_shift( $uriParts); // upload or sd-bee
         //array_shift( $uriParts); // smartdoc or app
         $path = implode( '/', $uriParts);               
     }
