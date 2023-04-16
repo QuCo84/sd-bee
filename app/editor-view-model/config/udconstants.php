@@ -2,7 +2,7 @@
 /* ===========================================================================
  *  udconstants.php
  *
- *  Constants for code clarity and parameters
+ *  Constants for code clarity and parameters. Loaded by ud.php
  */ 
 
 // call with UD_utilities::copyModelIntoUD( "mymodel", "mydoc");
