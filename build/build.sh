@@ -5,4 +5,5 @@ cp config-standard/* .config
 mkdir data
 mkdir data\access
 mkdir data\users
-#OK
+#Get PHP libraries
+composer require google/cloud-storage
