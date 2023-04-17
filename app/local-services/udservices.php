@@ -22,8 +22,6 @@
  * 2DO ::: Throttle activate / disactivate
  */
 
- //require_once( __DIR__."/../ud-view-model/udservicethrottle.php");
-
  class UD_services {
     
     private $params = null;
@@ -32,7 +30,10 @@
 
     function __construct( $params = null) {
         $this->params = $params;
-        //$this->throttle = new UD_serviceThrottle();
+        if ( !isset( $params[ 'throttle']) || $params[ 'throttle'] == "on") {
+            require_once( "udservicethrottle.php");
+            $this->throttle = new UD_serviceThrottle();
+        }
     }
 
     function _identified() { return LF_env( 'is_Anonymous');} // 2DO ENviromental
