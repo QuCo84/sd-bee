@@ -59,7 +59,7 @@ function SDBEE_form_addUser( $request) {
         // Send email
     } else {
         // No DB - test mode use password as prefix
-        echo "Cant' create user without DB. Bleow docs that will be created<br>";
+        echo "Cant' create user without DB. Below docs that will be created<br>";
         var_dump( $list);
     }
 }

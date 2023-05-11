@@ -36,12 +36,12 @@
         }
     }
 
-    function _identified() { return LF_env( 'is_Anonymous');} // 2DO ENviromental
+function _identified() { return ( !LF_env( 'is_Anonymous'));} // 2DO ENviromental
     function _decodeRequestString( $requestString) { return JSON_decode( urldecode( $requestString), true);}
 
     function do( $serviceRequest) {
         // Error if anonymous
-        if ( $this->_identified()) {
+        if ( !$this->_identified()) {
             // Prepare error response
             $jsonResponse = [
                 'success'=>False, 
@@ -58,7 +58,7 @@
         $jsonResponse = []; 
         $error = false;
         // Get generic parameters from request  
-        $token = $serviceRequest['token'];
+        $token = ( isset( $serviceRequest['accountOrToken'])) ? $serviceRequest['accountOrToken'] : '';
         $serviceName = strToLower( $serviceRequest['service']);
         $action = $serviceRequest['action'];
         if ( !in_array( $serviceName, [ 'doc', 'resource', 'tasks'])) {
@@ -97,7 +97,7 @@
         
             // Get parameters for services that rely on 3rd party        
             if ( !$this->_getParamsFromUserConfig( $serviceRequest)) {
-                return $this->_error( "202 {!No paramaters for service!} $serviceName");
+                return $this->_error( "202 {!No parameters for service!} $serviceName");
             };
             $provider = $serviceRequest[ 'provider'];
             $providerLC = strtoLower( $provider);
@@ -226,20 +226,36 @@
     function _getParamsFromUserConfig( &$serviceRequest) {
         $token = $serviceRequest['token'];
         $service = strToLower( $serviceRequest['service']);
+        /*        
+        if ( !$serviceRequest( 'recurrent')) {
+            // Look for service account to use
+            // 1 - via a token
+            $token = $serviceRequest[ 'token'];
+            $task = $serviceRequest[ 'task'];
+            if ( $token) $serviceAccount = $ACCESS->getToken[ $token.$task];
+            if ( !$serviceAccount) {
+                // 2 - from process (model) parameters
+                $process = $serviceRequest[ 'process'];
+                $params = $this->getModelParams( $process)
+                $serviceAccount = $params[ 'service-accounts'][ $service];
+            }
+            $paramsName = ( $serviceAccount) ? $serviceAccount : $service.'service';
+        }
+        */
         $provider = "";
-        // Read from doc
+        // Get credentials to access service from config task-doc
         $request = [
             'service' => 'doc',
             'action' => 'getNamedContent',
             'dir' => 'UniversalDocElement-',
-            'docOID' => 'UniversalDocElement--21-3825', //LF_env( 'UD_userConfigOid'),
-            'elementName' => $service.'service'
+            'docOID' => LF_env( 'UD_userConfigOid'),
+            'elementName' => $service.'service' /* $paramsName */
         ];
         $response = $this->_doRequest( $request);
         if ( $response[ 'success']) {
             $paramsContent = JSON_decode( $response[ 'data'], true);
             if ( $paramsContent && is_array( $paramsContent)) {
-            $params = $paramsContent[ 'data']['value'];
+                $params = $paramsContent[ 'data']['value'];
                 if ( $params) {
                     foreach( $params as $key=>$value) {
                         $key = strToLower( $key);
@@ -251,12 +267,20 @@
                         elseif ( $key == "provider") {
                             $provider = strToLower( $value);
                             $serviceRequest[ 'provider'] = $provider;
-                            $serviceRequest[ $provider] = $params[ $provider];                            
+                            $serviceRequest[ $provider] = $params[ $provider]; 
+                            if ( $params[ $provider] == 'parent') {
+                                /* 2DO Upward search for parameters
+                                $serviceRequest[ 'recurrent'] = true;
+                                // Change user
+                                // Get params $this._getParamsFromUserConfig( &$serviceRequest);
+                                // Restore user
+                                */
+                            }
                         } elseif ( $key == "__all") {
                             $serviceRequest[ '__all'] = $value;
                         }
                     }
-                    /* might need a faial safe
+                    /* might need a fail-safe
                     if ( !$provider && !isset( $serviceRequest[ '__all'])) {
                         foreach( $params as $key=>$value) $serviceRequest[ $key] = $value;
                     }
@@ -266,7 +290,7 @@
             }    
         }        
         {
-
+            // DEPRECATED
             // 2DO use param for reading account info (recursive)
             $paramsOid = "SetOfValues--16--nname|{$service}_service";
             $paramsField = "tvalues";
@@ -306,6 +330,23 @@
         return false;
     }
 
+    function _getParamsFromDoc( $service) {
+        // Read from doc
+        $request = [
+            'service' => 'doc',
+            'action' => 'getNamedContent',
+            'dir' => 'UniversalDocElement-',
+            'docOID' => LF_env( 'UD_userConfigOid'),
+            'elementName' => $service.'service'
+        ];
+        $response = $this->_doRequest( $request);
+        if ( !$response[ 'success']) return null;
+        // Extract parameters set
+        $paramsContent = JSON_decode( $response[ 'data'], true);
+        if ( !$paramsContent || !is_array( $paramsContent)) return null;
+        return $paramsContent[ 'data']['value'];
+    }
+
     function fetchNode( $oid, $cols="") {
         global $LF, $LFF;
         if ( TEST_ENVIRONMENT) return $LFF->fetchNode( $oid);
@@ -340,100 +381,158 @@ class UD_service {
         return $success;
     }
 }
+
+function SDBEE_serviceCall( $request) {
+
+}
 /**
  * Auto-test
  */
-if ( $argv[0] && strpos( $argv[0], "udservices.php") !== false) {
+if ( $argv && $argv[0] && strpos( $argv[0], "udservices.php") !== false) {
     // CLI launched for tests
-    print "Syntax OK\n";    
-    // Load test environment
-    require_once( __DIR__."/../tests/testenv.php");
-    require_once( __DIR__."/../tests/testsoilapi.php");
-    require_once( __DIR__."/../ud-view-model/udconstants.php");
-    $LFF = new Test_dataModel();
-    $jumpToTest = 2;
-    if (isset( $argv[1])) $jumpToTest = $argv[1];
-    print "Auto test udservices.php\n";
-    function nextTest( $services) {
-        global $TEST_NO, $LF, $LFF, $jumpToTest;
-        switch ( $TEST_NO) {
-            case 1 : // Login
-                $r = $LFF->openSession( "demo", "demo", 133);
-                // echo strlen( $r).substr( $r, 23000, 500);
-                if (  strlen( $r) > 1000 && stripos( $r, "Autotest")) echo "Login test : OK\n";
-                else echo "Login test: KO\n";
-                $TEST_NO = $jumpToTest - 1;
-                echo "Jumping to $jumpToTest\n";
-                break;
-            case 2 :
-                $html = "Hello world";
-                $serviceRequest = [
-                    'service' => "email",
-                    'provider' => "Mailjet",
-                    'action'=> "send",
-                    'from'=> [ 'name'=>"sd bee", 'email'=>"contact@sd-bee.com"],
-                    'subject'=> "Test message",
-                    'body'=> $html,
-                    'to' =>[ 'email'=> "qcornwell@gmail.com"]
-                ];
-                //$r = $services->do( $serviceRequest);
-                //print_r( $r);
-                /*
-                if ( $rep)
-                    echo "Throttle test : OK\n";
-                else {
-                    echo "Throttle test: KO {$service} {$throttle->lastError}\n";
-                    if ( strpos( $throttle->lastError, "not enabled")) {
-                        $throttle->createLog( $service);
-                        $TEST_NO--;
-                    }
-                    // echo $page;
-                }
-                */
-                break;            
-            case 3 : // Keywords test
-                $stems = [
-                    'keywords' => "coach digital webmarketing"
-                ];
-                $serviceRequest = [
-                    'service' => "keywords",
-                    'action' => "get",
-                    'cacheTag' => "keywordsTest",
-                    'stems' => $stems
-                ];
-                /*
-                $r = $services->do( $serviceRequest);
-                print_r( $r);
-                */
-                break;
-            case 4 : // Textgen test
-                /*
-                $serviceRequest = [
-                    'service' => "textgen",
-                    'provider' => "GooseAI",
-                    'action' => "complete",
-                    'engine' => "gpt-neo-20b",
-                    'text' => "Un site web doit être visible aux Internautes. Ca implique d'être référencé sur les moteurs de recherche.",
-                    'cacheTag' => "textgenTest",
-                    'lang' => 'fr'
-                ];
-                $r = $services->do( $serviceRequest);
-                print_r( $r);
-                */
-                break;
-            case 5 :  // Read service parameters from user config
-                $serviceRequest = [
-                    'service' => "Email",
-                    'provider' => "Mailjet"
-                ];
-                $r = $services->_getParamsFromUserConfig( $serviceRequest);
-                var_dump( $r, $serviceRequest);
-                break;
+    print "Syntax OK\n";  
+    define( 'TEST_ENVIRONMENT', true);    
+    if ( file_exists( __DIR__."/../sdbee-config.php")) {
+        // OS version
+        include ( __DIR__."/../sdbee-config.php");
+        include ( __DIR__."/../sdbee-access.php");
+        include ( __DIR__."/../editor-view-model/helpers/uddatamodel.php");
+        // 2DO include a testenv.php with next line or move to datamodel
+        $_SERVER[ 'REMOTE_ADDR'] = "192.168.1.1";
+        global $ACCESS, $CONFIG;
+        $CONFIG = SDBEE_getconfig();
+        $ACCESS = new SDBEE_access( $CONFIG[ 'access-database']);
+        function nextTest( $services) {
+            global $TEST_NO, $ACCESS, $CONFIG;
+            switch ( $TEST_NO) {
+                case 1 : // Login                
+                    $r = $ACCESS->login( "a", "b", [ 'a'=>"demo", 'b'=>"demo"]);
+                    // echo strlen( $r).substr( $r, 23000, 500);
+                    if (  $r) echo "Login test : OK\n";
+                    else echo "Login test: KO\n";
+                    LF_env( 'user_id', $r);                
+                    break;
+                case 2 :
+                    $test = "Send email";
+                    $html = "Hello world";
+                    $serviceRequest = [
+                        'service' => "email",
+                        'provider' => "Mailjet",
+                        'accountOrToken' => 'default', 
+                        'action'=> "send",
+                        'from'=> [ 'name'=>"sd bee", 'email'=>"contact@sd-bee.com"],
+                        'subject'=> "Test message",
+                        'body'=> $html,
+                        'to' =>[ 'email'=> "pt95bn95@gmail.com"]
+                    ];
+                    $r = $services->do( $serviceRequest);
+                    echo "$test\n";
+                    var_dump( $r);
+                    break;   
+                case 3 :
+                    break;            
+                case 4 :
+                    break;
+            }
+            $TEST_NO++;
         }
-        $TEST_NO++;
-    }
-    $TEST_NO = 1;
-    $services = new UD_services();
-    while( $TEST_NO < 6) { sleep(1); nextTest( $services);}
-    print "\nTest completed\n";    
+        // Test
+        print "udservices.php auto-test program\n";    
+        $services = new UD_services();
+        $TEST_NO = 1;
+        while( $TEST_NO < 4) { sleep(1); nextTest( $services);}
+        echo "Test completed\n";
+    } else {
+        // Legacy SOILinks version  
+        // Load test environment
+        require_once( __DIR__."/../tests/testenv.php");
+        require_once( __DIR__."/../tests/testsoilapi.php");
+        require_once( __DIR__."/../ud-view-model/udconstants.php");
+        $LFF = new Test_dataModel();
+        $jumpToTest = 2;
+        if (isset( $argv[1])) $jumpToTest = $argv[1];
+        print "Auto test udservices.php\n";
+        function nextTest( $services) {
+            global $TEST_NO, $LF, $LFF, $jumpToTest;
+            switch ( $TEST_NO) {
+                case 1 : // Login
+                    $r = $LFF->openSession( "demo", "demo", 133);
+                    // echo strlen( $r).substr( $r, 23000, 500);
+                    if (  strlen( $r) > 1000 && stripos( $r, "Autotest")) echo "Login test : OK\n";
+                    else echo "Login test: KO\n";
+                    $TEST_NO = $jumpToTest - 1;
+                    echo "Jumping to $jumpToTest\n";
+                    break;
+                case 2 :
+                    $html = "Hello world";
+                    $serviceRequest = [
+                        'service' => "email",
+                        'provider' => "Mailjet",
+                        'action'=> "send",
+                        'from'=> [ 'name'=>"sd bee", 'email'=>"contact@sd-bee.com"],
+                        'subject'=> "Test message",
+                        'body'=> $html,
+                        'to' =>[ 'email'=> "pt95bn95@gmail.com"]
+                    ];
+                    //$r = $services->do( $serviceRequest);
+                    //print_r( $r);
+                    /*
+                    if ( $rep)
+                        echo "Throttle test : OK\n";
+                    else {
+                        echo "Throttle test: KO {$service} {$throttle->lastError}\n";
+                        if ( strpos( $throttle->lastError, "not enabled")) {
+                            $throttle->createLog( $service);
+                            $TEST_NO--;
+                        }
+                        // echo $page;
+                    }
+                    */
+                    break;            
+                case 3 : // Keywords test
+                    $stems = [
+                        'keywords' => "coach digital webmarketing"
+                    ];
+                    $serviceRequest = [
+                        'service' => "keywords",
+                        'action' => "get",
+                        'cacheTag' => "keywordsTest",
+                        'stems' => $stems
+                    ];
+                    /*
+                    $r = $services->do( $serviceRequest);
+                    print_r( $r);
+                    */
+                    break;
+                case 4 : // Textgen test
+                    /*
+                    $serviceRequest = [
+                        'service' => "textgen",
+                        'provider' => "GooseAI",
+                        'action' => "complete",
+                        'engine' => "gpt-neo-20b",
+                        'text' => "Un site web doit être visible aux Internautes. Ca implique d'être référencé sur les moteurs de recherche.",
+                        'cacheTag' => "textgenTest",
+                        'lang' => 'fr'
+                    ];
+                    $r = $services->do( $serviceRequest);
+                    print_r( $r);
+                    */
+                    break;
+                case 5 :  // Read service parameters from user config
+                    $serviceRequest = [
+                        'service' => "Email",
+                        'provider' => "Mailjet"
+                    ];
+                    $r = $services->_getParamsFromUserConfig( $serviceRequest);
+                    var_dump( $r, $serviceRequest);
+                    break;
+            }
+            $TEST_NO++;
+        }
+        $TEST_NO = 1;
+        $services = new UD_services();
+        while( $TEST_NO < 6) { sleep(1); nextTest( $services);}
+        print "\nTest completed\n";
+    }    
 }    

@@ -825,7 +825,7 @@ class UDcommands extends UDelement {
     $current = LF_env( 'url'); // /webdesk/
     // <input type="hidden" name="action" value="default" />
     $signin =<<<EOT
-<form class="signin" action="{$current}" id="loginform" method="post" autocomplete="off" >
+<form class="signin" action="{$current}/" id="loginform" method="post" autocomplete="off" >
 <input type="hidden" name="oid" value="" />
 <img style="vertical-align:middle;"  title="$enterEmailOrUsernameText" src="$idIcon" alt="$enterEmailOrUsernameText" />
 <input type="text" name="tusername" id="username" class="initialField" onkeydown="window.ud.ude.formInputChange( this, event);" value="" size="20" tabindex="1" /><br />

@@ -1,48 +1,23 @@
 <?php
 // SPDX-License-Identifier: GPL-3.0
 /**
- *  udservicethrottle.php -- gateway to services
- *
- *  For each service a log file stores the history of the service's use :
- *  <li><ul>previousRecordOffset<ul>
- *  <ul>ddatetime (SOILinks format)</ul>
- *  <ul>nuser a unique identifier of the user (a single log file can be used for multiple users</ul>
- *  <ul>naccount a unique identifier of the associated account</ul>
- *  <ul>nservice (a single log can be used for multiple services</ul>
- *  <ul>sevent (status, use, credit)
- *  <ul>ivalue</ul>
- *  <ulttextra</ul></li>
- *
- *  A LINKS_log object is unique for each user & service. It contains the following information :
- *  <li><ul>nname</ul>
- *  <ul>nfilename multiple logs can use the same log file to simplify server backup operations</ul>
- *  <ul>ioffset</ul>
- *  <ul>irowsCount</ul>
- *  <ul>tentry writing appends to log & updates writeoffset, reading returns entry at _readOffset</ul>
- *  <ul>tformat a format string to convert array data for tentry into a string and vice versa </ul>
- *  <ul>tdata data updated on the fly. Writtng an array adds a value to each field, Reading returns an array</ul>
- *  <ul>dlastArchive</ul>
- *  <ul narchiveNamePattern</ul>
- *  <ul>iarchiveFrequency</ul>
- *  <ul>tsecret</ul></li>
- *
- *  For SOILinks :
- *  modifyInstance if table == LINKS_log :
- *    if field == tentry convert array to string using tformat, write line to filename and update lastWriteOffset,
- *    if field == tdata decode, add array to values and re-encode
- *  read
- *    if linked_field label starts with LOGFILE read rowCount lines backwards from cached read offset, convert to arrays. 
-    dataFromDB
- *    if field == tdata, decode
- *    field.label.class    => nfilename.ioffset.LOGFILE_20_10
+ * udservicethrottle.php -- manage consumption of payable services
+ * Copyright (C) 2023  Quentin CORNWELL
  *  
- *  The current status is determined by finding the most recent "status" event and takeing into account 
- *  all movements since this event. This is performed by isAvailable(). COnsumption is indicated by 
- *  consume() and credits are added with payment().
- *  Consumption and invoicing is determined by looking at all movements between 2 dates
- *  Connection with an external system is achieved bu erp() which can retrieve payments and update invoices.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
- 
+
  /* How to detect browser print
  Use background image.php in print css to detect print request. 
  or window.addEventListener('beforeprint', (event) => {
@@ -58,9 +33,11 @@ bug dataset eof ret
    use integer for dvalidty = date + days
  
  */
+
 define ( 'THROTTLE_noService', 201);
 define ( 'THROTTLE_serviceDisabled', 202);
 define ( 'THROTTLE_noCredits', 203);
+define ( 'THROTTLE_writeError', 204);
 define( 'THROTTLE_maxEntriesAfterStatus', 20);
 
  
@@ -69,6 +46,13 @@ class UD_serviceThrottle {
    public $lastError = 0;
    public $lastResponse = "";
    public $lastResponseRaw = null;
+
+   private $db = null;
+
+   function __construct( $db = null) {
+        global $ACCESS;
+        $this->db = ( $db) ? $db : ( ($ACCESS) ? $ACCESS : null);
+   }
    /**
     * A - METHODS FOR DOCUMENTS AND WEB APPS OPERATIONS
     */    
@@ -79,28 +63,17 @@ class UD_serviceThrottle {
     function isAvailable( $service, $user="") {
         // 2DO check session
         $this->lastError= "";
+        if (!$this->db) return $this->error( THROTTLE_noService, "No database");
         // Find account user
-        if ( !$user) $accountOID = $this->accountUser();
-        // Check if service is enabled and shared for this user
-        // Look for throttle log   2DO parameters ?
-        $logClassId = LF_getClassId( "LogEntry");
-        if ( $accountOID) $throttleLogOid = new DynamicOID( "#DOCN", 0, $accountOID, "LogEntry", "{$service}_throttle");
-        else $throttleLogOid = new DynamicOID( "#DCN", 0, "LogEntry", "{$service}_throttle");
-        $throttleLogData = $this->fetchNode( $throttleLogOid->asString()); //LF_oidToString( [(int) $logClassId], "--nname|{$service} throttle"));
-        if ( LF_count( $throttleLogData)>1) {
-            // Log found so service enabled
-            $throttleLogId = $throttleLogData[1][ 'id'];
-        } else {
-            // Unauthorised service enable in your config or contact account manager
-            $this->lastError = THROTTLE_serviceDisabled;
-            $this->lastResponse = "Service not enabled. Please enable in your config or contact account manager";
-            return false;
-        }
+        if ( !$user) $user = LF_env( 'user_id'); //$accountOID = $this->accountUser();
+        $throttleLogId = $service.'_throttle';
+        $logData = $this->db->getLog( $throttleLogId = $service.'_throttle');
+        if ( !$logData) return $this->error( THROTTLE_noService, "No log for $service found");            
         // Get status
-        $throttleStatus =  $this->getStatus( $throttleLogId);
+        $throttleStatus =  $this->getStatus( $service);
         // Check throttle data
         $credits = $throttleStatus[ 'icredits'];
-        $allowedOverdraft =  $throttleStatus[ 'iallowedOverdraft'];
+        $allowedOverdraft =  ( isset( $throttleStatus[ 'iallowedOverdraft'])) ? $throttleStatus[ 'iallowedOverdraft'] : 0;
         $currentPeriodEnds = $throttleStatus[ 'dvalidity'];
         //var_dump( $throttleLogId, $throttleStatus);
         if ( $credits > -$allowedOverdraft) {
@@ -108,13 +81,11 @@ class UD_serviceThrottle {
             $r = $throttleLogId;
         } else {
             // Insufficient credits
-            // Surcharge
-            $this->lastError = THROTTLE_noCredits;
-            $this->lastResponse = "Please buy credits and retry";
-            $r = false;
+            // 2DO Surcharge
+            return $this->error( THROTTLE_noCredits, "Please buy credits and retry");
         }
         /*
-        // Check account and sub-accounts NOT always see timing
+        // 2DO Check account and sub-accounts NOT always see timing
         while ( $accounts) {
             $account = array_pop( $accounts);
             if ( !$this->isAvailable( $service, $account)) {
@@ -126,59 +97,81 @@ class UD_serviceThrottle {
         return $r;
     } // UD_serviceThrottle=>isAvailable()
 
-    function getStatus( $logId) {
+    function getStatus( $service) { /* , $taskId) */
         $status = [];
         $credits = 0;
         $validityDate = -1;
         $nbProcessed = 0;
-        $logData = $this->fetchNode(  "LogEntry--22-{$logId}-22--NO|OIDLENGTH-OR|nname%20%DESC|FR|1|LR|25"); 
-        $logSet = new Dataset();
-        $logSet->load( $logData);
+        $allowedOverdraft = 0;
+        if (!$this->db) return $this->error( THROTTLE_noService, "No database");
+        $logData = $this->db->getLog( $service.'_throttle');
+        if ( !$logData) return $this->error( THROTTLE_noService, "No log for $service");
+        //var_dump( $logData); die();
         $today = LF_date();
-        while ( !$logSet->eof()) {
-            $log = $logSet->next();
-            $dbName = $log[ 'nname'];
-            if ( strpos( $dbName, '{') !== false) {
-                // Name contains fields that need substitution
-                $substitute = [ 
-                    'DateTimeStamp' => date( "YmdHis"),
-                    'user' => LF_env( 'user_id')
-                ];
-                $log[ 'nname'] = $dbName = LF_substitute( $dbName, $substitute);
-                $logSet->update( $log);
+        for ( $datai=0; $datai < count( $logData); $datai++) {
+            $log = $logData[ $datai];
+            $dbName = $log[ 'name'];
+            $nameParts = explode( '_', $log[ 'name']);
+            // Get entry's date   
+            $entryTime = 0;        
+            if ( count( $nameParts) >= 3) {              
+                $date = $nameParts[2];
+                $date = substr( $date, 0, 4).'-'.substr( $date, 4, 2).'-'.substr( $date, 6, 2).' '.substr( $date, 8, 2).':'.substr( $date, 10, 2);
+                $entryTime = strtotime( $date);
+            }     
+            $details = JSON_decode( $log[ 'tdetails'], true);       
+            /*
+            if ( $taskId && isset( $details[ 'task'])) {
+                // Ignore record if not this task
+                if ( $taskId != $details[ 'task']) continue;
+                // if ( $progress != $details[ 'progress']) continue;
             }
-            // Get entry's date            
-            $entryDateStr = "";
-            $entryDateStr .= substr( $dbName, 0, 4).'-'.substr( $dbName, 4, 2).'-'.substr( $dbName, 6, 2).' ';
-            $entryDateStr .= substr( $dbName, 8, 2).':'.substr( $dbName, 10, 2);
-            $entryDate = LF_date( $entryDateStr);
+            */
+            // Check validity date
+            if ( isset( $details[ 'dvalidity']))  {      
+                if ( is_string( $details[ 'dvalidity'])) $validityDate = LF_date( $details[ 'dvalidity']);
+                else $validityDate = $entryTime + $details[ 'dvalidity']*86400;                
+                if ( $validityDate < $today) continue;
+            }    
+                  
             if ( $log[ 'nevent'] == "status") { 
                 // Status record : add already counted credits, take latest validity and return
-                $status = JSON_decode( $log[ 'tdetails'], true);
+                $status = $details;
                 $status[ 'icredits'] += $credits;
-                $credits = 0;
-                if ( is_string( $status[ 'dvalidity'])) $status[ 'dvalidity'] = LF_date( $status[ 'dvalidity']);                    
-                else $status[ 'dvalidity'] = $entryDate + $status[ 'dvalidity']*8640;                
-                if ( $validityDate > $status[ 'dvalidity']) $status[ 'dvalidity'] = $validityDate;
-                break;
+                if ( $validityDate > $status[ 'dvalidity'])  $status[ 'dvalidity'] = $validityDate;
+                $credits = 0;                
             } elseif ( $log[ 'nevent'] == "consume") {
+                // Consume record
                 $credits -= $log[ 'iresult'];
+                /*
+                if ( $details[ 'grant']) {
+                    unset( $grants[ $details[ 'grant'][ 'id']]);
+                }
+                */
             } elseif ( $log[ 'nevent'] == "credit") {                
-                $details = JSON_decode( $log[ 'tdetails'], true);
-                if ( is_string( $details[ 'dvalidity'])) $validityDate = LF_date( $details[ 'dvalidity']);
-                else $validityDate = $entryDate + $details[ 'dvalidity']*8640;
-               // else $validityDate = $details[ 'dvalidity'];
-               if ( $validityDate >= $today) $credits += $log[ 'iresult'];
+                // Credit record               
+                $credits += $log[ 'iresult'];
+                /*
+                if ( $details[ 'grant']) {
+                    // could use progress as grant key
+                    $grants[ $details[ 'grant'][ 'id']] = $details[ 'grant'];
+                }
+                */
             }
             $nbProcessed++;
-        } // end while    
+        }   
         if ( !$status) $status = [ 'icredits'=>0, 'iallowedOverDraft'=>0, 'dvalidity'=>""];
         if ( $credits) $status[ 'icredits'] += $credits;
         if ( $allowedOverdraft) $status[ 'iallowedOverdraft'] = $allowedOverdraft;
         if ( $validityDate) $status[ 'dvalidity'] = $validityDate;
+        /* if ( count( $grants)) {
+            $keys = array_keys( $grants)
+            $status[ 'grant'] = $grants[ $keys[ count( $keys) -1]]; 
+        } 
+        */
         if ( $nbProcessed > THROTTLE_maxEntriesAfterStatus) {
             // Add a status record 2D0 use $logSet->addEntry
-            $this->setStatus( $logId, $status);
+            $this->setStatus( $service, $status);
         }
         // Save any changes (substitutions)
         /*
@@ -189,35 +182,90 @@ class UD_serviceThrottle {
         }*/
         return $status;
     }
-
-    function setStatus( $logId, $status) {
+/*
+    CREATE TABLE 'ServiceLog' (
+        name text NOT NULL,
+        userId int(11) NOT NULL,
+        nevent text NOT NULL,
+        iresult int( 11) DEFAULT NULL,
+        tdetails text DEFAULT NULL
+      );
+      */
+    function setStatus( $service, $status) {
         $entry = [
-            'nname' => "Entryxx",
-            'iuser' => $this->account,
             'nevent' => "status",
             'iresult' => $status[ 'icredits'],
             'tdetails' => JSON_encode( $status)
         ];
-        $data = [ [ 'nname', 'iuser', 'nevent', 'iresult', 'tdetails'], $entry];
-        $r = $this->createLogEntry( $logId, $data);
+        $r = $this->createLogEntry( $service.'_throttle', $entry);
+    }
+
+    function addCredits( $logName, $credits, $validity, $comment, $taskName="") {
+        $entry = [
+            'nevent' => "credit",
+            'iresult' => $credits,
+            'tdetails' => JSON_encode( [
+                'icredits'=>$credits, 'dvalidity'=>$validity, 'comment'=>$comment, 'iallowedOverdraft'=>0, 'task'=>$taskName
+            ])
+        ];
+        $r = $this->createLogEntry( $logName."_throttle", $entry);
     }
     
    /**
     * Record consumption of a service
     */    
-    function consume( $throttleId, $credits, $comment) {
+    function consume( $logName, $credits, $comment, $details =[]) {
         // Check is available
             // Alert site manager
         // Record ticket
-        $details = [ 'icredits'=>-$credits, 'comment'=>$comment];
-        $logEntry = ['nevent'=>"consume", 'iresult'=>$credits, 'tdetails'=>JSON_encode( $details)];    
-        $r = $this->createLogEntry( $throttleId, $logEntry);            
+        $details[ 'icredits'] =-$credits;
+        $details[ 'comment'] = $comment;
+        $logEntry = ['nevent'=>"consume", 'iresult'=>$credits, 'tdetails'=>JSON_encode( $details)];   
+        $r = $this->createLogEntry( $logName."_throttle", $logEntry);        
+        //var_dump( $r, $this->db->lastError); 
     }
 
    /**
     * B - METHODS FOR ACCOUNT PAGES AND ACCOUNTING
     */    
-    
+    // 2DO copy to sd-bee
+    // 2DO this->getLog = db->getLog or fetch    
+    function taskProgressChange( $taskName, $model, $params, $newProgress) {
+        // Check caller is allowed
+        if ( debug_backtrace()[1][ 'class'] != "SDBEE_doc") return false;
+        // Check progress has changed
+        if ( $params[ 'progress'] == $newProgress) return true;
+        $comment = "Use of $model";
+        // Lookup credits associated with progress value
+        $creditsByStep = $params[ 'credits-by-step'];
+        if ( !isset( $creditsByStep[ 'n'.$newProgress])) return true;
+        // Check credits not already consumed for this task
+        $logData = $this->db->getLog( 'Task_throttle');
+        $add = true;
+        for ( $logi=i; $logi < count( $logData); $logi++) {
+            $log = $logData[ $logi];
+            $details = JSON_decode( $log[ 'tdetails'], true);
+            if ( $details[ 'task'] != $taskName) continue;
+            if ( $details[ 'step'] != $newProgress) continue;
+            // 2DO dvalidity and nevent=consume
+            $add = false;
+            break;
+        }
+        if ( $add) {
+            // Consume credits 
+            $this->consume( "Task", $creditsbyStep, $comment, [ 'task'=>$taskName, 'step'=>$newProgress]);
+            // Enable services 
+            $servicesByStep = $params[ 'services-by-step'];
+            if ( isset( $servicesByStep[ 'n'.$newProgress])) {
+                $services = $servicesByStep[ $newProgress];
+                for ( $servi=0; $servi < count( $services); $servi++) {
+                    $service = $services[ $servi]; // { name:Name, credits:credits, comment:comment}
+                    $this->addCredits( $service[ 'name'], $service[ 'credits'], 10, $comment, $taskName);
+                }
+            }
+        }
+        return true;
+    }
   /**
     * Return array with a user's service consumption between dates
     */    
@@ -279,6 +327,7 @@ class UD_serviceThrottle {
     * Return account user who owns current user
     */    
     function accountUser() {
+        /*
         // Find account user
         $currentOid = "LINKS_user--2-".LF_env( 'user_id');
         $accountUserOid = "";
@@ -297,6 +346,7 @@ class UD_serviceThrottle {
         }
         $this->account = $account;
         return $accountUserOid;
+        */
     } 
 
    /**
@@ -334,91 +384,172 @@ class UD_serviceThrottle {
     function ReadLog() {}  
            
     function createLog( $service, $user="") {
-        global $LF, $LFF;
-        if ( !$user) {
-            $details = [ 'icredits'=>20, 'iallowedOverdraft'=>0, 'dvalidity'=>LF_date( "31/10/2022")];
-            $logData = [
-                ['nname', 'iuser', 'nevent', 'iresult', 'tdetails'],
-                ['nname'=>"{$service}_throttle", 'iuser'=>LF_env( 'user_id'), 'nevent'=>"status", 'iresult'=>0, 'tdetails'=>JSON_encode( $details)]
-            ];
-            if ( TEST_ENVIRONMENT) $r = $LFF->createNode( "", "LogEntry",$logData); else $r = LF_createNode( "", "LogEntry", $logData);
-            if ( $r < 0) { echo $r; die();}
-            $logId = $r;
-            // Create 1st entry
-            $entry = ['nevent'=>"credit", 'iresult'=>0, 'tdetails'=>JSON_encode( $details)];        
-            $r = $this->createLogEntry( $logId, $entry);
-        }
+        if ( count( $this->db->getLog( $throttleLogId = $service.'_throttle'))) return;
+        $details = [ 'icredits'=>20, 'iallowedOverdraft'=>0, 'dvalidity'=>time()];
+        $entry = [
+            ['nevent'=>"create", 'iresult'=>0, 'tdetails'=>JSON_encode( $details)]
+        ];
+        $logId = "{$service}_throttle";
+        $this->createLogEntry( $logId, $entry);
+        // Create 1st entry
+        $entry = ['nevent'=>"credit", 'iresult'=>0, 'tdetails'=>JSON_encode( $details)];        
+        $this->createLogEntry( $logId, $entry);
     }
 
     function createLogEntry( $logId, $entry) {
-        global $LF, $LFF;
         // Auto fill nname and iuser 
-        $entry[ 'nname'] = date( "YmdHis")."_".$entry[ 'nevent'].'_by_'.LF_env( 'user_id');
-        $entry[ 'iuser'] = LF_env( 'user_id');
-        $logData = [
-            [ 'nname', 'iuser', 'nevent', 'iresult', 'tdetails'],
-            $entry
-        ];
-        /*
-        if ( TEST_ENVIRONMENT) 
-            $r = $LFF->createNode( "LogEntry--22-{$logId}", "LogEntry", $logData); 
-        else 
-            $r = LF_createNode( "LogEntry--22-{$logId}", "LogEntry", $logData);
-        if ( $r < 0) { echo $r; die();}
-        */
+        $entry[ 'name'] = $logId.'_'.date( "YmdHis")."_".$entry[ 'nevent'].'_by_'.LF_env( 'user_id');
+        $entry[ 'userId'] = LF_env( 'user_id');
+        if ( $this->db) return $this->db->createLogEntry( $logId, $entry);
+        else {
+            // SOILinks version (still used by sd-bee.com and central marketplace)
+            if ( TEST_ENVIRONMENT) $r = $LFF->createNode( "LogEntry--22-{$logId}", "LogEntry", $logData); 
+            else  $r = LF_createNode( "LogEntry--22-{$logId}", "LogEntry", $logData);
+            if ( $r < 0) { 
+                $this->lastError = THROTTLE_writeError;
+                $this->lastMessage = $r; 
+                echo $r;
+                return false;
+            }
+            return true;
+        }
     }
 
-    function fetchNode( $oid, $cols="") {
-        global $LF, $LFF;
-        if ( TEST_ENVIRONMENT) return $LFF->fetchNode( $oid);
-        return  LF_fetchNode( $oid, $cols);
+    // test only ?
+    function clearLog( $service) {
+        if ( $this->db) $this->db->clearLog( $service.'_throttle');
+    }
+
+    function error( $code, $msg, $return=false) {
+        $this->lastError = $code;
+        $this->lastMessage = $msg;
+        return $return;
+    }
+
+    function getLog( $logId) {
+        if ( $this->db) return $this->db->getLog( $logId);
+        else {
+            // SOILinks version (still used by sd-bee.com and central marketplace)
+            $w = $this->fetchNode(  "LogEntry--22-{$logId}-22--NO|OIDLENGTH-OR|nname%20%DESC|FR|1|LR|25"); 
+            if ( $w && count( $w)) {
+                // Adapt records to new format
+                unset( $w[ 0]);
+                for ( $wi=0; $wi < count( $w); $wi++) {
+                   $w[ $wi][ 'name'] =  $w[ $wi][ 'nname'];
+                   $w[ $wi][ 'userId'] = LF_env( 'user_id');
+                }                
+            }
+            return $w;
+        }
     }
 
 } // PHP class UD_serviceThrottle
 
-if ( $argv[0] && strpos( $argv[0], "udservicethrottle.php") !== false)
-{    
+if ( isset( $argv) && $argv[0] && strpos( $argv[0], "udservicethrottle.php") !== false) {    
     // Launched with php.ini so run auto-test
-    function nextTest( $throttle) {
-        global $TEST_NO, $LF, $LFF;
-        switch ( $TEST_NO) {
-            case 1 : // Login
-                $r = $LFF->openSession( "demo", "demo", 133);
-                // echo strlen( $r).substr( $r, 23000, 500);
-                if (  strlen( $r) > 1000 && stripos( $r, "Autotest")) echo "Login test : OK\n";
-                else echo "Login test: KO\n";
-                LF_env( 'user_id', 133);
-                break;
-            case 2 :
-                $service = "images";
-                $rep = $throttle->isAvailable( "images");
-                if ( $rep)
-                    echo "Throttle test : OK\n";
-                else {
-                    echo "Throttle test: KO {$service} {$throttle->lastError}\n";
-                    if ( strpos( $throttle->lastError, "not enabled")) {
-                        $throttle->createLog( $service);
-                        $TEST_NO--;
-                    }
-                    // echo $page;
-                }
-                break;            
-            case 3 :
-                break;
+    print "Syntax OK\n";
+    define( 'TEST_ENVIRONMENT', true);    
+    if ( file_exists( __DIR__."/../sdbee-config.php")) {
+        // OS version
+        include ( __DIR__."/../sdbee-config.php");
+        include ( __DIR__."/../sdbee-access.php");
+        include ( __DIR__."/../editor-view-model/helpers/uddatamodel.php");
+        // 2DO include a testenv.php with next line or move to datamodel
+        $_SERVER[ 'REMOTE_ADDR'] = "192.168.1.1";
+        global $ACCESS, $CONFIG;
+        $CONFIG = SDBEE_getconfig();
+        $ACCESS = new SDBEE_access( $CONFIG[ 'access-database']);
+        function nextTest( $throttle) {
+            global $TEST_NO, $ACCESS, $CONFIG;
+            switch ( $TEST_NO) {
+                case 1 : // Login                
+                    $r = $ACCESS->login( "a", "b", [ 'a'=>"demo", 'b'=>"demo"]);
+                    // echo strlen( $r).substr( $r, 23000, 500);
+                    if (  $r) echo "Login test : OK\n";
+                    else echo "Login test: KO\n";
+                    LF_env( 'user_id', $r);                
+                    break;
+                case 2 :
+                    //$throttle->createLog( 'images');
+                    /*$throttle->consume( 'images', 20, 'test');
+                        */
+                    $throttle->clearLog( 'images');
+                    $throttle->addCredits( 'images', 20, 31, "test");
+                    $rep = $throttle->getStatus( "images");
+                    break;   
+                case 3 :
+                    $service = "images";
+                    $rep = $throttle->isAvailable( "images");
+                    if ( $rep)
+                        echo "Throttle test : OK\n";
+                    else {
+                        echo "Throttle test: KO {$service} {$throttle->lastError}\n";
+                        if ( strpos( $throttle->lastError, "not enabled")) {
+                            $throttle->createLog( $service);
+                            $TEST_NO--;
+                        }
+                        // echo $page;
+                    }       
+                    $rep = $throttle->getStatus( "images");
+                    echo "You have ".$rep[ 'icredits']." credits\n";         
+                    $throttle->consume( 'images', 10, 'test');
+                    $throttle->consume( 'images', 10, 'test');
+                    $rep = $throttle->getStatus( "images");
+                    echo "You have ".$rep[ 'icredits']." credits\n";
+                    break;            
+                case 4 :
+                    break;
+            }
+            $TEST_NO++;
         }
-        $TEST_NO++;
+        // Test
+        print "udservicethrottle.php auto-test program\n";    
+        $throttle = new UD_serviceThrottle();
+        $TEST_NO = 1;
+        while( $TEST_NO < 4) { sleep(1); nextTest( $throttle);}
+        echo "Test completed\n";
+    } else {
+        // Legacy SOILinks version
+        // Launched with php.ini so run auto-test
+        function nextTest( $throttle) {
+            global $TEST_NO, $LF, $LFF;
+            switch ( $TEST_NO) {
+                case 1 : // Login
+                    $r = $LFF->openSession( "demo", "demo", 133);
+                    // echo strlen( $r).substr( $r, 23000, 500);
+                    if (  strlen( $r) > 1000 && stripos( $r, "Autotest")) echo "Login test : OK\n";
+                    else echo "Login test: KO\n";
+                    LF_env( 'user_id', 133);
+                    break;
+                case 2 :
+                    $service = "images";
+                    $rep = $throttle->isAvailable( "images");
+                    if ( $rep)
+                        echo "Throttle test : OK\n";
+                    else {
+                        echo "Throttle test: KO {$service} {$throttle->lastError}\n";
+                        if ( strpos( $throttle->lastError, "not enabled")) {
+                            $throttle->createLog( $service);
+                            $TEST_NO--;
+                        }
+                        // echo $page;
+                    }
+                    break;            
+                case 3 :
+                    break;
+            }
+            $TEST_NO++;
+        }
+        // Create test environment
+        require_once( __DIR__."/../tests/testenv.php");
+        require_once( __DIR__."/../tests/testsoilapi.php");
+        $LFF = new Test_dataModel();
+        LF_env( 'cache', 5);
+        // Test
+        print "udservicethrottle.php auto-test program\n";    
+        $throttle = new UD_serviceThrottle();
+        $TEST_NO = 1;
+        while( $TEST_NO < 4) { sleep(1); nextTest( $throttle);}
+        echo "Test completed\n";
     }
-    // Create test environment
-    require_once( __DIR__."/../tests/testenv.php");
-    require_once( __DIR__."/../tests/testsoilapi.php");
-    $LFF = new Test_dataModel();
-    LF_env( 'cache', 5);
-    // Test
-    print "udservicethrottle.php auto-test program\n";    
-    $throttle = new UD_serviceThrottle();
-    $TEST_NO = 1;
-    while( $TEST_NO < 4) { sleep(1); nextTest( $throttle);}
-    echo "Test completed\n";
-
-
 } 

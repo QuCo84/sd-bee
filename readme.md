@@ -38,7 +38,7 @@ At connection, SD bee displays the user's top task directory with the current st
 The SD bee package provides the PHP programs for setting up a SD bee server. It uses resources available from the sd-bee.com website and has a modular design so it can be adapted to different cloud environments.
 The admin user, created automatically, is setup with an initial "Get started" task.
 
-For modifiying Javascript code used on the client side, please see the "SD bee client" project on GitHub (available march 2023). For configuring and extending Services available to SD bee apps, please see the "SD bee services" project on GitHub (available april 2023).
+For modifiying Javascript code used on the client side, please see the "sdbee-client" project on GitHub. For configuring and extending Services available to SD bee apps, please see the "sdbee-service-gateway" project on GitHub.
 
 For all enquires and assistance, please fill in the contact form at www.sd-bee.com (padlock or Start button)
 

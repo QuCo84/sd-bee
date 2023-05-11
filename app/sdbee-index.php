@@ -276,6 +276,12 @@ function SDBEE_testUser() {
         'top-dir'=>'', 'home'=>'A0012345678920001_trialhome', 
         'prefix'=>""
     ];
+    global $CONFIG;
+    $storage = $CONFIG[ 'private-storage'];
+    $usr[ 'storageService'] =  $storage[ 'storageService'];  
+    $usr[ 'keyFile'] = $storage[ 'keyFile'];
+    $usr[ 'source'] = $storage[ 'bucket'];
+    $usr[ 'top-dir'] = $storage[ 'top-dir'];
     return $usr;
 }
 

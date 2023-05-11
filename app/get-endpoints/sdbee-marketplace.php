@@ -74,7 +74,7 @@ function SDBEE_endpoint_marketplace( $request, $output=false) {
             '%title' => $model->label,
             '%descr' => $model->description,
             '%image' => ($image) ? $image : $defaultTemplateImage,
-            '%click1' => "$$$.setModel('{$model->name}');",
+            '%click1' => "$$$.setModel('{$model->name}');", // "sd-bee.com:{$model->name}"
 
         ];
         //var_dump( $thumbnailTemplate, $data); die();

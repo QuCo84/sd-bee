@@ -435,7 +435,7 @@
  } // PHP class DataModel
 
  // CONSTANTS
- define ( 'TEST_ENVIRONMENT', false);
+if ( !defined( 'TEST_ENVIRONMENT')) define ( 'TEST_ENVIRONMENT', false);
  
  // Fcts
 /**
@@ -585,7 +585,37 @@
  
 function LF_date( $date=null) {
     if ( is_integer( $date)) return date( "d/m/Y H:i", $date);
-    elseif ( is_string( $date)) throw new Exception ( "date string conversion in LF_date not yet implemented");
+    elseif ( is_string( $date)) {
+        // String to number conversion
+        $date_elements = array();
+        $patterns = array(
+            "/^([0-9][0-9][0-9]+)[- .](0[1-9]|1[012])[- \/.](0[1-9]|[12][0-9]|3[01])$/",
+            "/^([0-9][0-9][0-9]+)[- .](0[1-9]|1[012])[- \/.](0[1-9]|[12][0-9]|3[01]) ([0-9]*):([0-9]*)$/",
+            //"/^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[012])\/([0-9][0-9][0-9]+) ([0-9]*):([0-9]*):([0-9]*)$/",
+            "/^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[012])\/([0-9][0-9][0-9]+) ([0-9]*):([0-9]*)$/",
+            "/^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[012])\/([0-9][0-9][0-9]+)$/"
+        );  
+        $i = $good = 0;
+        while (!$good && $i < count($patterns))
+        {
+            $good = preg_match( $patterns[$i++], $date, $date_elements);
+            if ($good)  {
+                $yr = (int) $date_elements[1];
+                $month = (int) $date_elements[2];
+                $day = (int) $date_elements[3];
+                if (isset($date_elements[4])) $hour = (int) $date_elements[4]; else $hour=0;
+                if (isset($date_elements[5])) $mn = (int) $date_elements[5]; else $mn =0;     
+                if (isset($date_elements[5])) $sec = (int) $date_elements[5]; else $sec =0;      
+                if ($i > 2 && $i <= 5) {
+                    $yr = (int) $date_elements[3];
+                    $day = (int) $date_elements[1];
+                }
+                break;
+            }
+        }
+        if ($good) return strtotime($yr."-".$month."-".$day." ".$hour.":".$mn.":00");   
+        else throw new Exception ( "cannot recognize date format $date");
+    }
     else return time();
 }
 
@@ -763,10 +793,10 @@ Class LinksAPI {
     );
     $swap_no = hexdec($w[12])&3;
     for ($i=0; $i<12;$i+=3) {
-      $r .= $swap[$swap_no][hexdec($w[$i])*4+ (int) (hexdec($w[$i+1])/4) ];
+      $r .= $swap[$swap_no][hexdec($w[$i])*4 + (int) (hexdec($w[$i+1])/4) ];
       $r .= $swap[$swap_no][(hexdec($w[$i+1])&12)*4 + hexdec($w[$i+2])&3];
     }
-    $r .= $swap[0][hexdec($w[12])*4+$nominatif*2];
+    $r .= $swap[0][ min( hexdec($w[12]), 15) *4+$nominatif*2];
     return $r;
  }
  

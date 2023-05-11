@@ -42,7 +42,7 @@ class SDBEE_access_sqlite {
             // Use local sqlite DB
             try {
                 global $CONFIG;
-                $filespace = $CONFIG[ $params[ 'use-storage']];
+                $filespace = $params[ 'storage']; //$CONFIG[ $params[ 'use-storage']];
                 //if ( $filespace) $path = $filespace[ 'top-dir'].$filespace[ 'prefix'].'_'.$filename;
                 if ( $filespace) $path = str_replace( [ 'C:', 'D:'], [ '', ''], __DIR__)."/../../".$filespace[ 'top-dir'].$filespace[ 'prefix'].'_'.$filename;
                 $dsn = 'sqlite:'.$path;         

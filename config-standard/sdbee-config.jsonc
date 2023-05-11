@@ -99,6 +99,7 @@
         "UD_cache" : 18,
         "UD_sass" : "node node_modules/sass/sass.js",
         "lang" : "FR",
+        "UD_userConfigOid" : "_FILE_UniversalDocElement-Z00000010VKK800001_UserConfig--21-0",
         "UD_accountLink" : "window.open('/webdesk/UniversalDocElement--21--nname|Z00000010VKK80003S_UserConfig|CD|5/show/')",
         "url" : "/sd-bee",
         "zip" : {

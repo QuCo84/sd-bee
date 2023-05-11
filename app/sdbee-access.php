@@ -162,13 +162,32 @@ class SDBEE_access {
                 $member = [ 'token' => $token, 'ip'=> $_SERVER['REMOTE_ADDR'], 'userId' => $this->userId, 'validDate' => $validDate];
                 $this->_insert( 'Members', $member, "token ip userId validDate");
                 if ( $this->lastError) echo "Error writing member {$this->lastError}<br>\n";
-                setcookie( 'member', $token, $validDate, '/');    
+                if ( !TEST_ENVIRONMENT) setcookie( 'member', $token, $validDate, '/');    
             } else {
                 // Bad password
                 echo "Bad password $password ".print_r( $candidate)."<br>\n";
             }
         }       
-        return $this->userId;
+        return $this->userId;        
+    }
+
+    /**
+     * Login temporarily as parent with limited readible access
+     * @return integer User's id or -1 if failed
+     */
+    function loginAsParent() {
+        // Find parent
+        // Save current userid and set
+        // Clear cache        
+    }
+
+    function restoreLogin() {
+        // Restore user_id
+        // Clear cache
+    }
+
+    function loginAsChild( $name) {
+        
     }
 
     function logout() {
@@ -297,7 +316,7 @@ class SDBEE_access {
      */
     function getCollectionContents( $name, $useMap=true) {
         $contents = [];
-        $map = [ 'nname'=>'name', 'tlabel'=>'label', 'stype'=>'type', 'nstyle'=>'model', 'tcontent'=>'label', 'textra'=>'params'];
+        $map = [ 'nname'=>'name', 'tlabel'=>'label', 'stype'=>'type', 'nstyle'=>'model', 'tcontent'=>'content', 'textra'=>'params'];
         if ( $useMap) {
             // Set column names row
             $content = [];
@@ -315,8 +334,10 @@ class SDBEE_access {
             $link = $links[ $conti];
             $targetId = $link[ 'targetId'];
             $targetName = $this->_getDocNameById( $targetId);
-            $info = $this->getDocInfo( $targetName);          
-            // $info[ 'params'] = [ 'system'=> $info[ 'params']];              
+            $info = $this->getDocInfo( $targetName); 
+            // Align params and build content fields
+            $info['params'] = JSON_encode( [ 'system'=>JSON_decode( $info[ 'params'], true)]);    
+            $info[ 'content'] = '<span class="title">'.$info[ 'label'].'</span><span class="subtitle">'.$info[ 'description'].'</span>';                  
             // 2DO might need to read doc to get first entry or store tcontent here
             if ( isset( $useMap)) {
                 // Map fields
@@ -327,7 +348,7 @@ class SDBEE_access {
                 } else $content[ '_link'] = "?task={$targetName}"; // !!!important force link used in dir listing
                 $content[ 'oid'] = "_FILE_UniversalDocElement-{$targetName}--21-{$targetId}";
                 $contents[] = $content; 
-            } else $contents[] = $info321;
+            } else $contents[] = $info;
         }        
         return $contents;
     }
@@ -536,6 +557,9 @@ class SDBEE_access {
         return $target[ 'id'];
     }
 
+    /**
+     * Clip database functions
+     */
     function addClip( $name, $type, $content) {
         if ( $this->userId == -1) return [];
         $data = [ 'name' => $name, 'userId' => $this->userId, 'type' => $type, 'content'=>$content];
@@ -560,6 +584,36 @@ class SDBEE_access {
         return $clips;
     }
 
+    /**
+     * Log database functions
+     * 
+DROP TABLE IF EXISTS 'ServiceLog';
+CREATE TABLE 'ServiceLog' (
+  name text NOT NULL,
+  userId int(11) NOT NULL,
+  nevent text NOT NULL,
+  iresult int( 11) DEFAULT NULL,
+  tdetails text DEFAULT NULL
+);
+    */
+    function getLog( $logName) {
+        $sql = "SELECT rowId,* FROM ServiceLog WHERE userId=:userId AND name LIKE :name ORDER BY name desc LIMIT 25;";
+        $data = [ ':userId' => $this->userId, ':name'=>$logName.'%'];
+        $log = $this->_query( $sql, $data);
+        return $log;
+    }
+
+    function createLogEntry( $logName, $data) {
+        // $data[ 'name'] = $logName;
+       // $entry[ 'userId'] = LF_env( 'user_id');
+        // $data[ 'timestamp'] = time();
+        $this->_insert( 'ServiceLog', $data, 'name userId nevent iresult tdetails'); // timestamp
+        return ( !$this->lastError);
+    }
+
+    function clearLog( $logName) {
+       $this->_query( "DELETE FROM ServiceLog WHERE name LIKE '$logName%'");
+    }
 
 
     /**

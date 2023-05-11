@@ -39,11 +39,12 @@ function SDBEE_getStorage( $params) {
     $storageService = $params[ 'storageService'];
     global $JUST_CREATED_CLASS, $STORAGE_CLASSES;
     if ( isset( $STORAGE_CLASSES[ $storageService])) $storageClass = $STORAGE_CLASSES[ $storageService];
-    else {
+    elseif ( $storageService) {
         include_once( __DIR__."/storage-connectors/{$storageService}.php");
         $storageClass = $JUST_CREATED_CLASS;
         $STORAGE_CLASSES[ $storageService] = $storageClass;
     }
+    else echo "Configuration error - no storageService<br>\n"; //var_dump( $params); debug_print_backtrace(); die();
     if ( !class_exists( $storageClass)) die( "Configuration error - no connector for storage {$storageService}<br>\n");
     $storage = new $storageClass( $params);
     return $storage;

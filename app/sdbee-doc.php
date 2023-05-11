@@ -199,7 +199,7 @@ class SDBEE_doc {
         $this->size = count( $this->index);
         $this->next = 0;       
         // Initialise if needed        
-        if ( $this->state == "new" && $this->model && $this->model != "ASS000000000301_System" && $this->model != "None") {
+        if ( $this->state == "new" && $this->model && $this->model != "ASS000000000301_System" && strtolower( $this->model) != "none") {
             LF_debug( "Initialising {$this->name} with {$this->model}", 'doc', 8);
             $this->initialiseFromModel();
         }
@@ -394,11 +394,60 @@ class SDBEE_doc {
                 // Parameters changed
                 $this->params = $element[ 'textra'][ 'system'];
                 if ( isset( $this->params[ 'state'])) $this->state = $this->params[ 'state'];
-                if ( isset( $this->params[ 'progress'])) $this->progress = $this->params[ 'progress'];
+                if ( isset( $this->params[ 'progress']))  $this->updateProgress( $this->params[ 'progress']);
             }   
             $this->modifiedInfo = true;        
         }
         return $this->_jsonResponse( $element);
+    }
+
+    /**
+     * Handle credit consumption based on task progress
+     * DRAFT
+     */
+    private function updateProgress( $newProgress) {
+        if ( $newProgress != $this->progress) {
+            /*
+            // Progress has changed
+            $source = "PUBLIC";
+            $model = $this->model;            
+            $modelParts = explode( ':', $this->model);
+            if ( count( $modelParts) == 2) {
+                $source = $modelParts[ 0];
+                $model = $modelParts[ 1];
+            }
+            if ( $source == "LOCAL") {
+                // Lookup credits associated with progress value
+                $throttle = new UD_serviceThrottle();
+                $throttle->taskProgressChange($this->name, $model, $this->params, $newProgress) 
+                // Check credits not already consumed for this task
+                    // Consume credits 
+                    // Enable services 
+            } else {
+                if ( $source == "PUBLIC") {
+                    // Get gateway
+                } else {
+                    $gateway = $source;
+                }
+                // Check grants not already added
+                // Use gateway's TASK service and retrieve grants for services
+                // use SDBEE_serviceCall
+                $request = [
+                    'nServiceRequest' => [
+                        'service' => 'task',
+                        'provider' = > 'default',
+                        'action' => 'progress-update',
+                        'model' => $model,
+                        'progress' => $newProgress'
+                    ]
+                ];
+                include ( sdbee-service-gateway.php);
+                $response = SDBEE_xxx();
+                // Look for grants and add to service log
+            }             
+            */
+        }
+        $this->progress = $newProgress;
     }
 
     function createElement( $elementId, $data, $depth) {
@@ -524,6 +573,22 @@ class SDBEE_doc {
         // Check status
         if ( !$this->state == "new" || !$this->model) return;
         // Get model
+        /*
+        $model = $this->model;
+        $source = "PUBLIC"
+        $modelParts = explode( ':', $this->model);
+        if ( count( $modelParts) == 2) {
+            $source = $modelParts[ 0];
+            $model = $modelParts[ 1];
+        }
+        if ( $source == "PUBLIC") {
+
+        } elseif ( $source == "LOCAL") {
+
+        } else {
+
+        }
+        */
         global $PUBLIC;
         $model = new SDBEE_doc( $this->model, 'models', $PUBLIC);
         // Get views to copy
