@@ -17,6 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+require_once( __DIR__."/../local-services/udservices.php");
+require_once( __DIR__."/../local-services/udservicethrottle.php");
+
+use Google\Auth\ApplicationDefaultCredentials;
+use GuzzleHttp\Client;
+use GuzzleHttp\HandlerStack;
+
  function SDBEE_endpoint_service( $request) {
     global $USER;
     // Build service map
@@ -30,7 +37,7 @@
     if ( !isset( $map[ $serviceName])) return [ "result"=>"KO", "msg"=>"No service $serviceName"];    
     // Throttle control
     $throttle = new UD_serviceThrottle();
-    $throttleId = $this->throttle->isAvailable( $serviceName);
+    $throttleId = $throttle->isAvailable( $serviceName);
     /* Dev to activate
     $status = $this->throttle->status( $serviceName, $taskId, $progress);
     if ( !$status) return [ "success"=>false, "message"=>$this->throttle->lastMessage, "data"=>$this->throttle->lastError];
@@ -47,9 +54,9 @@
         return $jsonResponse;
     }
     /*
-    // Look for a grant defined by model
+    // Look up how to access the requested service
     if ( $status[ 'grant']) {
-        // Use a grant record
+        // Using a grant record for the service log
         $serviceInfo = $status[ 'grant'][ $serviceName];
         $protocol = $serviceInfo[ 'protocol'];
         $gateway = $serviceInfo[ 'baseURL'];
@@ -62,7 +69,7 @@
             $serviceRequest[ $key] = $value;
         }
     } else {
-        // Use map
+        // Use the service map
         $serviceInfo = explode( ' ', $map[ $serviceName]);
         $protocol = $serviceInfo[0];
         $gateway = $serviceInfo[ 1];
@@ -91,61 +98,28 @@
         if ( $gateway == "user") $gateway = $USER[ 'service-gateway'];
         // 2DO JSON_decode as map service:url, get service from $serviceRequest
         if ( !$gateway) {
-            $response = [ "result"=>"KO", "msg"=>"Not configured"];
+            $response = [ "success"=>false, "message"=>"No gateway", "data" => ""];
         } else {
           
             // Get parameters and add to request
             $services = new UD_services( [ 'throttle'=>'off']);
             $services->_getParamsFromUserConfig( $serviceRequest);
             // Process according to protocol
-            if ( $protocol == 'gcf') $responseJSON = SDBEE_service_endpoint_gcf( $gateway, $functionPath, $serviceAccount, $serviceRequest);
-            elseif ( $protocol == 'soil') $responseJSON = SDBEE_service_endpoint_token( $gateway, $functionPath, $serviceAccount, $serviceRequest);
-            elseif ( $protocol == 'bearer') $responseJSON = SDBEE_service_endpoint_bearer( $gateway, $functionPath, $serviceAccount, $serviceRequest);
-            
- /*
-            // CHEMIN Vers le fichier JSON défini plus haut sur votre poste
-            $servieAccountCredentials = __DIR__."/../../.config/sd-bee-{$serviceAccount}.json"; //gcs.json";
-            putenv('GOOGLE_APPLICATION_CREDENTIALS='.$serviceAccountCredentials);
-
-            //Définition des urls à utiliser
-            $targetAudience = $gateway.$functionPath;
-            
-            //Création du client Guzzle avec le middleware qui va gérer l'authentification
-            $middleware = ApplicationDefaultCredentials::getIdTokenMiddleware($targetAudience);
-            $stack = HandlerStack::create();
-            $stack->push($middleware);
-            $client = new Client([
-                'handler' => $stack,
-                'auth' => 'google_auth',
-                'base_uri' => $gateway,
-            ]);
-
-            // Ensuite on peut envoyer la requête, par ex du JSON
-            try{
-                $response = $client->post(
-                    $functionPath,
-                    [ 'body' => "nServiceRequest=".urlencode($reqRaw)]
-                );
-                // For debuging $response = $client->get( $functionPath);
-                echo $response;
-            } catch( Exception $e) {
-                $msg = $e->getMessage();
-                // if ( strpos( $msg, "403")) echo "Unauthroized access";
-                echo $e->getMessage();
-            }
-*/            
-            $response = JSON_decode( $responseJSON, true);
-            if ( $response->success && $throttleId &&  $service->creditsConsumed) {
+            if ( $protocol == 'gcf') $response = SDBEE_service_endpoint_gcf( $gateway, $functionPath, $serviceAccount, $serviceRequest);
+            elseif ( $protocol == 'soil') $response = SDBEE_service_endpoint_token( $gateway, $functionPath, $serviceAccount, $serviceRequest);
+            elseif ( $protocol == 'bearer') $response = SDBEE_service_endpoint_bearer( $gateway, $functionPath, $serviceAccount, $serviceRequest);
+            else $response =  [ "success"=>false, "message"=>"Unknown protocol", "data" => ""];        
+            if ( $response[ 'success'] && $throttleId &&  isset( $response[ 'creditsConsumed'])) {
                 // Update service log
-                $throttle->consume( $throttleId, $service->creditsConsumed, $service->creditComment);
+                $throttle->consume( $throttleId, $response[ 'creditsConsumed'], $response[ 'creditsComment']);
             }            
-            echo $responseJSON;
+            return $response;
         }
     }
 }
 
-function SDBEE_service_endpoint_account( $gateway, $function, $account, $request) {
-    $url = $gateway.'/'.$function.'/';
+function SDBEE_service_endpoint_account( $gateway, $functionPath, $account, $request) {
+    $url = $gateway.'/'.$functionPath.'/';
     $json = JSON_encode( $request);
     $user = $USER[ 'service-user'];
     $pass = $USER[ 'service-password'];
@@ -158,11 +132,11 @@ function SDBEE_service_endpoint_account( $gateway, $function, $account, $request
     );
     $context = stream_context_create($opts);
     $response = @file_get_contents( $url, false, $context);
-    return $response;
+    return JSON_decode( $response, true);
 }
 
-function SDBEE_service_endpoint_token( $gateway, $function, $token, $request) {
-    $url = $gateway.$token.'/'.$function.'/';
+function SDBEE_service_endpoint_token( $gateway, $functionPath, $token, $request) {
+    $url = $gateway.$token.'/'.$functionPath.'/';
     $json = JSON_encode( $request);
     $opts = array('http' =>
         array(
@@ -173,12 +147,12 @@ function SDBEE_service_endpoint_token( $gateway, $function, $token, $request) {
     );
     $context = stream_context_create($opts);
     $response = @file_get_contents( $url, false, $context);
-    return $response;
+    return JSON_decode( $response, true);
 }
 
-function SDBEE_service_endpoint_gcf( $gateway, $function, $serviceAccount, $request) {
+function SDBEE_service_endpoint_gcf( $gateway, $functionPath, $serviceAccount, $request) {
     // Set up credentials file
-    $servieAccountCredentials = __DIR__."/../../.config/sd-bee-{$serviceAccount}.json"; //gcs.json";
+    $serviceAccountCredentials = __DIR__."/../../.config/sd-bee-{$serviceAccount}.json"; //gcs.json";
     putenv('GOOGLE_APPLICATION_CREDENTIALS='.$serviceAccountCredentials);
     // URL
     $targetAudience = $gateway.$functionPath;
@@ -191,21 +165,19 @@ function SDBEE_service_endpoint_gcf( $gateway, $function, $serviceAccount, $requ
         'auth' => 'google_auth',
         'base_uri' => $gateway,
     ]);
-
-    // Ensuite on peut envoyer la requête, par ex du JSON
+    // Send request and get JSON response
+    // 2DO Use JSON with \GuzzleHttp\RequestOptions::JSON => $request
     try{
         $response = $client->post(
             $functionPath,
-            [ 'body' => "nServiceRequest=".urlencode($request)]
-        );
-        // For debuging $response = $client->get( $functionPath);
-        echo $response;
+            [ 'form_params' => [ "nServiceRequest" => JSON_encode( $request)]]
+        );        
+        // $client->get( $functionPath); //for debugging
+        $response = JSON_decode( (string) $response->getBody(), true);        
     } catch( Exception $e) {
-        $response = $e->getMessage();
-        // if ( strpos( $msg, "403")) echo "Unauthorized access";
-        // echo $e->getMessage();
+        $response =  [ 'success'=> false, 'message'=> $e->getMessage(), 'data' => ""];    
     }
-    return $reponse;
+    return $response;
 }
         
 
@@ -221,7 +193,7 @@ function SDBEE_service_endpoint_getServiceMap() {
             $file =$files[ $filei];
             if ( !strpos( $file, ".json")) continue;
             // Open each JSON file
-            $fileContents = @file_get_contents( $file);
+            $fileContents = @file_get_contents( $dir.'/'.$file);
             // Extract composer instructions
             $w = JSON_decode( $fileContents, true);
             if ( $w && count($w)) {

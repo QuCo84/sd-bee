@@ -662,6 +662,7 @@ function LF_sendFile( $path, $ext) {
         //$dotParts = explode( ".", $path);
         //$ext = $dotParts[ LF_count( $dotParts) - 1];
         // !!! important resource files cannot use hyphens (-)
+        $pathParts = explode( '/', $path);
         $filename = $pathParts[ LF_count( $pathParts) - 1];
         $filenameVersionPos = strpos( $filename, '-v-');
         if ( $filenameVersionPos){ 
@@ -670,7 +671,7 @@ function LF_sendFile( $path, $ext) {
             $path = implode( '/', $pathParts);
         }
          // File read
-        $fileContents = file_get_contents( $path);
+        $fileContents = @file_get_contents( $path);
         switch ($ext) {
             case "jpg"  :
             case "jpeg" : 
@@ -720,7 +721,7 @@ function LF_sendFile( $path, $ext) {
                 break;
             default:
             header("Content-type: application/octet-stream");
-            header('Content-Disposition: attachment; filename="' .$requestedFile. '"');
+            header('Content-Disposition: attachment; filename="' .$filename. '"');
             break;
         }        
         /*if (!$fileContents)  header("Content-Length: ". filesize($path.$oid_str));

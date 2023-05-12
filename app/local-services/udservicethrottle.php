@@ -180,6 +180,8 @@ class UD_serviceThrottle {
         } catch( Exception $e) {
             // Don't do anything            
         }*/
+        // Return as error if no credits
+        if ( ( $status[ 'icredits'] + $status[ 'iallowedOverDraft']) <= 0) return $this->error( THROTTLE_noCredits, "No credits for $service");
         return $status;
     }
 /*

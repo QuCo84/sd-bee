@@ -154,10 +154,10 @@ function _identified() { return ( !LF_env( 'is_Anonymous'));} // 2DO ENviromenta
             $jsonResponse = [ 
                 'success'=>True, 
                 'message'=> "Success on $serviceName {$serviceRequest['action']}",
-                'request'=>$service->lastRequest,
                 'value'=>$service->lastResponse,
                 'data'=>$result
             ];
+            // if ( debugging) $jsonResponse[ 'request'] = $service->lastRequest;
             $response = "<span class=\"success\">Success on $serviceName $action</span>";
             $response .= "<span class=\"result hidden\">{$result}</span>";
             // Consume credits
@@ -244,49 +244,49 @@ function _identified() { return ( !LF_env( 'is_Anonymous'));} // 2DO ENviromenta
         */
         $provider = "";
         // Get credentials to access service from config task-doc
+        $user = LF_env( 'user_id');
+        $user32 = substr( "00000".$user, strlen( $user.""));
         $request = [
             'service' => 'doc',
             'action' => 'getNamedContent',
-            'dir' => 'UniversalDocElement-',
+            'dir' => '',
             'docOID' => LF_env( 'UD_userConfigOid'),
+            'docName' => "Z00000010VKK8{$user32}_UserConfig",
             'elementName' => $service.'service' /* $paramsName */
         ];
         $response = $this->_doRequest( $request);
         if ( $response[ 'success']) {
-            $paramsContent = JSON_decode( $response[ 'data'], true);
-            if ( $paramsContent && is_array( $paramsContent)) {
-                $params = $paramsContent[ 'data']['value'];
-                if ( $params) {
-                    foreach( $params as $key=>$value) {
-                        $key = strToLower( $key);
-                        if ( strpos( $key, "ck_") === 0) {
-                            // Decode crypted key
-                            //call nodejs udservicesecurty.js $value $service LF_env('user_id')
-                        }
-                        if ( $key == "enabled") $enabled = ( $value == "on");
-                        elseif ( $key == "provider") {
-                            $provider = strToLower( $value);
-                            $serviceRequest[ 'provider'] = $provider;
-                            $serviceRequest[ $provider] = $params[ $provider]; 
-                            if ( $params[ $provider] == 'parent') {
-                                /* 2DO Upward search for parameters
-                                $serviceRequest[ 'recurrent'] = true;
-                                // Change user
-                                // Get params $this._getParamsFromUserConfig( &$serviceRequest);
-                                // Restore user
-                                */
-                            }
-                        } elseif ( $key == "__all") {
-                            $serviceRequest[ '__all'] = $value;
-                        }
+            $params = $response[ 'data'][ 'data']['value'];
+            if ( $params) {
+                foreach( $params as $key=>$value) {
+                    $key = strToLower( $key);
+                    if ( strpos( $key, "ck_") === 0) {
+                        // Decode crypted key
+                        //call nodejs udservicesecurty.js $value $service LF_env('user_id')
                     }
-                    /* might need a fail-safe
-                    if ( !$provider && !isset( $serviceRequest[ '__all'])) {
-                        foreach( $params as $key=>$value) $serviceRequest[ $key] = $value;
+                    if ( $key == "enabled") $enabled = ( $value == "on");
+                    elseif ( $key == "provider") {
+                        $provider = strToLower( $value);
+                        $serviceRequest[ 'provider'] = $provider;
+                        $serviceRequest[ $provider] = $params[ $provider]; 
+                        if ( $params[ $provider] == 'parent') {
+                            /* 2DO Upward search for parameters
+                            $serviceRequest[ 'recurrent'] = true;
+                            // Change user
+                            // Get params $this._getParamsFromUserConfig( &$serviceRequest);
+                            // Restore user
+                            */
+                        }
+                    } elseif ( $key == "__all") {
+                        $serviceRequest[ '__all'] = $value;
                     }
-                    */
-                    return true;
                 }
+                /* might need a fail-safe
+                if ( !$provider && !isset( $serviceRequest[ '__all'])) {
+                    foreach( $params as $key=>$value) $serviceRequest[ $key] = $value;
+                }
+                */
+                return true;
             }    
         }        
         {
