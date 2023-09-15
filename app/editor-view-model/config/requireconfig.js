@@ -40,12 +40,12 @@ function app_load( user, path) {
     window.UD_SERVER = ( path.indexOf( 'smartdoc_prod') > -1) ? "https://www.sd-bee.com" : "http://dev.rfolks.com";
     window.UD_SERVICE = "webdesk"; 
     // 2DO look for cloudshell in $_SERVER urm
-    $url = window.location.href;
-    if ( $url.indexOf( '?') > -1) $url = $url.substring( 0, $url.indexOf( '?'));
-    $urlParts = $url.split( '/');
-    window.UD_SERVER = $urlParts[ 0]+"//"+$urlParts[ 2]; //"https://ud-server-372110.oa.r.appspot.com"; //https://8080-cs-482142111769-default.cs-europe-west1-iuzs.cloudshell.dev/";
-    window.UD_SERVICE = ( $urlParts[3]) ? $urlParts[3] : "sd-bee"; 
-    let ajaxPath = ( $urlParts[3]) ? "/".$urlParts[3] : "";
+    let url = window.location.href;
+    if ( url.indexOf( '?') > -1) url = url.substring( 0, url.indexOf( '?'));
+    let urlParts = url.split( '/');
+    window.UD_SERVER = urlParts[ 0]+"//"+urlParts[ 2]; //"https://ud-server-372110.oa.r.appspot.com"; //https://8080-cs-482142111769-default.cs-europe-west1-iuzs.cloudshell.dev/";
+    window.UD_SERVICE = ( urlParts[3]) ? urlParts[3] : "sd-bee"; 
+    let ajaxPath = ( urlParts[3]) ? "/".urlParts[3] : "";
     window.version = version; 
     window.global = window;
     //require.config( { baseUrl :( path.indexOf( 'smartdoc_prod') > -1) ?  '/upload/smartdoc_prod': 'https://www.sd-bee.com/upload/smartdoc'});

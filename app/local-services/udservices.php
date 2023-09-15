@@ -22,7 +22,7 @@
  * 2DO ::: Throttle activate / disactivate
  */
 
- class UD_services {
+class UD_services {
     
     private $params = null;
     private $cache = [];
@@ -36,7 +36,7 @@
         }
     }
 
-function _identified() { return ( !LF_env( 'is_Anonymous'));} // 2DO ENviromental
+    function _identified() { return ( !LF_env( 'is_Anonymous'));} // 2DO ENviromental 
     function _decodeRequestString( $requestString) { return JSON_decode( urldecode( $requestString), true);}
 
     function do( $serviceRequest) {

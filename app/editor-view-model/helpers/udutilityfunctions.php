@@ -19,7 +19,7 @@ function L_oidChildren( $oidstr) {
  * @param array $parameters Named list of systeme parameters
  * @return string THe JSON string representing the table
  */
-function UDUTILITY_listContainersAsThumbnails( $dataOrDataset, $parameters=[ 'sort'=>'dmodified', 'ascOrDesc'=>true]) {
+function UDUTILITY_listContainersAsThumbnails( $dataOrDataset, $params=[ 'sort'=>'dmodified', 'ascOrDesc'=>true]) {
     // 2DO use maxNb & offset
     // Make dataset of data
     if ( is_Object( $dataOrDataset) /*&& get_class( $dataOrDataset) == "Dataset"*/) {
@@ -45,13 +45,21 @@ function UDUTILITY_listContainersAsThumbnails( $dataOrDataset, $parameters=[ 'so
         $elementData[ 'nname'] = str_replace( ' ', '_', $elementData[ 'nname']);
         if ( $type == UD_document || $type == UD_model || $type == UD_docThumb) {
             // Document thumbnail with link to new window for showing document
-            $elementData[ 'stype'] = UD_docThumb;
+            $elementData[ 'stype'] = ( isset( $params[ 'doc-type'])) ? $params[ 'doc-type'] : UD_docThumb;
+            // 2DO use params[ linkModel] to determine what link should look like, for displayPage( 'blog_xxxx')
+            if ( isset( $params[ 'click-model']) && $params[ 'click-model']) {
+                $elementData[ '_onclick'] = LF_substitute( $params[ 'click-model'], $elementData);
+            }
             if ( !isset( $elementData[ '_link'])) $elementData[ '_link'] = "/webdesk/" . L_oidChildren( $elementData[ 'oid']).'--{OIDPARAM}/show/';
             $elementData[ 'nlabel'] = '{!Ouvrir!}';
-            // #2224002 not ready $elementData[ '_image'] = UDUTILITY_getDocImage( $elementData);
+            // Get an image for this element
+            $elementData[ '_image'] = UDUTILITY_getDocImage( $elementData);
             //$elementData[ 'oid'] = "";
             // textra $this->extra[ 'system']; ['thumbnail'] = UDUTILITY_getDocImage
-            $element = new UDdocument( $elementData);     
+            switch( $elementData[ 'stype']) {
+                case UD_docThumb  : $element = new UDdocument( $elementData); break;
+                case UD_articleThumb : $element = new UDarticle( $elementData); break;
+            }
             $w = $element->renderAsHTMLandJS();
             $r .= $w[ 'content'];
         } elseif ( $type == UD_directory || $type == UD_dirThumb) {
@@ -65,7 +73,7 @@ function UDUTILITY_listContainersAsThumbnails( $dataOrDataset, $parameters=[ 'so
             $r .= $w[ 'content'];
         } 
     }
-    if ( $parameters[ 'wrEnable']) {
+    if ( $params[ 'wrEnable']) {
         // Add a new task, process or process model
         $title = '{!Nouvelle tâche!} {!ou!} {!groupe de tâches!}';
         $subTitle = '{!Ajouter!} {!une nouvelle tâche!} {!ou!} {!un groupe de tâches!} ici en cliquant sur Ajouter!}';
@@ -77,7 +85,7 @@ function UDUTILITY_listContainersAsThumbnails( $dataOrDataset, $parameters=[ 'so
         // Document thumbnail with link to new window for showing document
         $newTaskData[ 'nname'] = 'New task';
         $newTaskData[ 'nlabel'] = '{!Ajouter!}';
-        $newTaskData[ 'stype'] = UD_docThumb;        
+        $newTaskData[ 'stype'] = ( isset( $params[ 'doc-type'])) ? $params[ 'doc-type'] : UD_docThumb;        
         $newTaskData[ 'tcontent'] = '{!Nouvelle tâche!} {!ou!} {!groupe de tâches!}';
         $newTaskData[ '_title'] = $title;
         $newTaskData[ '_subTitle'] = $subTitle;
@@ -103,79 +111,6 @@ function UDUTILITY_breadcrumbs( $pathWithLinks) {
     }
     $breadcrumbs .= '</nav></div>';
     return $breadcrumbs;
-    /*
-    $docOID =  LF_env( 'UD_docOID'); // set in UD_utilities::buildSortedAndFilteredDataset();
-    if ( LF_env( 'reconnect')) {
-        $docOID = "";
-        LF_env( 'reconnect', '');
-        LF_env( 'UD_docOID', '');
-    }
-    $viewId = "API.dom.getView( 'DIRS_Breadcrumbs').id";
-    if ( $docOID) {
-        // Start from a specifc OID
-        $link = $docOID;
-        $link .= "/AJAX_listContainers/";             
-        $onclick = "window.ud.udajax.updateZone( '{$link}', $viewId);";
-        $breadcrumbs .= "<li><a href=\"javascript:\" onclick=\"{$onclick}\">Top</a></li>";
-    } else {
-        // Start from top
-        $icon = '<span class="icon is-small"><i class="fa fa-home" aria-hidden="true"></i></span>';
-        $breadcrumbs .= "<li><a href=\"/webdesk/?TOP=1\">{$icon}Top</a></li>";
-    }
-    $startBreadcrumbs = LF_count( LF_stringToOid( $docOID)) - 1;
-    //if ( $startBreadcrumbs < 2) $breadcrumbs .= " <a href=\"/webdesk/\">Top</a>";
-    if ( LF_count( $oid) >= 2) {
-        $oidSoFar = [];
-        if ( LF_count( $oid) % 2) array_pop( $oid);
-        $home = false;
-        for ( $pathi=0; $pathi < LF_count( $path); $pathi +=2) {
-            $oidSoFar[] = $oid[ $oidi];
-            $oidSoFar[] = $oid[ $oidi + 1];
-            if ( $oid[ $oidi] != 21) continue;
-            $nodeInfo = $access->getDocInfo( $path[ $pathi]);
-            $nodeData = LF_fetchNode( LF_oidToString(  $oidSoFar));
-            $nodeData = $nodeData[ 1];
-            UD_utilities::analyseContent( $nodeData);
-            $nodeData[ 'stype'] = UD_dirThumb;  
-            $node = new UDdirectory( $nodeData); 
-            $name = $node->title;
-            $link = "";      
-            if ( $oidi >= $startBreadcrumbs) {
-            if ( $home) {
-                $home = false;
-                $onclick = "API.reloadView( {$viewId});";
-            } else { 
-                $link .= "UniversalDocElement--".implode( "-", LF_stringToOid( $nodeData[ 'oid']))."-21";
-                $link .= "/AJAX_listContainers/";             
-                $onclick = "window.ud.udajax.updateZone( '{$link}', $viewId);";
-            }
-            $breadcrumbs .= " > ";
-            $breadcrumbs .= "<a href=\"javascript::\" onclick=\"{$onclick}\">{$name}</a>";
-            $selected = ( $oidi >= ( LF_count( $oid) - 2)) ? 'class="is-active"' : '';       
-            $breadcrumbsBulma .= "<li $selected><a href=\"javascript:\" onclick=\"{$onclick}\">{$name}</a></li>";
-            }        	
-        }
-     }
-     $breadcrumbsBulma .= '</nav>';
-     $controls = "";
-     if ( false) {   
-            // Add controls on last step   
-            / * bin on each element   	
-            $recycleBin = LF_env( 'LINKS_wasteBinOID'); 
-            $recycleClick = "window.ud.udajax.updateZone('{$recycleBin}-21--{OIDPARAM}/AJAX_modelShow/','document');";
-            $controls .= ' <span data-ud-type="button" class="recycleButton" onclick="'.$recycleClick.'" style="width:100%;"><img id="UD_wasteBin" src="/upload/N313S2W1m_wastebin.png" style="float:right; margin-left:20px;" alt="Recycler"></span>';
-            * /
-            $controls .= '<span data-ud-type="button" class="addButton" onclick="API.createDocument();" style="width:100%;"><img src="/upload/XM1MpN9nO_addfile.png" style="float:right;"></span>';      	
-            $controls .= "<br><a href=\"javascript::\" onclick=\"$$$.showOneOfClass('Manage',1);$$$.buildManagePart();\">{!Manage!}</a>";
-            $newWindowFormula = "checkboxTag( 1, 'UD_openNewWindow', 'dir','Open files in new window');";
-            $newWindowChange = "if (this.checked) this.value='yes'; else this.value='no';window.ud.ude.updateTable('dir');";
-            $controls  .= '<span data-ud-type="field" data-ude-formula="'.$newWindowFormula.'" id="udcalc8"><input id="UD_openNewWindow" type="checkbox" onchange="'.$newWindowChange.'" checked="" value="yes">Open files in new window</span>';
-            $breadcrumbs .= $controls;
-            $breadcrumbsBulma .= $controls;
-     } 
-     $breadcrumbs .= "</div>";
-     $breadcrumbsBulma .= "</div>";    
-     */
 }
 
 /**
@@ -215,8 +150,12 @@ function UDUTILITY_getDocImage( $docData, $width=280, $height=120) {
         // Directory contents
     } elseif ( $type == UD_model || $type == UD_modelThumb) {
         // Display models public view
-    } elseif ( $type == UD_document || $type == UD_docThumb) {
+    } elseif ( in_array( $type, [ UD_document, UD_docThumb, UD_articleThumb])) {
         // Document contents
+        // Look at extra paramaters in docData
+        $params = $docData[ '_extra'][ 'system'];
+        if ( $params && isset( $params[ 'thumbnail-image'])) return $params['thumbnail-image'];
+        return "";     
         $oid = LF_oidToString( LF_stringToOid( $docData[ 'oid']))."--UD|1|NO|OIDLENGTH|CD|5"; //.LF_env( 'OIDPARAM');
         $uri = "webdesk/{$oid}/show"; //VIEWAS%7CPRINT/";
         //$url = "https://www.sd-bee.com/webdesk/{$oid}/show/";
@@ -249,6 +188,25 @@ function UDUTILITY_getDocImage( $docData, $width=280, $height=120) {
     }
     return "";
 } // UDUTILITY_getDocImage()
+
+function UDUTILITY_addClip( $name, $type, $content) {
+    global $ACCESS, $LD;
+    if ( $ACCESS) $ACCESS->addClip( $name, $type, $content);
+    elseif ( $LF)  {
+        $w = LF_fetchNode( 'SimpleArticle--5--nname|clipboard*');
+        $clipboardHome = $w[1][ 'oid'];
+        $clip = [
+            'name' => $name,
+            'ttext' => $content
+        ];
+        LF_createNode( $clipboardHome, "SimpleArticle", [ [ 'nname', 'ttext'], $clip]);
+    }
+}
+
+/**
+ * OLD still needed ?
+*/
+
 
 /**
  * Build a JSON coded table from standard data array
@@ -340,6 +298,20 @@ function new_buildJSONtableFromData( $data, $system) {
     $tableJSON = str_replace( '\ufeff', '', $tableJSON);
     return $tableJSON;    
 } // new_buildJSONtableFromData()
+
+function SDBEE_translate( $text, $lang, $targetLang) {
+    $req = [
+        "action" => "translate",
+        "source" => strToLower( $lang),
+        "target" =>  strToLower( $targetLang),
+        "text" => $text
+    ];
+    require_once( __DIR__."/../services/translation/udstranslation.php");
+    $translateService = new UDS_translation();
+    $rep = $translateService->call( $req);
+    if ( !$rep[ 'success']) return "";
+    else return $rep[ 'data'][ 'translation'];
+}
 
 if ( $argv[0] && strpos( $argv[0], "udutilityfunctions.php") !== false)
 {    

@@ -52,7 +52,7 @@ class UDS_doc extends UD_service {
                     // Get collection name
                     $dirParts = explode( '-', explode( '--', $dir)[0]);
                     $collection = array_pop( $dirParts);                    
-                    // Get docs in collection
+                    // Get docs in collection or diecrtly attached to user if no collection
                     if ( $collection) $docs = $ACCESS->getCollectionContents( $collection);
                     else $docs = $ACCESS->getUserContents();
                     // Keep if same model                   

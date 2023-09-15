@@ -273,6 +273,7 @@ Class Dataset
         // if (count($this->sorted)) $sindex = $this->sorted[$index]; 
         $this->data[$index] = $data;
         $this->needsUpdate[] = $index;
+        //echo $data['oid']."updated $index $sindex";
      }
      return true;
    }
@@ -293,7 +294,7 @@ Class Dataset
        $r = $this->data;
        array_unshift($r, $this->data0);
      }
-     elseif ( $index < count($this->data))
+     elseif ($index > 0 && $index < count($this->data))
         $r = array( $this->data0, $this->data[ $index]); 
          
      return $r;
@@ -332,21 +333,19 @@ Class Dataset
    function save()
    {
      // if new create and change oid field
-     if ( $this->oid) {
-       // Create new nodes
-       $parent = LF_stringToOID($this->oid);
-       $parent->array_pop();
-       $parent = LF_oidToString( $parent);
-       foreach( $this->needsCreate as $recordIndex)
-       {
-          $r .= LF_createNode( $parent, $this->getClassId(), $this->asArray($recordIndex));
-       }
-       $this->needsCreate = array();
+     if (!$this->oid) return false;
+     // Create new nodes
+     $parent = LF_stringToOID($this->oid);
+     $parent->array_pop();
+     $parent = LF_oidToString( $parent);
+     foreach( $this->needsCreate as $recordIndex)
+     {
+        $r .= LF_createNode( $parent, $this->getClassId(), $this->asArray($recordIndex));
      }
+     $this->needsCreate = array();
      // Update existing nodes
      foreach( $this->needsUpdate as $recordIndex)
      {
-        $record = $this->atIndex( $recordIndex);
         $r .= LF_updateNode( $record['oid'],  $this->asArray($recordIndex));
      }
      return success;

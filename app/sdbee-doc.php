@@ -330,20 +330,33 @@ class SDBEE_doc {
         return $this->_jsonResponse( [ 'msg'=>"No $elementId in {$this->name}"], 'KO');
     }
 
+    function getElementContent( $elementId) {
+        if ( isset( $this->content[ $elementId])) return $this->content[ $elementId][ 'tcontent'];
+        return "";
+    }
+
     function readElementByLabel( $label) {
-        if ( !$this->labelIndex) {
-            $saveNext = $this->next;
-            $this->next = 0;
-            $labelIndex = [];
-            while ( !$this->eof()) {
-                $el = $this->next();
-                if ( $el[ 'nlabel']) $labelIndex[ $el[ 'nlabel']] = $el[ 'nname'];
-            }
-            $this->labelIndex = $labelIndex;
-            $this->next = $saveNext;
-        }
+        if ( !$this->labelIndex) $this->updateLabelIndex();
         if ( isset( $this->labelIndex[ $label])) return $this->readElement( $this->labelIndex[ $label]);
         return $this->_jsonResponse( [ 'msg'=>"No element labelled $label in {$this->name}"], 'KO');
+    }
+
+    function readElementContentByLabel( $label) {
+        if ( !$this->labelIndex) $this->updateLabelIndex();
+        if ( isset( $this->labelIndex[ $label])) return $this->readElementContent( $this->labelIndex[ $label]);
+        return "";
+    }
+
+    function updateLabelIndex() {{
+        $saveNext = $this->next;
+        $this->next = 0;
+        $labelIndex = [];
+        while ( !$this->eof()) {
+            $el = $this->next();
+            if ( $el[ 'nlabel']) $labelIndex[ $el[ 'nlabel']] = $el[ 'nname'];
+        }
+        $this->labelIndex = $labelIndex;
+        $this->next = $saveNext;
     }
 
     function doModifications( $modifications) {
@@ -405,7 +418,7 @@ class SDBEE_doc {
      * Handle credit consumption based on task progress
      * DRAFT
      */
-    private function updateProgress( $newProgress) {
+    function updateProgress( $newProgress) {
         if ( $newProgress != $this->progress) {
             /*
             // Progress has changed
@@ -625,6 +638,14 @@ class SDBEE_doc {
                 unset( $el[ 'nname']);
                 unset( $el[ 'id']);
                 unset( $el[ 'oid']);
+                $params = ( $el[ 'textra']) ? JSON_decode( $el[ 'textra'], true) : [ 'system'=>[]];
+                $params[ 'system'][ 'fromModel'] = true;
+                $params = ( $el[ 'tparams']) JSON_decode( $el[ 'tparams'], true);
+                $content = $el[ 'tcontent'];
+                if ( $type >= UD_chapter && $type <= UD_subParagraph 
+                   && strlen( $content) <= 40 && strpos( $content, "<") === false
+                ) $params[ 'system'][ 'ude_place'] = $content;
+                $el[ 'tparams'] = JSON_encode( $params);
                 $this->content[ $name] = $el;
                 $this->modifications[] = [ 'action'=>"create", 'elementId'=>$name, 'data'=>$el, 'depth'=>$el[ 'depth']];
             }

@@ -1,7 +1,7 @@
 <?php
 /**
  * ud.php -- Universal Doc server delivery
- *  * Copyright (C) 2023  Quentin CORNWELL
+ * copyright (C) 2023  Quentin CORNWELL
  *  
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -106,6 +106,7 @@ class UniversalDoc {
     private $user;
     private $userId;
     private $lang;
+    private $ajax = false;
     // buffering for big docs will go here
     // Doc parameters (stored as json in textra>system)
     public $defaultPart="";  // Part to be displayed by default
@@ -142,7 +143,7 @@ class UniversalDoc {
         'modules/editors/udelist', // Manage has a list so always required
         'modules/editors/udetable', // Loads badly on GCP if left to UDE
         'modules/editors/udedraw', // Loaded by UDE for new elements
-       // 'ude-view/udeideas'  // Under test
+        'ude-view/udeideas'  
     ]; // [ 'modules/connectors/udeconnector.js'];
     // User parameters for this document
     private $userParams = [];
@@ -279,7 +280,6 @@ class UniversalDoc {
             $dataset = UD_utilities::buildSortedAndFilteredDataset( $oid, $dataset, $this, ($this->mode == "edit"));
         }        
         $docOIDlen = LF_count( LF_stringToOid( $oid))/2 - 1;
-        // $dataset = UD_utilities::buildSortedAndFilteredDataset( $oid, $data, $this, ($this->mode == "edit"));
         if (!$dataset->size) LF_debug( "No data to load", "UD", 9); // LF_debug No data
         LF_debug( "Loading {$dataset->size} records", "UD", 5);
         // Element loop - create an UDelement according to type and send to add to output stream (addElement)
@@ -298,8 +298,6 @@ class UniversalDoc {
             $oid = $elementData[ 'oid'];
             $oidLength = LF_count( LF_stringToOid( $oid));            
             // Analyse tcontent field    
-            // $element = $this->createElement( $elementData);
-            // $this->updateCaptionIndex( $element);
             UD_utilities::analyseContent( $elementData, $this->captionIndexes); // move 2 element
             // Filter model elements copied to main document
             if ( $this->filterElement( $elementData)) continue;
@@ -308,7 +306,7 @@ class UniversalDoc {
             // Document attributes, parameters & outline
             $this->preProcessElement( $elementData);            
             // Close open containers when OID depth (level) changes
-            $this->autoCloseContainers( $elementData); 
+            $this->autoCloseContainers( $elementData, $docOIDlen); 
             // Process elements through element class
             $element = $this->createElement( $elementData);
             $this->addElement( $element); // addToPage                        
@@ -627,10 +625,13 @@ EOT;
         //221205 Bulma trial
         //$dm->out( '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">', 'head');
         $dm->out( '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">', 'head');
-        if ( $this->cssFile) {
+         // App CSS      
+         if ( $this->cssFile && !$this->ajax) {
+            // Save CSS to  a file and link in head
             $css = $this->saveToCSSFile( $styleSet, $id);
             $dm->out( "<link href=\"/{$css}\" rel=\"stylesheet\">", "head");
         } else {
+            // Send CSS in head section
             // $css = LF_env( 'APP_styles');
             foreach( $this->style as $styleSet) $dm->out( $styleSet, "head/style"); 
         }

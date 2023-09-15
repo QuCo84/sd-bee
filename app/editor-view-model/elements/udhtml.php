@@ -86,13 +86,13 @@ if ( !class_exists( 'UDelement')) require_once( __DIR__."/../../tests/testenv.ph
                         $filename = substr( $line, $p1, $p2 - $p1 - 1);
                         // Get contents                        
                         $includeContent = UD_fetchResource( 'resources/'.$filename, $filenameb,$extb);
-                        // fct disabled  $includeContent = UD_getResourceFileContents( $fileName);
+                        //$includeContent = UD_getResourceFileContents( $filename);
                         // Remove script and style tags
                         // Add lines
                         $includeLines = explode( "\n", $includeContent);
                         $newLines = [];
                         for ( $nli=0; $nli < $li; $nli++) { $newLines[] = $lines[ $nli];}
-                        $newLines[] = "&lt;!-- {$fileName} --&gt;";
+                        $newLines[] = "&lt;!-- {$filename} --&gt;";
                         for ( $nli=0; $nli < LF_count( $includeLines); $nli++) { 
                             $newLines[] = str_replace(  
                                 ['&quot;', '<', '>'], 
@@ -116,12 +116,17 @@ if ( !class_exists( 'UDelement')) require_once( __DIR__."/../../tests/testenv.ph
             $content = JSON_encode( $json);
             $holder = $json[ 'meta']['name']."_object";
             $r .= "<div id=\"{$holder}\" class=\"object hidden\">{$content}</div>";
+            /* 
+            * Cached HTML may contain code before substitution
+            * We need to only save HTML if no error at last init
             if ( $this->html) {
                 $html = str_replace( '&quote;', "'", $this->html);
                 $r .= "<div id=\"{$activeZoneName}\" class=\"activeZone\" ude_bind=\"{$holder}\">{$html}</div>";
             }
-            if ( $mode == "edit3" || strlen( $this->html) <= strlen( implode( "\n", $lines))) // #2247002 - avoid initialising HTML for newsletter if its already setup
-                $js = "window.ud.initialiseElement('{$this->name}');\n";
+            */
+            // 2DO Why not t->html != implode( "\n", lines) or html built during 1st loop
+            //if ( $mode == "edit3" || strlen( $this->html) <= strlen( implode( "\n", $lines))) // #2247002 - avoid initialising HTML for newsletter if its already setup
+            $js = "window.ud.initialiseElement('{$this->name}');\n";
         } else { 
             // DEPRECATED COMPOSITE MIXED format
             // ?DO Why not just send element's content ?

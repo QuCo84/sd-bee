@@ -72,7 +72,7 @@ EOT;
     // 2DO UDE_formula to change text if cursor or not IF( cursor, "insert at cursor text", "click in doc")  
     $html .= "<span>Click on a clip to insert at cursor</span><br />";
     $html .= "<label for=\"CLIP_deleteAfterUse\">";
-    $html .= "<input type=\"checkbox\" id=\"CLIP_DeleteAfterUse\" />Effacer après usage</label>";
+    $html .= "<input type=\"checkbox\" id=\"CLIP_deleteAfterUse\" />Effacer après usage</label>";
     $html .= " <a href=\"javascript:\" onclick=\"window.clipboarder.deleteGroupClips('_ALL_');\">Effacer tous maintenant</a>";
     // document.getElementById( 'UD_docTitle').textContent
     $html .= "</div>";

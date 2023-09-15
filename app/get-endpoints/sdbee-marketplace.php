@@ -62,18 +62,20 @@ function SDBEE_endpoint_marketplace( $request, $output=false) {
             echo "model not found $modelName"; 
             die(); //continue;
         }
-        $model = new SDBEE_doc( str_replace( '.json', '', $modelName), 'models', $PUBLIC);        
-        if ( false && $model) {
-            // Grab the description and image from the model itself
-            $descrEl = $model->readElement( 'BUU0000010000');
-            $descr = $descrEl[ 'tcontent'];
-            $imgEl = $model->readElement( 'BUU0000010000');
-            $image = "";
+        if ( false) {
+            $model = new SDBEE_doc( str_replace( '.json', '', $modelName), 'models', $PUBLIC);        
+            if ( $model) {
+                // Grab the description and image from the model itself
+                $lang = LF_env( 'lang');
+                $title = $model->readElementContentByLabel( 'public-title-'.$lang);
+                $descr = $model->readElementContentByLabel( 'public-descr-'.$lang);
+                $image = HTML_getFirstImage( $model->readElementContentByLabel( 'public-poster-'.$lang));
+            }
         }
         $data = [
-            '%title' => $model->label,
-            '%descr' => $model->description,
-            '%image' => ($image) ? $image : $defaultTemplateImage,
+            '%title' => ( $title) ? $title : $model->label,
+            '%descr' => ( $descr) ? $descr : $model->description,
+            '%image' => ( $image) ? $image : $defaultTemplateImage,
             '%click1' => "$$$.setModel('{$model->name}');", // "sd-bee.com:{$model->name}"
 
         ];

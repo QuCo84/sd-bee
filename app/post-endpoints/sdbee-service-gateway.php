@@ -24,14 +24,14 @@ use Google\Auth\ApplicationDefaultCredentials;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 
- function SDBEE_endpoint_service( $request) {
+ function SDBEE_endpoint_service( $request) { // 2DO $serviceRequest
     global $USER;
     // Build service map
     $map = SDBEE_service_endpoint_getServiceMap();
     // Parameters
     $localServices = [ 'doc'];
     // Get request and service
-    $reqRaw = $request['nServiceRequest'];
+    $reqRaw = $request['nServiceRequest'];  // 2DO comment 2 lines
     $serviceRequest = JSON_decode( urldecode( $reqRaw), true);
     $serviceName = $serviceRequest['service'];
     if ( !isset( $map[ $serviceName])) return [ "result"=>"KO", "msg"=>"No service $serviceName"];    
@@ -40,7 +40,7 @@ use GuzzleHttp\HandlerStack;
     $throttleId = $throttle->isAvailable( $serviceName);
     /* Dev to activate
     $status = $this->throttle->status( $serviceName, $taskId, $progress);
-    if ( !$status) return [ "success"=>false, "message"=>$this->throttle->lastMessage, "data"=>$this->throttle->lastError];
+    if ( !$status) return [ "success"=>false, "message"=>$this->throttle->lastResponse, "data"=>$this->throttle->lastError];
     delete block below
     */
     if ( !$throttleId) {
@@ -99,8 +99,7 @@ use GuzzleHttp\HandlerStack;
         // 2DO JSON_decode as map service:url, get service from $serviceRequest
         if ( !$gateway) {
             $response = [ "success"=>false, "message"=>"No gateway", "data" => ""];
-        } else {
-          
+        } else {          
             // Get parameters and add to request
             $services = new UD_services( [ 'throttle'=>'off']);
             $services->_getParamsFromUserConfig( $serviceRequest);
@@ -151,8 +150,9 @@ function SDBEE_service_endpoint_token( $gateway, $functionPath, $token, $request
 }
 
 function SDBEE_service_endpoint_gcf( $gateway, $functionPath, $serviceAccount, $request) {
-    // Set up credentials file
+    // Set up credentials file    
     $serviceAccountCredentials = __DIR__."/../../.config/sd-bee-{$serviceAccount}.json"; //gcs.json";
+    if ( !file_exists( $serviceAccountCredentials)) return [ 'success' => false, 'message' => "No crendentials", 'data' => "Searching for {$serviceAccount}"];
     putenv('GOOGLE_APPLICATION_CREDENTIALS='.$serviceAccountCredentials);
     // URL
     $targetAudience = $gateway.$functionPath;
@@ -170,12 +170,13 @@ function SDBEE_service_endpoint_gcf( $gateway, $functionPath, $serviceAccount, $
     try{
         $response = $client->post(
             $functionPath,
-            [ 'form_params' => [ "nServiceRequest" => JSON_encode( $request)]]
-        );        
-        // $client->get( $functionPath); //for debugging
+            [ \GuzzleHttp\RequestOptions::JSON => $request]
+        );
         $response = JSON_decode( (string) $response->getBody(), true);        
     } catch( Exception $e) {
-        $response =  [ 'success'=> false, 'message'=> $e->getMessage(), 'data' => ""];    
+        $msg = $e->getMessage();
+        if ( strpos( $msg, "403")) $msg = "unauthorized access";
+        $response =  [ 'success'=> false, 'message'=> $msg, 'data' => ""];    
     }
     return $response;
 }

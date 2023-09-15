@@ -20,6 +20,8 @@
 function SDBEE_endpoint_collection( $collectionName, $action) {
     global $ACCESS, $DM;
     if ( !$ACCESS) return SDBEE_endpoint_collection_test();
+    $thumbDocClass = ( isset( $_REQUEST[ 'dcl'])) ? (int) $_REQUEST[ 'dcl'] : 0;
+    $displayBreadcrumbs = ( isset( $_REQUEST[ 'bc'])) ? (bool) $_REQUEST[ 'bc'] : true;
     $link = "$$$.updateZone('USER--21/AJAX_listContainers/updateOid|off/', 'BE00000000000000M_dirListing');";
     $pathWithLinks = [ 'Top' => $link];
     $view = "'BE00000000000000M_dirListing'";
@@ -52,7 +54,9 @@ function SDBEE_endpoint_collection( $collectionName, $action) {
             // Get and display directory contents
             $data = $ACCESS->getCollectionContents( $collectionName);
             $DM->load( $data);
-            $DM->out( UDUTILITY_listContainersAsThumbnails( $DM, [ 'maxNb'=>0, 'offset'=>0, 'wrEnable' => 1]));
+            $params = [ 'maxNb'=>0, 'offset'=>0, 'wrEnable' => 1];
+            if ( $thumbDocClass) $params[ 'doc-type'] = $thumbDocClass;
+            $DM->out( UDUTILITY_listContainersAsThumbnails( $DM, $params));
             $DM->flush( 'ajax');
         } else {
             // Display collection listing model NOT OK

@@ -249,6 +249,12 @@ function SDBEE_getRequest() {
         'AJAX_addDirOr' =>[ 'act' => 'ignore'],
         'AJAX_addDirOrFile' =>[ 'act' => 'ignore'],
         'AJAX_clipboardTool' => [ 'act' => 'getClipboard']
+        /*
+        'AJAX_show' => [],
+        'AJAX_update =>[],
+        'getAsHTML' =>[],
+        'modelShow' => []
+        */
     ];
     // Map 
     if ( isset( $actionMap[ $action])) {
@@ -261,6 +267,7 @@ function SDBEE_getRequest() {
         'test', 'e', 'form', 'nServiceRequest', 'task', 'model', 'collection', 'act', 'input_oid', 
         'nname', 'nlabel', 'stype', 'nstyle', 'tcontent', 'thtml', 'nlang', 'textra', 'ngivenname', 'nParams', 'lastTime', 'ticks',
         'tpasswd', 'tdomain', '_stype', '_tdomain', 'ttext', 'iaccess', 'tlabel'
+        // v, m,d ?
     );
     foreach( $requestKeys as $key) {
         if ( isset( $_REQUEST[ $key])) $request[ $key] = $_REQUEST[ $key];

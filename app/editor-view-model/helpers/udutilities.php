@@ -297,24 +297,16 @@ class UD_utilities
             $content = LF_substitute( $content, $LF_env);
             $element[ 'tcontent'] = $content;
             */
+            // Manage textra paramaters
+            $elementTextra = ( $element[ 'textra']) ? JSON_decode( $element[ 'textra'], true) : [ 'system'=>[]];
             // Set ude_place attribute on short titles and paragraphs
             $content = $element[ 'tcontent'];
             if ( $type >= UD_chapter && $type <= UD_subParagraph 
                 && strlen( $content) <= 40 && strpos( $content, "<") === false
-            ) {
-                // Set placeholder (using ude_place attribute) on headings and paragraph
-                $elementTextra = $element[ 'textra'];
-                if ( $elementTextra) {
-                    // use provided parameter as placeholder
-                    $elementTextra = JSON_decode( $elementTextra, true);
-                    $elementTextra[ 'system'][ 'ude_place'] = $content;
-                } else {
-                    // use model's content as placeholder
-                    $elementTextra = [ 'system'=>[ 'ude_place'=>$content]];
-                }
-                $element[ 'textra'] = JSON_encode( $elementTextra);
-                // 
-            }
+            ) $elementTextra[ 'system'][ 'ude_place'] = $content;
+            // Indicate from model
+            $elementTextra[ 'system'][ 'fromModel'] = true;
+            $element[ 'textra'] = JSON_encode( $elementTextra);
             // Create new node
             $nodeData = [ ["nname", "nlabel", "stype", "nstyle", "tcontent", "textra"], $element];
             $id = $createNodeCallback($target, $class_id, $nodeData);
@@ -635,43 +627,6 @@ class UD_utilities
                        'tcontent'=> "JS\n$$$.updateZone('{$path}/AJAX_listContainers/updateOid|off/', '{$data[$i]['nname']}');\n\n\n"    
                     ];
                     $data2[] = $dirEl;
-                    /* Replaced by listContaiersAsThumbnails
-                    // Fill directory type view with contents of this document's directory other than itself
-                    // 2DO Make a fucntion and move to document service or Dir element
-                    //     or JS Fill with listContainers call to have single point  2022-08-30 YES allows model to be cached
-                    //     or mix of both JS and PHP calls Utility fct listContainersAsThumbnails
-                    $textra = JSON_decode( $data[$i]['textra'], true);
-                    if ( $textra[ 'system']['dirPath']) {                                             
-                        if ( $textra[ 'system']['dirPath'] != "DOC") $useDir = $textra[ 'system']['dirPath'];
-                        if ( !$useDir) $useDir = LF_env( 'oid'); //$dirOID; 
-                        if ( !$useDir) $useDir = "--21";
-                        $useDir = "UniversalDocElement--".implode( '-', LF_stringToOid( $useDir));
-                        LF_debug( "Fetching directory $useDir", "UDUTILITIES", 8);
-                        $dirData = LF_fetchNode( $useDir); // LF_fetchNode( LF_mergeOid( $useDir, "--21"));           
-                        for ( $diri=1; $diri < LF_count( $dirData); $diri++) {
-                            $dirEl = $dirData[ $diri];
-                            if ( !in_array( $dirEl[ 'stype'], [ UD_directory, UD_document, UD_model])) continue;
-                            if ( strlen( $dirEl[ 'nname']) < 17 || $dirData[ $diri][ 'oid'] == $docOID) continue;
-                            if ( $dirEl[ 'nname'][0] == "Z") continue;
-                            $dirEl[ 'stype'] = [0, UD_dirThumb, UD_docThumb, UD_modelThumb][ $dirEl[ 'stype']];
-                            $dirEl[ 'nstyle'] = [0, 'dirThumbnail', 'docThumbnail', 'modelThumbnail'][ $dirEl[ 'stype']];                            
-                            // Rename for sorting
-                            $dirEl[ 'nname'] = substr( $data[$i][ 'nname'], 0, 3).substr( $dirData[ $diri]['nname'],3);
-                            // Add link
-                            if ( $dirEl[ 'stype'] == UD_dirThumb) {
-                                // Link to open directory
-                                $dirEl[ '_link'] = 'UniversalDocElement--'.implode('-', LF_stringToOid( $dirEl[ 'oid'])).'-21/AJAX_listContainers/';                                
-                            } else {
-                                // Link to open document                            
-                                $dirEl[ '_link'] = LF_mergeShortOid( $dirEl[ 'oid'], "--21").'/AJAX_show/';
-                            }
-                            // !!! 2IMPROVE trick to fool loadData into respecting level. Need a _level param
-                            // Testing 220524 $dirEL[ 'oid'] = LF_mergeShortOid( $data[$i]['oid'], $dirData[ 'oid']."--SK|".LF_count( $data[$i]['oid'])/2);
-                            $dirEl[ 'oid'] = LF_mergeShortOid( $data[$i]['oid'], "--21-".$dirData[ 'id']);
-                            $data2[] = $dirEl;
-                        }
-                    }
-                    */
                 }
             } elseif ( $keepChildren && $level > $targetLevel) { 
                 // Keep children                

@@ -1,5 +1,4 @@
 <?php
-// SPDX-License-Identifier: GPL-3.0
 /**
  * udservicethrottle.php -- manage consumption of payable services
  * Copyright (C) 2023  Quentin CORNWELL
@@ -28,6 +27,7 @@ same for afterprint
 { "icredits":50, "iallowedOverdraft":0, "dvalidity":"31/10/2022"}
 bug dataset eof ret
 
+!!! IMPORTANT OS version - 2DO check compataibility with smartdoc/SOILinks
 2DO
    clear() delete old entries
    use integer for dvalidty = date + days
@@ -67,7 +67,7 @@ class UD_serviceThrottle {
         // Find account user
         if ( !$user) $user = LF_env( 'user_id'); //$accountOID = $this->accountUser();
         $throttleLogId = $service.'_throttle';
-        $logData = $this->db->getLog( $throttleLogId = $service.'_throttle');
+        $logData = $this->getLog( $throttleLogId = $service.'_throttle');
         if ( !$logData) return $this->error( THROTTLE_noService, "No log for $service found");            
         // Get status
         $throttleStatus =  $this->getStatus( $service);
@@ -104,7 +104,7 @@ class UD_serviceThrottle {
         $nbProcessed = 0;
         $allowedOverdraft = 0;
         if (!$this->db) return $this->error( THROTTLE_noService, "No database");
-        $logData = $this->db->getLog( $service.'_throttle');
+        $logData = $this->getLog( $service.'_throttle');
         if ( !$logData) return $this->error( THROTTLE_noService, "No log for $service");
         //var_dump( $logData); die();
         $today = LF_date();
@@ -230,8 +230,7 @@ class UD_serviceThrottle {
    /**
     * B - METHODS FOR ACCOUNT PAGES AND ACCOUNTING
     */    
-    // 2DO copy to sd-bee
-    // 2DO this->getLog = db->getLog or fetch    
+    // 2DO copy to sd-bee   
     function taskProgressChange( $taskName, $model, $params, $newProgress) {
         // Check caller is allowed
         if ( debug_backtrace()[1][ 'class'] != "SDBEE_doc") return false;
@@ -242,7 +241,7 @@ class UD_serviceThrottle {
         $creditsByStep = $params[ 'credits-by-step'];
         if ( !isset( $creditsByStep[ 'n'.$newProgress])) return true;
         // Check credits not already consumed for this task
-        $logData = $this->db->getLog( 'Task_throttle');
+        $logData = $this->getLog( 'Task_throttle');
         $add = true;
         for ( $logi=i; $logi < count( $logData); $logi++) {
             $log = $logData[ $logi];
@@ -386,7 +385,7 @@ class UD_serviceThrottle {
     function ReadLog() {}  
            
     function createLog( $service, $user="") {
-        if ( count( $this->db->getLog( $throttleLogId = $service.'_throttle'))) return;
+        if ( count( $this->getLog( $throttleLogId = $service.'_throttle'))) return;
         $details = [ 'icredits'=>20, 'iallowedOverdraft'=>0, 'dvalidity'=>time()];
         $entry = [
             ['nevent'=>"create", 'iresult'=>0, 'tdetails'=>JSON_encode( $details)]
@@ -424,7 +423,7 @@ class UD_serviceThrottle {
 
     function error( $code, $msg, $return=false) {
         $this->lastError = $code;
-        $this->lastMessage = $msg;
+        $this->lastResponse = $msg;
         return $return;
     }
 

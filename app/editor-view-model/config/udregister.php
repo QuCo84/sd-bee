@@ -1,4 +1,7 @@
 <?php
+/*
+ * OS version - include modified
+ */
 require_once 'udconstants.php';
 use ScssPhp\ScssPhp\Compiler;
 
@@ -363,59 +366,12 @@ function UD_autoFillResourcePath( &$path) {
     function UD_loadResourceFile( $fullPath, &$resources=null) {
         $html = $js = $style = $models = "";    
         $r = UD_fetchResource( $fullPath, $filename,  $fileExt); 
-        /*
-        // Analyse file's full path
-        $filenameParts = explode( '/', $fullPath);
-        $filename =  array_pop( $filenameParts);
-        if ( !$filenameParts[0])  {  // Syntax /domain/path/filename.ext
-            array_shift( $filenameParts);
-            $domain = array_shift( $filenameParts);
-        }     
-        if ( LF_count( $filenameParts)) {       
-            // !!Transition Some models were created with 'resources' in path
-            if ( $filenameParts[0] != "resources")  $category = "resources/" . implode( '/', $filenameParts);
-            $category = implode( '/', $filenameParts);
-        }
-        // Get extension
-        // 2DO use UD_fetchResource
-        $filenameParts = explode( '.', $filename);
-        $fileExt = $filenameParts[ LF_count( $filenameParts) - 1];
-        // Default path based on extension if none   example css/mystyle.css
-        if ( !$category) $category = $fileExt;
-        // Look for resource   
-        $builtin =  __DIR__."/../{$category}/{$filename}";
-        $localFTP = LF_env( 'ftpPath');
-        $local = ($localFTP) ? $local = "upload/{$localFTP}/{$filename}" : "";
-        /*
-        $domain = LF_env( 'FTP_domainForResources'); // $domain = LF_env( 'FTPdomain');
-        if ( $externalFTP) {
-            $localCopyOfExternalFile = FILE_FTP_copyFrom( $fullPath, $domain);        
-        }       
-        * /
-        // Get file contents
-        $r = "";
-        $fileUsed = "";          
-        if ( file_exists( $builtin)) {
-            // Priority is system CSS directory (no overwriting of system CSS files)
-            $r = file_get_contents( $builtin);
-            $fileUsed = $builtin;
-        } elseif ( $local && file_exists( $local)) {
-            // Try user's local FTP space if no standard file found
-            $r = file_get_contents( $local);
-            $fileUsed = $local;
-        } elseif ( $externalFTP && $localCopyOfExternalFile) {
-            // 2DO Try user's external FTP FILEFTP_   transfert to tmp ?
-            $r = file_get_contents( $localCopyOfExternalFile);
-        } else {
-            $r = file_get_contents( $fullPath);
-        }
-        */
         // Process resource according to extension
         if ( $fileExt == "scss") {
             $builtinDir = UD_getParameter( 'public-resource-storage');
             if( $builtinDir) $cssFile = "{$builtinDir}css/".str_replace( '.scss', '.css', $filename);
             else $cssFile = __DIR__."/../css/".str_replace( '.scss', '.css', $filename);
-            $css = file_get_contents( $cssFile);
+            $css = @file_get_contents( $cssFile);
             if ( !$css) {
                 // Convert SASS to CSS wih scssphp (compatible App engine)
                 // Conversion does not support import currently
@@ -442,14 +398,17 @@ function UD_autoFillResourcePath( &$path) {
         } elseif ( $fileExt == "vue" || $fileExt == "sfc") {              
             $json = LF_subString( $r, "<data>", "</data>");
             $data = JSON_decode( "{".$json."}", true);
-            if ( !$data) return null;
-            $styleBlockId = $data[ 'style-block-id']; 
-            $sass = LF_subString( $r, "<style id=\"{$styleBlockId}\">", "</style>"); 
-            $data[ 'style'] = $sass;
-            $data[ 'dstyle'] = LF_subString( $r, "<dstyle>", "</dstyle>");
-            $w = UD_processResourceSet( $data, str_replace( "{$filename}", '', $fileUsed));
-            $js .= $w[ 'program']; 
-            $style .= $w[ 'style'];
+            if ( !$data) {
+                $js .= "$$$.pageBanner( 'temp', 'Error data section is not JSON in {$fullPath}');";
+            } else {
+                $styleBlockId = $data[ 'style-block-id']; 
+                $sass = LF_subString( $r, "<style id=\"{$styleBlockId}\">", "</style>"); 
+                $data[ 'style'] = $sass;
+                $data[ 'dstyle'] = LF_subString( $r, "<dstyle>", "</dstyle>");
+                $w = UD_processResourceSet( $data, str_replace( "{$filename}", '', $fileUsed));
+                $js .= $w[ 'program']; 
+                $style .= $w[ 'style'];
+            }
         } elseif ( $fileExt == "ejs") {
             // Load an Embedded JS HTML template
             $html = $r;
@@ -832,10 +791,10 @@ function UD_autoFillResourcePath( &$path) {
     */ 
     function UD_convertSASStoCSS( $sass, $path=null) {
         // Adjust imports, assuming SASS comes from resource
-        //$sass = str_replace( "@import '../", "@import '../upload/smartdoc/resources/", $sass);        
+        $sass = str_replace( "@import '../", "@import '", $sass);        
         try {
             $compiler = new Compiler();
-            $compiler->setImportPaths($path);
+            $compiler->setImportPaths( __DIR__.'/../resources/'); //$path);
             $css = $compiler->compileString( $sass)->getCss();
         } catch( \Exception $e) {
             echo $e->getMessage()."<br>\n"; // "$path $sass ".$e->getMessage()."<br>\n";

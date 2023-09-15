@@ -19,6 +19,7 @@
 require_once __DIR__.'/../helpers/udutilities.php';
 require_once( 'uddirectory.php');
 require_once( 'uddocument.php');
+require_once( 'udarticle.php');
 require_once( 'udbreak.php');
 require_once( 'udparagraph.php');
 require_once( 'udtitle.php');
@@ -108,6 +109,7 @@ class UDelement {
     protected $noAuxillary = false;   
     protected $status = "";
     protected $info = "";
+    protected $tag = "";
     /*
     protected $MIMEtype = "text/html";   
     protected $JSONcontent = [];
@@ -303,7 +305,10 @@ class UDelement {
         }
         if ( $this->ud_fields) $attr .= " ud_fields=\"{$this->ud_fields}\"";
         
-        // 6 - UDE editor attributes (control display & editing)
+        // 6 - language
+        if ( $this->lang) $attr .= " ud_lang=\"{$this->lang}\"";
+
+        // 7 - UDE editor attributes (control display & editing)
         $attr .= " ude_mode=\"{$this->mode}\"";
         if ( $editable) $attr .= ' ude_edit="on"'; else $attr .= ' ude_edit="off"';
         if ( $this->getExtraAttribute( 'ude_place') && $editable) {
@@ -319,10 +324,10 @@ class UDelement {
             $systemAttr = str_replace( ['"'], ["&quot;"], json_encode($system));
             $attr .= " ud_extra=\"$systemAttr\"";
         }
-        // 7 - Add attributes automatically if specified in class info
+        // 8 - Add attributes automatically if specified in class info
         $attr .= UD_autoAddAttributes( $this->style, [ 'id'=>$this->name]);
         
-        // 8 - Debug info
+        // 9 - Debug info
         if( $this->debug) { $attr .= ' ud_debug="'.$this->debug.'"';}
         
         // Update to compliant attribute names
@@ -503,6 +508,7 @@ class UDelement {
     function setStatusAndInfo() {
         // if ( $this->type > UD_model) return;
         $system = $this->extra[ 'system'];
+        if ( isset( $system[ 'tag'])) $this->tag = $system[ 'tag'];
         if ( $system[ '_noPlanning']) return;
         else $this->status = '<div class="notification">Pas de planning pour cette tâche</div>';        
         if ( $this->modified) $this->info = "Modifié le {$this->modified}";

@@ -6,7 +6,7 @@
  *    Model-View server side for List elements
  *
  */
-class UDdocument extends UDelement
+class UDarticle extends UDelement
  {
     public static $thumbTemplate = "";
     public  $title;
@@ -28,39 +28,13 @@ class UDdocument extends UDelement
         $this->setStatusAndInfo();
         // Manage doc's model ( = value of nstyle field)
         $model = $this->style;
-        if ( $this->type == UD_docThumb || $this->type == UD_modelThumb) {
+        if ( $this->type == UD_articleThumb) {
             $this->displayThumbnail = true;
             if ( isset( $datarow[ '_onclick'])) $this->onclick = $datarow[ '_onclick'];
             if ( isset( $datarow[ '_link'])) $this->link = $datarow[ '_link'];
             if ( isset( $datarow[ '_image'])) $this->image = $datarow[ '_image'];
             return;            
         } 
-        /* handled by SDBEE_ doc in OS/cloud version
-        elseif ( !$model) {
-            // No model so for this request use the model selection marketplace
-            $model = WellKnownDocs[ Marketplace.$datarow[ '_userLang']];
-        } elseif ( $this->mode != "model") {
-            // Model selected for a document, initialise if required and note if reloading necessary
-            $this->reload = UD_utilities::manageState( $datarow, $this->ud);
-        }*/
-        if ( $this->ud) {
-            // #2223007 will be deprecated
-            if ( !$this->ud->title) { 
-                // First directory or document element provides parent's title and system parameters
-                if ( $this->ud) {
-                    $this->ud->loadSystemParameters( $datarow, true);
-                    $this->ud->setDocAttributes( $datarow); 
-                }
-                // Load the document's model
-                if ( $model != "NONE") $this->ud->loadModel( $model); 
-            } elseif ( !$this->isTopDoc && ( $this->oidLength - LF_count( LF_stringToOid( $this->ud->oid))) <= 3) {
-                // Subsequent documents elements inside a document are to be displayed as thumbnail
-                $this->displayThumbnail = true;
-                $this->ud->typeByLevel[ LF_count( $this->ud->typeByLevel) - 1] = UD_docThumb;
-                //if ( !$this->style) $this->style="document-thumbnail";
-            } // else echo ( $this->oidLength - LF_count( LF_stringToOid( $this->ud->oid)))." ";
-        }
- 
     } // UDdocument construct
     
     function renderAsHTMLandJS( $active=true)
@@ -101,9 +75,8 @@ class UDdocument extends UDelement
             $r .= LF_substitute( self::$thumbTemplate, [ 
                 '%image' => $thumbImage, 
                 '%title' => $this->title, 
+                '%tag' => $this->tag,
                 '%content' => $this->subTitle, 
-                '%status' => $this->status,
-                '%info' => $this->info,
                 '%seelink' => $onclick, 
                 '%deletelink'=> $recycleClick,
                 '%buttonLabel'=>$this->label,
@@ -115,6 +88,6 @@ class UDdocument extends UDelement
             $js = "\nsetTimeout( function(){ window.ud.reload( false);}, 1000);\n";
         }
         return [ 'content'=>$r, 'hidden'=>$h, 'program'=>$js];
-    } // UDdocument->renderAsHTMLandJS()
+    } 
 
- } // PHP class UDdocument
+ } // PHP class UDarticle

@@ -11,7 +11,6 @@ class UDbreak extends UDelement
    private static $openTags = [ UD_part=>"",  UD_pageBreak=>"", UD_subPart=>"", UD_lineBreak =>""];
    private static $openTagNames = [ UD_part=>"",  UD_pageBreak=>"", UD_subPart=>"", UD_lineBreak =>""];
    private $tagList = [UD_part =>"div.part", UD_pageBreak=>"div.page", UD_subPart=>"div.zone", UD_pageBreak=>"div.page", UD_lineBreak=>"br"];     
-   private $tag = "";
    private $pageNo;
    private $topPage;
    private $pageHeight;

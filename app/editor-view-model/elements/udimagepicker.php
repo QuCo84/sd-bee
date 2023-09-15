@@ -34,7 +34,7 @@ if ( !class_exists( 'UDelement')) require_once( __DIR__."/../../tests/testenv.ph
         $r .= $this->getHTMLattributes( $active);
         $r .= " data-ud-filter=\"{$filter}\" data-ud-selection=\"{$selection}\"";
         $r .= ">";
-        if ( $this->label && !strpos( $content, '<span class="caption"')) $r .= "<span class=\"caption\">{$this->label}</span>";
+        if ( $this->label && strpos( $content, '<span class="caption"') === false) $r .= "<span class=\"caption\">{$this->label}</span>";
         /*
         // Add image name edit zone
         $title = ($this->title) ? $this->title : "Caption";
@@ -81,6 +81,7 @@ if ( !class_exists( 'UDelement')) require_once( __DIR__."/../../tests/testenv.ph
             } 
             // Add to csv
             if ($image && $add) $csv .= '/'.$image.',';
+            // IDEA src => tags
         }
         // If too many return function
         // Return csv

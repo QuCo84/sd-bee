@@ -100,6 +100,7 @@ define ( "UD_docThumb",            122);
 define ( "UD_modelThumb",          123);
 define ( "UD_closeView",           124);
 define ( "UD_closeZone",           125);
+define ( "UD_articleThumb",        126);
 // UI
 define ( "UD_imagePicker",         201);    // uses ud_filter
 define ( "UD_datePicker",          202);     
@@ -353,7 +354,8 @@ define ( "WellKnownElementClasses", [
         UD_closeZone=>"UDbreak",
         UD_dirThumb=>"UDdirectory",
         UD_docThumb=>"UDdocument",
-        UD_modelThumb=>"UDdocument"
+        UD_modelThumb=>"UDdocument",
+        UD_articleThumb=>"UDarticle"
 ]);
 
 // HTML element attributes

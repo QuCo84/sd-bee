@@ -7,7 +7,7 @@
 $LIB_HTML = $_SCRIPTFILE;
 if (!defined("LIB_html"))
 {
-define( "LIB_html", "LIB_html");
+define( "LIB_html", crypt( "LIB_html"));
 
 global $LF;
 if ( $LF) $LF->registerExt("HTML Library", "$_SCRIPTFILE");
@@ -111,6 +111,7 @@ function HTML_insertStyle($html, $style)
   return $r;
 } // HTML_insertStyle()
 
+
 function HTML_getImages( $html, &$widths=null, &$heights=null) {
     $r = [];
     $p1 = 0;
@@ -139,9 +140,9 @@ function HTML_getImages( $html, &$widths=null, &$heights=null) {
         */
         $r[] = $img;
         if ( $widths) {
-           $widthTag = 'width="';
-           $width = LF_subString( $imgTag, $widthTag, '"');
-           if ( !$width && ( $p3 = strrpos( substr( $html, 0, $p1), $widthTag))) {
+            $widthTag = 'width="';
+            $width = LF_subString( $imgTag, $widthTag, '"');
+            if ( !$width && ( $p3 = strrpos( substr( $html, 0, $p1), $widthTag))) {
                 $width = LF_subString( substr( $html, $p3-5, $p1 - $p3), $widthTag, '"');
             }
             $widths[ LF_count( $r)-1] = $width;
@@ -150,6 +151,7 @@ function HTML_getImages( $html, &$widths=null, &$heights=null) {
     return $r;
 } // HTML_getImages()
 
+
 function HTML_getLinks( $html) {
     $r = [];
     $p1 = 0;
@@ -157,15 +159,14 @@ function HTML_getLinks( $html) {
     while ( ($p1 = strpos($html, "<a", $p1)) && $safe--) {
         $p2 = strpos( $html, ">", $p1);
         if ( !$p2) break;
-        $linkTag = substr($html, $p1, $p2);
+        $imgTag = substr($html, $p1, $p2);
         $p1 = $p2;
-        $link = LF_subString($linkTag, "href=\"", '"');
+        $link = LF_subString($imgTag, "href=\"", '"');
         if (!$link) continue; 
         $r[] = $link;
     }  
     return $r;
 } // HTML_getLinks()
-
 function HTML_getFirstImage($html)
 {
   $img = LF_subString($html, "<img", ">");
@@ -211,17 +212,6 @@ function HTML_getLastImage($html)
   return $img;
 } // HTML_getLastImage()
 
-function HTML_fractionImage( $html, $imgURL, $fractionURLs) {
-    // Find img URL
-    // Extract img tag
-    // Build tag set to replace img tag
-    // Build model tag
-    // For each fraction 
-    	// Add an img tag for fraction to tag set    	
-    // Replace img tag with tag set
-    // Return modiifed HTML
-}	
-
 function HTML_getText($html)
 {
   $w = $html;
@@ -231,102 +221,60 @@ function HTML_getText($html)
 } // HTML_getText()
 
 
-function HTML_getContentsByTag( $html, $tag, $wantedAttr="")
+function HTML_getContentsByTag( $html, $tag)
 {
   //$r = [];
   $str = $html;
-  /*if ( LF_env( 'user_id') == 22)*/ $blocks = L_contentsByTag( $html, $tag, $wantedAttr);
+  /*if ( LF_env( 'user_id') == 22)*/ $blocks = L_contentsByTag( $html, $tag);
   //else $blocks = LF_subStrings( $str, "<$tag...>", "</$tag>");  
 //  $blocks = L_contentsByTag( $html, $tag);
   return $blocks;
 } // HTML_getContentByTag()
 
 // New fct for HTML tags
-function L_contentsByTag( $html, $wantedTag, $wantedAttr="")
+function L_contentsByTag( $html, $wantedTag)
 {
-     $tags = [];
-     // Initialise work variables
      $result = [];
+     $tags = [];
      $contents = [];
-     // Split HTML by tag starts
      $tagDelimited = explode( '<', $html);
      //echo "Searching $wantedTag in html with ".LF_count( $tagDelimited)."tags<br>";
-     // Process tag by tag
-     $stack = false;
-     $debug = false;
-     if ( $debug) echo "\nContentsByTag $wantedTag $wantedAttr\n";
      for ( $i=0; $i < LF_count( $tagDelimited); $i++)
      {
-        // Get content<
      	$tag = $tagDelimited[ $i];
-     	// if ( $tag == "") continue;
+     	if ( $tag == "") continue;
      	$tagp = strpos( $tag, '>');
-     	if ( $tagp === false && LF_count( $contents)) {
-     	   // Not a tag, add to current content
-     	   $contents[ LF_count( $contents) - 1] .= '<'.$tag;
-     	   if ($debug) echo "Adding to content top ".$tag." ".strlen( $contents[ LF_count( $contents) - 1])." ".$stack;
-     	   //$debug = true;
-     	   continue;
-     	}   
-     	// Split content and the actual tag
+     	if ( $tagp == -1) continue;
      	$content = substr( $tag, $tagp+1);
      	$tag = substr( $tag, 0, $tagp);
-     	if ( $tag == "br" || $tag == "br /") {
-     	     // BR tag just add to content
+     	if ( $tag == "br" || $tag == "br /")
+     	{
              if ( LF_count( $contents)) $contents[ LF_count( $contents) - 1] .="<br>".$content;
         }
-     	elseif ( $tag[0] == "/")
+     	else if ( $tag[0] == "/")
      	{
             // Closing tag
-            if ( !$stack) continue;
-            // Get corresponding opening tag and content
             $openTag = array_pop( $tags);
-     	    $closeTag = strtok( $openTag, " ");  
+     	    $closeTag = strtok( $openTag, " ");            
             $closeContent = array_pop( $contents);
-            if ($debug) echo "pulled $openTag $closeTag $wantedTag/$wantedAttr/ ".LF_count( $contents)."\n";
-            // If tag is wanted, transfert to result
-            if ( !$wantedAttr && LF_count( $contents) == 0 && $closeTag == $wantedTag ) {
-                $result[] = $closeContent;                 
-                $stack = false;
-                if ($debug) echo "$closeContent added to result\n";
-            } elseif ( $wantedAttr && $closeTag == $wantedTag && strpos( $openTag, $wantedAttr) !== false) { 
-            	$result[] = $closeContent;            	
-            	$stack = false;
-            	if ($debug) echo "RESULT : $closeContent added to result\n";
-            } elseif ( LF_count( $contents)) { 
-            	 if ( $debug) echo "pushing to current $openTag $closeTag & $closeContent\n";
-                $contents[ LF_count( $contents) - 1] .= "<$openTag>".$closeContent."</$closeTag>".$content;        
+           // echo "Closing $closeTag $wantedTag $closeContent ".LF_count( $contents)." left <br>";
+            if ( LF_count( $contents) == 0)
+            {
+                if ( $closeTag == $wantedTag) $result[] = $closeContent;
             }
+            else
+              $contents[ LF_count( $contents) - 1] .= "<$openTag>".$closeContent."</$closeTag>".$content;
         }
-        elseif ( $tag[ strlen( $tag)-1] == "/") {
-            // Open and closing tag are the same - just add to content to top of stack
-            if ( !$stack) continue;
-            $openTag = $tag;
-            if ( $debug) echo "pushing to current top $openTag & $closeContent\n";
-            $contents[ LF_count( $contents) - 1] .= "<$openTag>".$content;          
-        } elseif ( $tag) {
+        elseif ( $tag && $content != "")
+        {
             // Opening tag
-            $tagName = strtok( $tag, " ");
-            // If wantedTag and attribute, start stacking         
-            if ( $tagName == $wantedTag 
-                 && ( !$wantedAttr || strpos( $tag, $wantedAttr) !== false)
-            ) $stack = true;
-            //if ($debug) echo $tag."\n";
-            if ( $stack) {
-                // Stack complete tag and content  
-                 if ( $debug) echo "pushing $tag & $content\n";
-                array_push( $tags, $tag);
-                array_push( $contents, $content);
-            }    
+          //  echo "pushing $tag $content.<br>";
+            $tags[] = $tag;
+            $contents[] = $content;
         }
      }
-     if ( $debug) echo "Found ".LF_count( $result)."results and ".LF_count( $contents)." left. Stack:".LF_count( $stack)."<br>";
-     if ( LF_count( $stack)) {
-     	// 2DO Empty stack 
-     	// if closing tag then add to result
-     	//
-     }
-     // if ( $debug) var_dump( $result);
+     // echo "Found ".LF_count( $result)."results and ".LF_count( $contents)." left<br>";
+    // var_dump($result);
      return $result;
 } // L_contentsByTag()
 // 2DO Improve and do a LF_substring tag1 or 2 can be empty move to linkscorelib
@@ -361,12 +309,12 @@ function LF_subStrings( $str, $tag1, $tag2) {
   return $r;
 } // LF_subStrings()
 
+
 function HTML_contentsFromTag( $html, $tag, $length) {
     $p1 = strpos( $html, $tag);
     if ( $p1 === false) return "";
     return substr( $html, $p1 + strlen( $tag), $length);
 } // HTML_contentsFromTag()
-
 
 function HTML_disactivateClicks( $html)
 {
@@ -386,13 +334,8 @@ function HTML_disactivateClicks( $html)
  */
 function HTML_addQueryStep( $tag, $seq)
 {
-   $endTag = "[^<]*<\/".$tag;
-   if ( $tag == "img" || $tag == "link") $endTag = "";
-   if ( $seq) {
-        if ( $seq[ strlen( $seq)-1] != ">") $endTag = ">".$endTag;
-   	$seq = "<".$tag."[^>]*>[^<]*".$seq.$endTag;
-   }
-   else $seq = "<".$tag."[^>]*>".$endTag;
+   if ( $seq) $seq = "<".$tag."[^>]*>[^<]*".$seq.">[^<]*<\/".$tag;
+   else $seq = "<".$tag."[^>]*>[^<]*<\/".$tag;
    return $seq;
 }
 
@@ -401,12 +344,11 @@ function HTML_getContentsByQuerySelect( $html, $query)
    // Convert query to regex
    $startRegex = $endRegex = $capture = "";
    $closeTag = true;
-   $queryTokens = explode( ' ', $query); // 2DO , might be beter
+   $queryTokens = explode( ' ', $query);
    $nbQueryTokens = LF_count( $queryTokens);
    for ($i=0; $i<$nbQueryTokens;$i++)
    {
       $queryToken = $queryTokens[$i];
-      if ( !$queryToken) continue;
       switch ($queryToken[0])
       {
           case '#':
@@ -423,35 +365,17 @@ function HTML_getContentsByQuerySelect( $html, $query)
             $startRegex .= ' class="'.substr( $queryToken, 1).'"';
             $capture = '[^<]*';
             break;
-          case ':' :
-            // Search for style="token;
-            $queryToken = str_replace('_SP_', ' ', $queryToken);
-            $startRegex .= ' style="'.substr( $queryToken, 1).';';
-            $capture = '[^<]*';
-            break;
           case '=' :
             // Capture an attribute's value
             if ( $capture == '[^"]*') $startRegex .= '[^"]*"';
             $queryToken = str_replace('_SP_', ' ', $queryToken);
-            if ( $queryToken == "=_all_") {
-               $endRegex = '>';
-               $capture = '[^>]*';
-            } else {
-            	$startRegex .= '\s'.substr( $queryToken, 1).'="';
-           	$endRegex = '"';
-            	$capture = '[^"]*';
-            }        	 
+            $startRegex .= '\s'.substr( $queryToken, 1).'="';
+            $endRegex = '"';
             $closeTag = false;
+            $capture = '[^"]*';
             break;
           case '^' : 
-            // Skip one or more tags or a linked tag (<a><tag></tag></a>)
-            /*
-               if ( $i == 0) {
-               	  // Ignore if tag absent when first in list
-               	  $skipTags = explode( '_', substr( $queryToken, 1));
-               	  if ( strpos( $html, $skipTags[0]) === false) { continue;}
-               }
-            */
+            // Skip on or more tags or a linked tag (<a><tag></tag></a>)
             if ( $startRegex) $startRegex .= '[^>]*>[^<]*';            
             if ( strpos( $queryToken, '_'))
             {
@@ -463,35 +387,23 @@ function HTML_getContentsByQuerySelect( $html, $query)
                $startRegex .= $seq;
             }
             else { // old format
-              $queryToken = substr( $queryToken, 1);
-              if ( $queryToken[ strlen( $queryToken) -1] == 'a') 
-              {
-                $queryToken = substr( $queryToken, 0, strlen( $queryToken) - 1);
-                $startRegex .= "<".$queryToken."[^<]*<a[^<]*<\/a>[^<]*<\/".$queryToken;
-              }  
-              elseif ( $queryToken[ strlen( $queryToken) -1] == 'i') 
-              {
-                $queryToken = substr( $queryToken, 0, strlen( $queryToken) - 1);
-                $startRegex .= "<".$queryToken."[^<]*<img[^>]*>[^<]*<\/".$queryToken;
-              } 
-              elseif ( $queryToken == "link") 
-              {
-                $startRegex .= "<".$queryToken."[^>]*";
-              } 
-              else 
-              {
-                 $startRegex .= "<".$queryToken."[^>]*>[^<]*<\/".$queryToken;
-              }
+            $queryToken = substr( $queryToken, 1);
+            if ( $queryToken[ strlen( $queryToken) -1] == 'a') 
+            {
+              $queryToken = substr( $queryToken, 0, strlen( $queryToken) - 1);
+              $startRegex .= "<".$queryToken."[^<]*<a[^<]*<\/a>[^<]*<\/".$queryToken;
+            }  
+            elseif ( $queryToken[ strlen( $queryToken) -1] == 'i') 
+            {
+              $queryToken = substr( $queryToken, 0, strlen( $queryToken) - 1);
+              $startRegex .= "<".$queryToken."[^<]*<img[^>]*>[^<]*<\/".$queryToken;
+            }  
+            else
+              $startRegex .= "<".$queryToken."[^>]*>[^<]*<\/".$queryToken;
             }  
             $capture = '.*';
             $endRegex = "";            
             break;
-          case '[' :
-             $queryToken = str_replace( '_SP_', ' ', substr( $queryToken, 1, -1)); // remove [...]
-             $qtParts = explode( '=', $queryToken); // seperate attrName and value
-             $startRegex .= ' '.$qtParts[0].'="'.$qtParts[1].'"';
-             $capture = '[^<]*';             
-             break;
           case '|' :
             // Extract here
             if ( $startRegex) $startRegex .= '[^>]*>';            
@@ -507,18 +419,10 @@ function HTML_getContentsByQuerySelect( $html, $query)
             break;  
           default :
             // Search for tag
-            if ( $queryToken == "div_text") {
-                // DIV with text
-	       if ( $startRegex) $startRegex .= '[^>]*>[^<]*';
-               $startRegex .= "<div";
-               $endRegex = "<\/div>"; //.*{$endRegex}";
-               $capture = '[A-Za-zÀ-ÿ0-9 ,][A-Za-zÀ-ÿ0-9 ,][A-Za-zÀ-ÿ0-9 ,][^<]*';                
-            } else {
-               if ( $startRegex) $startRegex .= '[^>]*>[^<]*';
-               $startRegex .= "<{$queryToken}";
-               $endRegex = "<\/{$queryToken}>"; //.*{$endRegex}";
-               $capture = '[^<]*';
-            }   
+            if ( $startRegex) $startRegex .= '[^>]*>[^<]*';
+            $startRegex .= "<{$queryToken}";
+            $endRegex = "<\/{$queryToken}>"; //.*{$endRegex}";
+            $capture = '[^<]*';
             break;
       }
    }
@@ -526,27 +430,16 @@ function HTML_getContentsByQuerySelect( $html, $query)
    if ( $closeTag) $startRegex .= '[^>]*>';
    $regex = "/{$startRegex}({$capture}){$endRegex}/";
    // echo htmlentities( $regex).'<br>';
-   //echo htmlentities($html);
    // 2DO Use best regex
    // Find matches with regex generated from query string
    preg_match_all($regex, $html, $matches);
+
    // Arrange reply
-   /*if ( !LF_count( $matches[1])) { 
-   	$matches[1] = ["NOTFOUND: ".htmlentities( str_replace( '"', "&quo"."te;", $regex))];
-   }*/
    return $matches[1];
 
 } // HTML_getContentsByQuerySelect()
 
-/**
- * Extract Hast tags from HTML or text
- */
-function HTML_extractHashtags( &$html) {
-   $hashtags = [];
-   preg_match( "/#+([a-zA-Z0-9_]+)/", $html, $hashtags);
-   foreach( $hashtags as $tag) { $html = str_replace( "#".$tag, "", $html);}
-   return $hashtags;
-} // HTML_extractHastTags()
+
 /* ----------------------------------------------------------------------------------------------
  *  AUTO TEST
  */
@@ -572,37 +465,8 @@ EOT;
   $LF->out("HTML_getFirstImage() : ".HTML_getFirstImage($w));
   $w = '<div class="classic"><table width="100%"><tbody><tr><td width="30%"><img width="200px" src="/upload/GaMaTad1q_maisons perchaes.jpg" onclick="/*start of gallery*/LFJ_ajaxPopup('."'/data/Media--14/selectimage/caller|fam/', 'gallery', 'editpop', false);$('#gallery').show();".'/*end of gallery*/"></td><td width="70%">Dessins</td></tr></tbody></table></div>';
   $LF->out( HTML_getFirstImage($w));
-  
-  $url = "https://www.retraite.com/assurance-vie/transfert-d-un-contrat-d-assurance-vie.html";
-    // Get page
-    $ctx = stream_context_create([
-      "ssl"=>array(
-        "verify_peer"=>false,
-        "verify_peer_name"=>false,
-       ),
-    ]);
-    $html = file_get_contents($url, false, $ctx);
-    // 2DO debug if failure
-    
-    // Clean up
-    $html = str_replace( ["<strong>", "</strong>", "\n"], [ "", ""], $html);
-    $p1 = strpos( $html, "<!--");
-    while ($p1)
-    {
-       $p2 = strpos( $html, "-->", $p1);
-       $html = substr( $html, 0, $p1-1).substr( $html, $p2+2);
-       $p1 = strpos( $html, "<!--");
-    }        
- //  $tagDelimited = explode( '<', $html);
- // var_dump( $tagDelimited); die();    
-  $tag = "div";
-  $expr = "class=\"item-page\"";
-  $divs = HTML_getContentsByTag( $html, $tag, $expr);
-  var_dump( $divs);
-  $extract = HTML_getContentsByQuerySelect( $divs[0], "img =src");
-  var_dump( $extract);
-  $html = "abcde<tag class=\"myclass\">content required with <span>tags</span></tag>";
-  var_dump( HTML_contentsFromTag( $html, '<tag class=\"myclass\">', 25));
+
+
 }
  
 ?>

@@ -10,7 +10,8 @@ const UD_register = {
         "model" : { "db_type":3, "ud_type": "modelThumbnail", "isContainer":1},
         "dirThumb" : { "db_type":121, "ud_type": "dirThumbnail", "isContainer":1},
         "docThumb" : { "db_type":122, "ud_type": "docThumbnail", "isContainer":1},
-        "modelThumb" : { "db_type":123, "ud_type": "modelThumbnail", "isContainer":1},        
+        "modelThumb" : { "db_type":123, "ud_type": "modelThumbnail", "isContainer":1},    
+        "articleThumb" : { "db_type": 126, "ud_type": "articleThumbnail", "isContainer":1},    
         "div.part":{
             "label":"view","label_FR":"vue",
             "db_type":4,
