@@ -347,7 +347,7 @@ class SDBEE_doc {
         return "";
     }
 
-    function updateLabelIndex() {{
+    function updateLabelIndex() {
         $saveNext = $this->next;
         $this->next = 0;
         $labelIndex = [];
