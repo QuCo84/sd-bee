@@ -640,7 +640,7 @@ class SDBEE_doc {
                 unset( $el[ 'oid']);
                 $params = ( $el[ 'textra']) ? JSON_decode( $el[ 'textra'], true) : [ 'system'=>[]];
                 $params[ 'system'][ 'fromModel'] = true;
-                $params = ( $el[ 'tparams']) JSON_decode( $el[ 'tparams'], true);
+                $params = ( $el[ 'tparams']) ? JSON_decode( $el[ 'tparams'], true);
                 $content = $el[ 'tcontent'];
                 if ( $type >= UD_chapter && $type <= UD_subParagraph 
                    && strlen( $content) <= 40 && strpos( $content, "<") === false
