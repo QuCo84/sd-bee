@@ -5,9 +5,10 @@
  *   Methods to extract data from UD documents
  *
  */
+
+require_once(__DIR__."/../udservices.php"); 
  
- 
-class UDS_resource {
+class UDS_resource extends UD_service {
 
     function __construct() {
         
@@ -24,18 +25,140 @@ class UDS_resource {
                 $r = [
                     'exists'=>file_exists( 'upload/smartdoc/media/'.$path)
                 ];
-                $r = JSON_encode( $r);
+                $this->lastResponseRaw = JSON_encode( $r);
+                $this->lastResponse = $r[ 'exists'];
+                $this->creditsConsumed = 0;
+                $this->creditComment = "Free service";
+                $this->cacheable=true;
+                return true;
+                // $r = JSON_encode( $r);
+            } break;
+            case "getModelsByTag" : {
+                return $this->getModelsByTag( $data);
             } break;
         }        
         return $r;
     }
+
+    /**
+     * Get an array of models by tag
+     */
+    function getModelsByTag( $request) {
+        $r = [ 'app-model' =>[], 'app'=>[], 'process'=>[]];
+       
+        $models = $this->getModelsInfo( $request[ 'dir'], $request[ 'click-model']);
+        for ( $modeli = 0; $modeli < count( $models); $modeli++) {
+            $model = $models[ $modeli];
+            $tag = $model[ 'params'][ 'tag'];
+            if ( $tag) $r[ $tag][] = $model;
+        }
+        $this->lastResponseRaw =[ "list"=>$r];
+        $this->lastResponse = count( $r) . "models found";
+        $this->creditsConsumed = 0;
+        $this->creditComment = "Free service";
+        $this->cacheable=true;
+        // return JSON_encode( [ "list"=>$r]); // 2DO Temp until AJAX8service & service aligned
+        return true;
+    }
+
+    function getModelsInfo( $dir="models", $clickModel = "displayPage( 'model_{id}')") {
+        global $PUBLIC, $LF, $LFF;
+        $r = [];
+        if ( $PUBLIC) {
+            // 2DO !tested, move to sd-bee OS
+            $modelNames = $PUBLIC->getList( 'models');            
+            for ( $namei = 0; $namei < count( $modelNames); $namei++) {
+                $modelName = $modelNames[ $namei];
+                $modelContent = $PUBLIC->read( 'models', $modelName);
+                $modelData = JSON_decode( $modelContent, true);
+                /*
+                //2DO Align with OS db model
+                */
+                if ( $json) $r[] = $modelData[ 'content'][ $modelName];
+            }
+        } elseif ( $LF || $LFF) {
+            // SOILinks version
+            // Testing
+            // 2DO oid should be a paramater
+            $oid = "UniversalDocElement--21-44-21--UD|1";
+            $cols = "";
+            $data = ($LFF) ? $LFF->fetchNode( $oid, $cols) : LF_fetchNode( $oid, $cols);   
+            for ( $datai=1; $datai < count( $data); $datai++) {
+                $d = $data[ $datai];
+                /*
+                // 2DO aligne with OS model
+                name text NOT NULL,
+                label text NOT NULL,
+                type int(5),
+                model text DEFAULT NULL,
+                description text DEFAULT NULL,
+                params text DEFAULT NULL,
+                prefix text DEFAULT NULL,
+                created int(11) DEFAULT NULL,
+                updated int(11) DEFAULT NULL,
+                state text DEFAULT NULL,
+                progress int(5),
+                deadline int(11)
+                // How toad din JS
+                <div id="" class="model-thumb">
+                    <h2>A4 text</h2>
+                    <img src="/tmp/W231H130_N053b3h20_A4testEmpty.png">
+                    <p>This model defines a general purpose A4 textual document with tools for clipboarding, stylizing and highlighting.  #model-app</p>
+                    <span class="button" onclick="API.switchView( 'connect');" debug="UniversalDocElement--21-44-21-28--UD|1-CD|3.">Learn more</span>
+                </div>
+
+                { tag:"div", class:"model-thumb", value:{
+                    title:{ tag:"h2", value:"{$model[ 'label']}"},
+                    image:{ tag:"img", src="{$model[ 'params'][ 'thumbnail-image']}},
+                    descr:{ tag:"p", value:"{$descr}"},
+                    button:{ tag:"span", class:"button", onclick:$onclick}
+                }}
+                */
+                // Check for app parameters
+                $params = JSON_decode( $d[ 'textra'], true)[ 'system'];
+                $tag = $params[ 'tag'];
+                if ( !$params || !$tag) continue;
+                // Prepare  OS-compatible data with thumbnail JSON100
+                $label = LF_preDisplay( 'n', $d[ 'nlabel']);
+                $spans = HTML_getContentsByTag( LF_preDisplay( 't', $d[ 'tcontent']), 'span');
+                $descr = ( count( $spans) > 1) ? $spans[ 1] : "";
+                $onclick = LF_substitute( $clickModel, $d);
+                $thumbnail = [
+                    "tag" => "div", "class" => "model-thumb", "value"=>[
+                        "title"=>[ "tag"=>"h2", "value"=> $label],
+                        "image"=>[ "tag"=>"img", "src"=>$params[ 'thumbnail-image']],
+                        "descr"=>[ "tag"=>"p", "value"=>$descr],
+                        "button"=>[ "tag"=>"span", "class"=>"button", "onclick"=>$onclick, "value"=>"Learn more"]
+                    ]
+                ];
+                $model = [
+                    "name" => $d[ 'nname'],
+                    "label" => LF_preDisplay( 'n', $d[ 'nlabel']),
+                    "stype" => (int) $d[ 'stype'],
+                    "model" => $d[ 'nstyle'],
+                    "description" => $descr,
+                    "params" => $params,
+                    "prefix" => "",                    
+                    "created" => LF_timestamp( $d[ 'dcreated']),
+                    "modified" => LF_timestamp( $d[ 'dmodified']),
+                    "state" => "model",
+                    "progress" => 0,
+                    "deadline" => 0,
+                    "thumbnail" => $thumbnail
+                ];
+                $r[] = $model;
+            }
+        }
+        return $r;
+    }
+
 } // PHP class UDS_resource
 
 // Auto-test
-if ( $argv[0] && strpos( $argv[0], "udresourceservice.php") !== false)
+if ( $argv[0] && strpos( $argv[0], "udsresourceservice.php") !== false)
 {
     function nextTest() {
-        global $TEST_NO, $LF, $LFF;
+        global $TEST_NO, $LF, $LFF;        
         switch ( $TEST_NO) {
             case 1 : // Login
                 $r = $LFF->openSession( "retr1", "LudoKov!tZ", 98);
@@ -52,6 +175,15 @@ if ( $argv[0] && strpos( $argv[0], "udresourceservice.php") !== false)
                 $r = $service->call( $params);
                 var_dump( $r);
                 break;
+            case 3 :
+                $params = [
+                    'action'=>"getModelsByTag",
+                ];
+                $service = new UDS_resource();
+                $r = $service->call( $params);
+                var_dump( $r);
+                break;
+
         }
         $TEST_NO++;
     }    
@@ -59,13 +191,13 @@ if ( $argv[0] && strpos( $argv[0], "udresourceservice.php") !== false)
     echo "Syntax OK\n";
     // Create an UD
     require_once( __DIR__."/../../tests/testenv.php");
-    require_once( __DIR__."/../../ud-view-model/ud_new.php");
+    require_once( __DIR__."/../../ud-view-model/ud.php");
     require_once( __DIR__."/../../ud-utilities/udutilities.php");
     require_once( __DIR__."/../../tests/testsoilapi.php");
     $LFF = new Test_dataModel();
     // require_once( __DIR__."/../ud-view-model/ud.php");    
     $TEST_NO = 1;
-    while( $TEST_NO < 3) { sleep(1); nextTest();}    
+    while( $TEST_NO < 4) { sleep(1); nextTest();}    
     echo "Test completed\n";      
 } 
 

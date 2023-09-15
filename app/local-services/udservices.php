@@ -104,7 +104,7 @@ class UD_services {
             $params = $serviceRequest[ $providerLC];
             //if ( !$provider) $provider = $service:
             // if ( !$params || !$provider) return $this->_error( "202 {!No parameters or syntax error!}");
-        }       
+        }  // 3rd party throttle & params processing     
         // Load service
         // - find module and class name
         switch ( $serviceName) {
@@ -118,7 +118,12 @@ class UD_services {
                 $modPath = __DIR__."/{$serviceName}/uds{$serviceName}service.php";
                 $serviceClass = "UDS_{$serviceName}";
                 break;
-            case "keywords" : // 2DO renmae class UDS_keywords and file udskeywords
+            case "images" :
+            case "translation" :
+                $modPath = __DIR__."/{$serviceName}/uds{$serviceName}.php";
+                $serviceClass = "UDS_{$serviceName}";
+                break;
+            case "keywords" : // 2DO rename class UDS_keywords and file udskeywords
                 $modPath = __DIR__."/NLP/uds{$serviceName}service.php";
                 $serviceClass = ($providerLC && $providerLC != "default") ? "UDS_{$providerLC}_{$serviceName}" : "UDS_{$serviceName}";
                 break;
@@ -256,7 +261,8 @@ class UD_services {
         ];
         $response = $this->_doRequest( $request);
         if ( $response[ 'success']) {
-            $params = $response[ 'data'][ 'data']['value'];
+            $paramsContent = JSON_decode( $response[ 'data'], true);
+            if ( $paramsContent && is_array( $paramsContent)) $params = $paramsContent[ 'data']['value'];
             if ( $params) {
                 foreach( $params as $key=>$value) {
                     $key = strToLower( $key);

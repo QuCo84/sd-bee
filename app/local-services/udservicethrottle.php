@@ -63,7 +63,7 @@ class UD_serviceThrottle {
     function isAvailable( $service, $user="") {
         // 2DO check session
         $this->lastError= "";
-        if (!$this->db) return $this->error( THROTTLE_noService, "No database");
+        if (!$this->db && !function_exists( 'LF_fetchNode')) return $this->error( THROTTLE_noService, "No database");
         // Find account user
         if ( !$user) $user = LF_env( 'user_id'); //$accountOID = $this->accountUser();
         $throttleLogId = $service.'_throttle';
@@ -103,10 +103,9 @@ class UD_serviceThrottle {
         $validityDate = -1;
         $nbProcessed = 0;
         $allowedOverdraft = 0;
-        if (!$this->db) return $this->error( THROTTLE_noService, "No database");
+        if (!$this->db && !function_exists( 'LF_fetchNode')) return $this->error( THROTTLE_noService, "No database");
         $logData = $this->getLog( $service.'_throttle');
         if ( !$logData) return $this->error( THROTTLE_noService, "No log for $service");
-        //var_dump( $logData); die();
         $today = LF_date();
         for ( $datai=0; $datai < count( $logData); $datai++) {
             $log = $logData[ $datai];
@@ -120,7 +119,7 @@ class UD_serviceThrottle {
                 $entryTime = strtotime( $date);
             }     
             $details = JSON_decode( $log[ 'tdetails'], true);       
-            /*
+            /* Code to manage credits granted by processes
             if ( $taskId && isset( $details[ 'task'])) {
                 // Ignore record if not this task
                 if ( $taskId != $details[ 'task']) continue;
@@ -143,7 +142,7 @@ class UD_serviceThrottle {
             } elseif ( $log[ 'nevent'] == "consume") {
                 // Consume record
                 $credits -= $log[ 'iresult'];
-                /*
+                /* Code to manage credits granted by processes
                 if ( $details[ 'grant']) {
                     unset( $grants[ $details[ 'grant'][ 'id']]);
                 }
@@ -151,7 +150,7 @@ class UD_serviceThrottle {
             } elseif ( $log[ 'nevent'] == "credit") {                
                 // Credit record               
                 $credits += $log[ 'iresult'];
-                /*
+                /* Code to manage credits granted by processes
                 if ( $details[ 'grant']) {
                     // could use progress as grant key
                     $grants[ $details[ 'grant'][ 'id']] = $details[ 'grant'];
@@ -164,7 +163,8 @@ class UD_serviceThrottle {
         if ( $credits) $status[ 'icredits'] += $credits;
         if ( $allowedOverdraft) $status[ 'iallowedOverdraft'] = $allowedOverdraft;
         if ( $validityDate) $status[ 'dvalidity'] = $validityDate;
-        /* if ( count( $grants)) {
+        /* Code to manage credits granted by processes
+        if ( count( $grants)) {
             $keys = array_keys( $grants)
             $status[ 'grant'] = $grants[ $keys[ count( $keys) -1]]; 
         } 
@@ -217,14 +217,13 @@ class UD_serviceThrottle {
     * Record consumption of a service
     */    
     function consume( $logName, $credits, $comment, $details =[]) {
-        // Check is available
-            // Alert site manager
+        // 2DO Check is available
+        // 2DO Alert site manager
         // Record ticket
         $details[ 'icredits'] =-$credits;
         $details[ 'comment'] = $comment;
         $logEntry = ['nevent'=>"consume", 'iresult'=>$credits, 'tdetails'=>JSON_encode( $details)];   
-        $r = $this->createLogEntry( $logName."_throttle", $logEntry);        
-        //var_dump( $r, $this->db->lastError); 
+        $r = $this->createLogEntry( $logName, $logEntry);        
     }
 
    /**
@@ -404,8 +403,15 @@ class UD_serviceThrottle {
         if ( $this->db) return $this->db->createLogEntry( $logId, $entry);
         else {
             // SOILinks version (still used by sd-bee.com and central marketplace)
-            if ( TEST_ENVIRONMENT) $r = $LFF->createNode( "LogEntry--22-{$logId}", "LogEntry", $logData); 
-            else  $r = LF_createNode( "LogEntry--22-{$logId}", "LogEntry", $logData);
+            $entry[ 'nname'] = $entry[ 'name'];
+            $entry[ 'iuser'] = $entry[ 'userId'];
+            unset( $entry[ 'name']);
+            unset( $entry[ 'userId']);
+            $logData = [[ 'nname', 'iuser', 'nevent', 'iresult', 'tdetails'], $entry];
+            $logTopData = LF_fetchNode( "LogEntry--22--nname|{$logId}");
+            if ( LF_count( $logTopData) > 1) $logTopId = $logTopData[1][ 'id']; 
+            if ( TEST_ENVIRONMENT) $r = $LFF->createNode( "LogEntry--22-$logTopId}", "LogEntry", $logData); 
+            else $r = LF_createNode( "LogEntry--22-{$logTopId}", "LogEntry", $logData);        
             if ( $r < 0) { 
                 $this->lastError = THROTTLE_writeError;
                 $this->lastMessage = $r; 
@@ -430,12 +436,13 @@ class UD_serviceThrottle {
     function getLog( $logId) {
         if ( $this->db) return $this->db->getLog( $logId);
         else {
-            // SOILinks version (still used by sd-bee.com and central marketplace)
-            $w = $this->fetchNode(  "LogEntry--22-{$logId}-22--NO|OIDLENGTH-OR|nname%20%DESC|FR|1|LR|25"); 
+            // SOILinks version (still used by sd-bee.com and central marketplace)  
+            $w = LF_fetchNode(  "LogEntry--22-0-22--nname|{$logId}");
+            //$w = LF_fetchNode(  "LogEntry--22-{$logId}-22--NO|OIDLENGTH-OR|nname%20%DESC|FR|1|LR|25"); 
             if ( $w && count( $w)) {
                 // Adapt records to new format
                 unset( $w[ 0]);
-                for ( $wi=0; $wi < count( $w); $wi++) {
+                for ( $wi=0; $wi < count( $w) &&  $wi < 25; $wi++) {
                    $w[ $wi][ 'name'] =  $w[ $wi][ 'nname'];
                    $w[ $wi][ 'userId'] = LF_env( 'user_id');
                 }                
