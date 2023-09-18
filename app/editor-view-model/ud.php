@@ -142,8 +142,7 @@ class UniversalDoc {
         //'ude-view/udecalc_css',  // Used by Styler tool
         'modules/editors/udelist', // Manage has a list so always required
         'modules/editors/udetable', // Loads badly on GCP if left to UDE
-        'modules/editors/udedraw', // Loaded by UDE for new elements
-        'ude-view/udeideas'  
+        'modules/editors/udedraw' // Loaded by UDE for new elements
     ]; // [ 'modules/connectors/udeconnector.js'];
     // User parameters for this document
     private $userParams = [];

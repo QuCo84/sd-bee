@@ -368,6 +368,7 @@ function UD_autoFillResourcePath( &$path) {
         $r = UD_fetchResource( $fullPath, $filename,  $fileExt); 
         // Process resource according to extension
         if ( $fileExt == "scss") {
+            // 2DP public-resource-storage or public-access = same job use storage> read ( resources/etc)
             $builtinDir = UD_getParameter( 'public-resource-storage');
             if( $builtinDir) $cssFile = "{$builtinDir}css/".str_replace( '.scss', '.css', $filename);
             else $cssFile = __DIR__."/../css/".str_replace( '.scss', '.css', $filename);
@@ -376,7 +377,7 @@ function UD_autoFillResourcePath( &$path) {
                 // Convert SASS to CSS wih scssphp (compatible App engine)
                 // Conversion does not support import currently
                 // 2DO TRy setImportPaths( 'https...)
-                $css = UD_convertSASStoCSS( $r, str_replace( "{$filename}", '', $fileUsed));
+                $css = UD_convertSASStoCSS( $r, str_replace( "{$filename}", '', $fullPath));
             }
             // Load CSS
             $cleanCSS = UD_loadCSS( $css);
@@ -794,7 +795,7 @@ function UD_autoFillResourcePath( &$path) {
         $sass = str_replace( "@import '../", "@import '", $sass);        
         try {
             $compiler = new Compiler();
-            $compiler->setImportPaths( __DIR__.'/../resources/'); //$path);
+            $compiler->setImportPaths( $path);
             $css = $compiler->compileString( $sass)->getCss();
         } catch( \Exception $e) {
             echo $e->getMessage()."<br>\n"; // "$path $sass ".$e->getMessage()."<br>\n";
