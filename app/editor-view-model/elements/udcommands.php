@@ -823,9 +823,10 @@ class UDcommands extends UDelement {
         "Password forgotten ? Enter in your email address above and click {$forgotClick}here</a>"
     :   "Mot de passe oublié ? Renseigner votre email ci-dessus et cliquer {$forgotClick}ici</a>";
     $current = LF_env( 'url'); // /webdesk/
+    //if ( $current == '/') $current = "";
     // <input type="hidden" name="action" value="default" />
     $signin =<<<EOT
-<form class="signin" action="{$current}/" id="loginform" method="post" autocomplete="off" >
+<form class="signin" action="{$current}" id="loginform" method="post" autocomplete="off" >
 <input type="hidden" name="oid" value="" />
 <img style="vertical-align:middle;"  title="$enterEmailOrUsernameText" src="$idIcon" alt="$enterEmailOrUsernameText" />
 <input type="text" name="tusername" id="username" class="initialField" onkeydown="window.ud.ude.formInputChange( this, event);" value="" size="20" tabindex="1" /><br />

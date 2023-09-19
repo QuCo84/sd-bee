@@ -59,7 +59,7 @@ class UDchart extends UDelement
             // if ( !$autosave || $autosave == "Off")
             {
                 // $r .= "<input type=\"button\" class=\"hidden\" value=\"Save\" onclick=\"window.ud.ude.setChanged( document.getElementById( '".$this->elementName."editZone'), 1);\" />";
-                $configIcon = '/'.LF_env( 'WEBDESK_images')['Config_s'];
+                $configIcon = LF_env( 'WEBDESK_images')['Config_s'];
                 $onclick = "window.ud.ude.changeClass( 'hidden', '{$this->elementName}editZone', '');";
                 $r .= "<span class=\"rightButton\"><a href=\"javascript:\" onclick=\"{$onclick}\"><img src=\"{$configIcon}\"></a></span>";
                 //$r .= "<input type=\"button\" value=\"Configure\" onclick=\"window.ud.ude.changeClass( 'hidden', '{$this->elementName}editZone', '');\" />";
