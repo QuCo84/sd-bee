@@ -71,7 +71,7 @@ class FileStorage extends SDBEE_storage {
     function _getURL( $dir, $filename) {
         $this->_prefix( $dir, $filename);
         if ( $dir && substr( $dir, -1) != '/' ) $dir .= '/';
-	    if ( strpos( $this->topDir, 'http') === 0) $full = "{$this->topDir}{$dir}".urlencode($filename);
+	    if ( strpos( $this->topDir, 'http') === 0) $full = "{$this->topDir}{$dir}".rawurlencode($filename);
         else $full = "{$this->topDir}{$dir}{$filename}";
         return $full;
     }
