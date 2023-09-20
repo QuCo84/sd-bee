@@ -761,7 +761,7 @@ const UD_register = {
         },
         "elementUpdateAction" : "AJAX_update",
         "required_modules" : [],
-        "public-resource-storage" : "https://storage.googleapis.com/sd-bee-cdn/", // still used ? "https://www.sd-bee.com/upload/smartdoc/",
+        "public-resource-storage" : "https://storage.googleapis.com/sd-bee-cdn/",
         "private-resource-storage": ""
     },
     "UD_services" : {
