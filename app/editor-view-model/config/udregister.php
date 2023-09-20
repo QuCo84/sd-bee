@@ -369,6 +369,17 @@ function UD_autoFillResourcePath( &$path) {
         // Process resource according to extension
         if ( $fileExt == "scss") {
             // 2DP public-resource-storage or public-access = same job use storage> read ( resources/etc)
+            /*
+            global $PUBLIC;
+            if ( $PUBLIC) {
+                // OS version
+                $css = $PUBLIC->read( 'css', str_replace( '.scss', '.css', $filename));
+            } else {
+                // SOILinks version
+                $cssFile = __DIR__."/../css/".str_replace( '.scss', '.css', $filename);
+                $css = @file_get_contents( $cssFile);
+            }
+            */
             $builtinDir = UD_getParameter( 'public-resource-storage');
             if( $builtinDir) $cssFile = "{$builtinDir}css/".str_replace( '.scss', '.css', $filename);
             else $cssFile = __DIR__."/../css/".str_replace( '.scss', '.css', $filename);
@@ -440,9 +451,13 @@ function UD_autoFillResourcePath( &$path) {
     }
 
     /**
-    *  Fetch a resource file's content.
-    *  Used by UD_processResourceSet() and some elements
-    *  @param {string} $fullPath Full path to a folder
+    * Fetch a resource file's content or tagged block inside content
+    * @param string $fullPath Full path to a folder
+    * @param string &$filename Variable to fill with filename that is loaded
+    * @param string &ext Variable to fill with filename extension
+    * @param string $block Tag of block to extract from file (certain extensions only)
+    * @param string $blockId Id of block to extract from file
+    * @return string Content of file or block in file or empty if not found
     */     
     function UD_fetchResource( $fullPath, &$filename, &$ext, $block="", $blockId="") {
         $r = "";          
@@ -461,35 +476,37 @@ function UD_autoFillResourcePath( &$path) {
             $category = implode( '/', $filenameParts);
         } else $category = $ext;
         
-        // Prepare candidates  
-        $builtinDir = UD_getParameter( 'public-resource-storage');
-        if ( $builtinDir) $builtin = "{$builtinDir}{$category}/{$filename}";
-        else $builtin =  __DIR__."/../{$category}/{$filename}";
-        $localFTP = LF_env( 'ftpPath');
-        $local = ($localFTP) ? $local = "upload/{$localFTP}/{$category}/{$filename}" : "";
-        // Hook for extrenal storage - new architecture 230214
-        if ( function_exists( 'SDBEE_getResourceFile')) $localCopyOfExternalFile = SDBEE_getResourceFile( $catgeory, $filename);
-        /*
-        old code that has worked
-        $domain = LF_env( 'FTP_domainForResources'); // $domain = LF_env( 'FTPdomain');
-        if ( $domain) {
-            $localCopyOfExternalFile = FILE_FTP_copyFrom( $fullPath, $domain);        
-        }       
-        */
-        // Get file contents according to candidate priority       
-        $r = file_get_contents( $builtin);        
-        if ( $r) {
-            // Priority is built-in resources
-            // $r = file_get_contents( $builtin);
-        } elseif ( $local && file_exists( $local)) {
-            // User user's local FTP space if no standard file found (SOILInks only)
-            $r = file_get_contents( $local);
-        } elseif ( $localCopyOfExternalFile) {
-            // Use externally copied file from user's private-resource space
-            $r = file_get_contents( $localCopyOfExternalFile);
-        } else {
-            $r = file_get_contents( $fullPath);
+        // Look for resource in user's private disk space
+        global $USER_CONFIG;
+        if ( $USER_CONFIG && isset( $USER_CONFIG[ 'private-resources'])) {
+            $privateResources = $USER_CONFIG[ 'private-resources'];
+            $category = str_replace( 'resources/', 'SD-bee-resources/', $category);
+            // $category = str_replace( ' ', '_', $category); // Until done in FTP
+            // $filename = str_replace( ' ', '_', $filename);
+            if ( is_object( $privateResources) && $privateResources) {
+                // OS version
+                $r = $privateResources->read( $category, $filename);
+            } elseif ( is_string( $privateResources) && $privateResources) {
+                // SOILinks version 
+                $ftpPath = 'www/'.$category.'/'.$filename; //patch www .. to be handled by FTP
+                $localCopyOfExternalFile = FILE_FTP_copyFrom( $ftpPath, $privateResources);   
+                $r = @file_get_contents( $localCopyOfExternalFile);   
+            }
+        }   
+
+        if ( !$r) {
+            // Look for public resource 
+            global $PUBLIC;            
+            if ( $PUBLIC) {
+                // OS version
+                $r = $PUBLIC->read( $category, $filename);
+            } else {
+                // SOILinks version
+                $r = @file_get_contents( __DIR__."/../{$category}/{$filename}");
+            }
         }
+
+        // Extract a block from file's contents
         if ( $r && $block) {
             // Extract a single block from ressource
             if ( $blockId) $r = LF_subString( $r, "<{$block} id=\"{$blockId}\">", "</{$block}>");
@@ -500,8 +517,11 @@ function UD_autoFillResourcePath( &$path) {
                 foreach( $lines as $line) $r .= trim( $line);
             }
         }
-        return $r;
+
+        // Return resource's content
+        return $r;        
     }
+
    /**
     *  Load a resource module. Used by the include instruction
     *  by UD_processResourceSet()
@@ -791,6 +811,23 @@ function UD_autoFillResourcePath( &$path) {
     *  @returns {string} The CSS code
     */ 
     function UD_convertSASStoCSS( $sass, $path=null) {
+
+        // Handle @import directives for compatibility with different storage systems
+        $safe = 10;
+        while ( ($p1 = strpos( $sass, "\n@import")) && $safe--) {
+            $p2 = strpos( $sass, ';', $p1);
+            $importPath = substr( $sass, $p1 + 10, $p2 - $p1 - 10 - 1);
+            $importPath .= ( strpos( $importPath, '.scss') === false) ? '.scss' : '';
+            if ( strpos( $importPath, 'node_modules/bulma')) {
+                $importPath = str_replace( "../../node_modules", "node_modules", $importPath); 
+                $import = UD_fetchResource( $importPath, $filename,  $fileExt);
+            } else {
+                $importPath = str_replace( "../", "", $importPath); 
+                $import = UD_fetchResource( 'resources/'.$importPath, $filename,  $fileExt); 
+            }
+            $sass = substr( $sass, 0, $p1) . $import . substr( $sass, $p2+1);
+        }
+
         // Adjust imports, assuming SASS comes from resource
         $sass = str_replace( "@import '../", "@import '", $sass);        
         try {

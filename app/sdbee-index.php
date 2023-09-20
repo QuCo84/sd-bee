@@ -48,7 +48,8 @@ try {
     // Login
     $ACCESS->login( 'tusername', 'tpassword');
     // Get user info
-    $USER = $ACCESS->getUserInfo();
+    $USER_CONFIG = $ACCESS->getUserInfo();
+    $USER = $USER_CONFIG; // Until we change USER everywhere. doc, storage & access to begin with
     //if ( !$USER || $USER == -1)
     LF_debug( "Logged in as user no {$USER[ 'id']}", 'index', 8);
     // if ( !$USER[ 'prefix']) $USER = SDBEE_loadUser();

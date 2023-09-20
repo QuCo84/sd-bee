@@ -15,7 +15,7 @@
     },*/    
     "public-storage" : {
         "storageService" : "file",
-        "top-dir" : "https://www.sd-bee.com/upload/sd-bee-cdn/", 
+        "top-dir" : "https://storage.googleapis.com/sd-bee-cdn/",
         "prefix" : ""
     },    
     /**
