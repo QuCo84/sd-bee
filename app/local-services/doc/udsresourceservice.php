@@ -36,6 +36,20 @@ class UDS_resource extends UD_service {
             case "getModelsByTag" : {
                 return $this->getModelsByTag( $data);
             } break;
+            case "get" :
+                $content = UD_fetchResource( $data[ 'path'], $filename, $ext, $data[ 'block'], $data[ 'block_id']);
+                if ( $content) {
+                    $this->lastResponseRaw = [ 'content'=>$content, 'filename'=>$filename, 'ext'=>$ext];
+                    $this->lastReponse = $filename." retrieved";
+                    $this->creditsConsumed = 0;
+                    $this->creditComment = "Free service";
+                    $this->cacheable=true;
+                    $r = true;
+                } else {
+                    $this->lastResponse = "{$data[ 'path']} not found";
+                    $r = false;
+                }
+                break;
         }        
         return $r;
     }

@@ -151,6 +151,20 @@ class GoogleCloudStorage extends SDBEE_storage {
         return $contents;
     }
 
+    function delete( $dir, $filename) {    
+        if ( !$this->storage) return false;    
+        try {
+            $bucket = $this->storage->bucket( $this->bucket);
+            $this->_prefix( $dir, $filename);
+            $object = $bucket->object( $filename);
+            $object->delete();
+            return true;
+        } catch ( \EXCEPTION $e) {
+            echo $e->getMessage();
+            return false;
+        }
+    }
+
     function search( ) {
 
     }

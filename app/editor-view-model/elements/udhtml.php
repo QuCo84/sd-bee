@@ -75,6 +75,7 @@ if ( !class_exists( 'UDelement')) require_once( __DIR__."/../../tests/testenv.ph
                     [ '\"', '&lt;', '&gt;'], 
                     $line
                 );
+                // Get display mode
                 $mode = $this->mode.$this->docType;
                 if ( $mode != "edit3") {
                     // 2DO while
@@ -85,7 +86,7 @@ if ( !class_exists( 'UDelement')) require_once( __DIR__."/../../tests/testenv.ph
                         $p2 = strpos( $line, '--&gt;');
                         $filename = substr( $line, $p1, $p2 - $p1 - 1);
                         // Get contents                        
-                        $includeContent = UD_fetchResource( 'resources/'.$filename, $filenameb,$extb);
+                        $includeContent = UD_fetchResource( 'resources/'.$filename, $filenameb, $extb);
                         //$includeContent = UD_getResourceFileContents( $filename);
                         // Remove script and style tags
                         // Add lines
@@ -110,7 +111,7 @@ if ( !class_exists( 'UDelement')) require_once( __DIR__."/../../tests/testenv.ph
                         $this->html = "";
                     } else $line = str_replace( '_onclick', 'onclick', $line);
                 }
-                $lines[ $li] = $line;                               
+                $lines[ $li] = htmlentities( $line, ENT_SUBSTITUTE | ENT_HTML401);                               
             }
             $json[ 'data'][ 'edit'][ 'value'][ 'value'] = $lines;  
             $content = JSON_encode( $json);

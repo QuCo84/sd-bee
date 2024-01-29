@@ -18,6 +18,9 @@
  */
 
 function SDBEE_endpoint_marketplace( $request, $output=false) {
+    /*
+    // 2DO look for favoriteApps in $request & put these first
+    */
     global $PUBLIC, $STORAGE, $ACCESS;
     $r = '<div class="marketplace">';
     $defaultTemplateImage = "https://www.sd-bee.com/upload/N0r0D0N30_defaultTemplateImage.png";
@@ -84,7 +87,7 @@ function SDBEE_endpoint_marketplace( $request, $output=false) {
         $r .= $thumbnail;
         if ( $output) echo $thumbnail; 
     }
-    $r .= '</div>';
+    $r .= '</div>';    
     return $r;
     
 }

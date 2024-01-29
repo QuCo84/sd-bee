@@ -1,6 +1,6 @@
 <?php
 /**
- * file.php -SDBEE_storage implementation for direct access to files
+ * ftp.php -SDBEE_storage implementation for access to FTP storage
  * Copyright (C) 2023  Quentin CORNWELL
  *  
  * This program is free software: you can redistribute it and/or modify
@@ -19,30 +19,33 @@
 
 /**
  * Example
- * "public-storage" : {
- *       "storageService" : "file", 
- *       "top-dir" : "https://www.sd-bee.com/upload/sd-bee-cdn", 
+ * "private-storage" : {
+ *       "storageService" : "sftp", 
+*        "domain" : "mydomain.com", // defined in user params
+ *       "top-dir" : "www/data", 
  *       "prefix" : ""
  *   },
  */
+include "ftplib.php";
+$JUST_CREATED_CLASS = "SFTPStorage";
 
-$JUST_CREATED_CLASS = "FileStorage";
 
-
-class FileStorage extends SDBEE_storage {
+class FTPStorage extends SDBEE_storage {
+    private $domain;
 
     function __construct( $userData) {
-        //$this->topDir = $userData[ 'top-dir'];
+        $this->domain = $userData[ 'domain'];
         $this->topDir = ( strpos( $userData[ 'top-dir'], 'http') === 0) ? $userData[ 'top-dir'] : __DIR__."/../../".$userData[ 'top-dir'];
         $this->prefix = $userData[ 'prefix'];
+        // 2DO load domain data
     }
 
     function exists( $dir, $filename) {
-        if ( strpos( $this->topDir, 'http') === 0) return true;
-        return file_exists( $this->_getURL( $dir, $filename));
+        // 2DO use FTP_List and look inside
     }
 
     function read( $dir, $filename) {
+        // 2DO use SFTP_copyFrom and read tmp
         $contents = "";
         if ( $this->exists( $dir, $filename)) {
             try {
@@ -53,7 +56,8 @@ class FileStorage extends SDBEE_storage {
         return $contents;
     }
 
-    function write( $dir, $filename, $data) { 
+    function write( $dir, $filename, $data) {
+        // 2DO use SFTP_copyTo 
         if ( strpos( $this->topDr, 'http') === 0) return "ERR:can't write to remote files";
         //echo $this->_getURL( $dir, $filename);
         $r = file_put_contents( $this->_getURL( $dir, $filename), $data);
@@ -77,10 +81,7 @@ class FileStorage extends SDBEE_storage {
     }
 
     function getList( $dir) {
-        if ( $dir && substr( $dir, -1) != '/' ) $dir .= '/';
-        $full = "{$this->topDir}{$dir}__list.json";
-        $listJSON = file_get_contents( $full);
-        $list = JSON_decode( $listJSON, true);
+        // 2DO use SFTP_list
         return $list;
     }
 }

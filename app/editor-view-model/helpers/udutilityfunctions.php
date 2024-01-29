@@ -19,7 +19,7 @@ function L_oidChildren( $oidstr) {
  * @param array $parameters Named list of systeme parameters
  * @return string THe JSON string representing the table
  */
-function UDUTILITY_listContainersAsThumbnails( $dataOrDataset, $params=[ 'sort'=>'dmodified', 'ascOrDesc'=>true]) {
+function UDUTILITY_listContainersAsThumbnails( $dataOrDataset, $params=[ 'sort'=>'dmodified', 'ascOrDesc'=>true, 'auto-archive'=>false]) {
     // 2DO use maxNb & offset
     // Make dataset of data
     if ( is_Object( $dataOrDataset) /*&& get_class( $dataOrDataset) == "Dataset"*/) {
@@ -37,13 +37,48 @@ function UDUTILITY_listContainersAsThumbnails( $dataOrDataset, $params=[ 'sort'=
     global $UDUTILITY_imageGenCount;
     $UDUTILITY_imageGenCount = 3;
     $typeCounts = [ 0, 0, 0, 0];
+    // Archiving variables
+    $archiving = ( isset( $params[ 'auto-archive'])) ? $params[ 'auto-archive'] : false;
+    if ( $archiving) {
+        $archiveDays = 90;
+        $archiveMinDocs = 5;
+        $archiveName = "Archive-{$params[ 'collection']}-".LF_env( 'user').LF_env('userId')."-".date('Ymd-hi');
+        $archive = [];
+        $now = time();        
+    }
+    $docsRemaining = $dataset->size;
     while ( !$dataset->eof()) {
         $elementData = $dataset->next();
+        $docsRemaining--;
         UD_utilities::analyseContent( $elementData, $captionIndexes);
         $type = (int) $elementData[ 'stype'];
         $typeCounts[ $type]++;
         $elementData[ 'nname'] = str_replace( ' ', '_', $elementData[ 'nname']);
         if ( $type == UD_document || $type == UD_model || $type == UD_docThumb) {
+            if ( $elementData[ 'nname'][0] == 'S') continue; // !!! IMPORTANT do this first so no archiving on S elements
+            // Automatic archiving
+            // 2DO test !model and nb of remaining tasks 
+            if ( 
+                $archiving 
+                && ( $docsRemaining >= $archiveMinDocs || count( $archive))
+                && $type == UD_document && $elementData[ 'nname'][0] == 'A'
+                && ($archiveDays * 86400 + LF_timestamp( (int) $elementData[ 'dcreated'])) < $now
+            ) {
+                // Old task so mark for archiving
+                $archive[] = $elementData;
+                if ( count( $archive) == 1) {
+                    // Replace with archive to be created
+                    $elementData[ 'stype'] = UD_dirThumb; // UD_archiveThumb
+                    $elementData[ '_link'] = 'UniversalDocElement--'.implode('-', LF_stringToOid( $elementData[ 'oid'])).'-21/AJAX_listContainers/';
+                    $elementData[ 'nlabel'] = '{!Ouvrir!}';
+                    $elementData['_title'] .= " Archive";
+                    //$elementData[ 'oid'] = "";
+                    $element = new UDdirectory( $elementData);
+                    $w = $element->renderAsHTMLandJS();
+                    $r .= $w[ 'content'];
+                } 
+                continue;
+            }
             // Document thumbnail with link to new window for showing document
             $elementData[ 'stype'] = ( isset( $params[ 'doc-type'])) ? $params[ 'doc-type'] : UD_docThumb;
             // 2DO use params[ linkModel] to determine what link should look like, for displayPage( 'blog_xxxx')
@@ -65,7 +100,11 @@ function UDUTILITY_listContainersAsThumbnails( $dataOrDataset, $params=[ 'sort'=
         } elseif ( $type == UD_directory || $type == UD_dirThumb) {
             // Directory thumbnail with link to update view with directorie's contents 
             $elementData[ 'stype'] = UD_dirThumb;
-            if ( !isset( $elementData[ '_link'])) $elementData[ '_link'] = 'UniversalDocElement--'.implode('-', LF_stringToOid( $elementData[ 'oid'])).'-21/AJAX_listContainers/';
+            $sort = "";
+            if ( stripos( $elementData['nlabel'], 'models') !== false || stripos( $elementData['tcontent'], 'models') !== false) 
+                 $sort = "?s=nlabel&o=0";
+            if ( !isset( $elementData[ '_link'])) 
+                $elementData[ '_link'] = 'UniversalDocElement--'.implode('-', LF_stringToOid( $elementData[ 'oid']))."-21/AJAX_listContainers/{$sort}";
             $elementData[ 'nlabel'] = '{!Ouvrir!}';
             //$elementData[ 'oid'] = "";
             $element = new UDdirectory( $elementData);
@@ -73,6 +112,18 @@ function UDUTILITY_listContainersAsThumbnails( $dataOrDataset, $params=[ 'sort'=
             $r .= $w[ 'content'];
         } 
     }
+    if ( $archiving && count( $archive)) {
+        global $ACCESS;
+        if ( $ACCESS) {
+            // OS version
+            $ACCESS->archive( $archive, $params[ 'collection']);
+        } else {
+            // SOILinks version
+            include_once( __DIR__."/../ud-view-model/udfile.php"); 
+            $r .= UDFILE::archive( $archive, $params[ 'collection']);
+        }
+    }
+    
     if ( $params[ 'wrEnable']) {
         // Add a new task, process or process model
         $title = '{!Nouvelle tâche!} {!ou!} {!groupe de tâches!}';
@@ -313,9 +364,139 @@ function SDBEE_translate( $text, $lang, $targetLang) {
     else return $rep[ 'data'][ 'translation'];
 }
 
+function SDBEE_exportUDasJSON( $oid, $ud=null) {
+    function L_getNodeForExport( $node) {
+        // Node's depth
+        global $EXPORTUD_topDepth;
+        $depth = (int) LF_count( LF_stringToOid( $node[ 'oid']))/2;
+        if ( !$EXPORTUD_topDepth) $EXPORTUD_topDepth = $depth;
+        $depth -= $EXPORTUD_topDepth;
+        // Permissions
+        $access = 0;
+        $w = LF_stringToOidParams( $node['oid']);
+        if ( $w) $access = (int) $w[0]['AL'];
+        // tcontent can be JSON
+        $tcontent = LF_preDisplay( 't', $node[ 'tcontent']);
+        if ( ( $JSONcontent = JSON_decode( $tcontent, true))) $content = $JSONcontent;
+        else $content = $tcontent;
+        // Get language (avoid null)
+        $lang = ( $node[ 'nlanguage']) ? $node[ 'nlanguage'] : "";
+        // Extract useful parameters from textra
+        $params = JSON_decode( LF_preDisplay( 't', $node[ 'textra']), true);
+        $exportParams = [];
+        if ( $params) {
+          if ($params[ 'height']) {
+              $exportParams[ 'height'] = $params[ 'height'];
+              $exportParams[ 'width'] = $params[ 'width'];
+              if ( $params[ 'offsetLeft']) $exportParams[ 'offsetLeft'] = $params[ 'offsetLeft'];
+              if ( $params[ 'offsetTop']) $exportParams[ 'offsetTop'] = $params[ 'offsetTop'];
+              if ( $params[ 'marginTop']) $exportParams[ 'marginTop'] = $params[ 'marginTop'];
+              if ( $params[ 'marginBottom']) $exportParams[ 'marginBottom'] = $params[ 'marginBottom'];
+          } 	
+          $system = $params[ 'system'];
+          if ( $system) {
+            foreach ( $system as $key=>$value) {
+               if ( !in_array( $key, ["botlog"])) {
+                 $exportParams[ 'system'][ $key] = $value;
+                 // $exportParams[ $key] = $value;
+               }
+            }  
+          }
+        }  
+        // Dates
+        $d = DateTime::createFromFormat( 'd/m/Y H:i:s', LF_date( (int) $node[ 'dcreated']));
+        if ( !$d) $d = DateTime::createFromFormat( 'd/m/Y H:i', LF_date( (int) $node[ 'dcreated']));
+        if ($d) $dcreated = $d->getTimestamp(); else $dcreated = LF_date( (int) $node[ 'dcreated']);
+        $d = DateTime::createFromFormat( 'd/m/Y H:i:s', LF_date( (int) $node[ 'dmodified']));
+        if ( !$d) $d = DateTime::createFromFormat( 'd/m/Y H:i', LF_date( (int) $node[ 'dmodified']));
+        if ($d) $dmodified = $d->getTimestamp(); else $dmodified = LF_date( (int) $node[ 'dmodified']);
+        // Compile content
+        $exportNode = [
+         //'nname' => $node[ 'nname'],
+         'depth' => $depth,
+         'permissions' => $access,
+         'nlabel' => LF_preDisplay( 'n', $node[ 'nlabel']),
+         'stype' => $node[ 'stype'],
+         'nstyle' => LF_preDisplay( 'n',$node[ 'nstyle']),
+         'tcontent' => $content,
+         'thtml' => "",
+         'nlanguage' => $lang,
+         'textra' => $exportParams,
+         // 'iaccessRequest' => $node[ 'iaccessRequest'],
+         'dcreated' => $dcreated, //strtotime( LF_date( (int) $node[ 'dcreated'])),    '
+         'dmodified' => $dmodified, // strtotime( LF_date( (int) $node[ 'dmodified']))
+         //'tcreated' => LF_date( (int) $node[ 'dcreated']). ' from '.$node[ 'dcreated'],
+         //'tmodified' => LF_date( (int) $node[ 'dmodified'])
+       ];
+       return $exportNode;
+    }
+    // Main
+    $content = [];
+    // Detect Task(Doc) or Collection(Dir)
+    if ( (int) $node[ 'stype'] == UD_directory) {
+       // Directory
+       $childrenOid =  LF_mergeOID( LF_stringToOid( $node[ 'oid']), "--21");
+       $children = LF_fetchNode( $childrenOid, "* tlabel"); 
+       echo $childrenOid.' ';
+       for ( $childi=1; $childi < LF_count( $children); $childi++) {
+           // Export each document in directory using recursive call
+           echo "export {$children[ $childi][ 'nname']}<br>\n";
+           exportUDasJSON( $children[ $childi][ 'oid']);
+       }
+       return;  
+    } 
+    // Document
+    // Look at standard depth
+    $oid = LF_substitute(LF_mergeShortOID( $oid, ""), [ 'OIDPARAM' => LF_env( 'OIDPARAM')]);
+    // Build named array from sorted data  
+    $dataset = UD_utilities::buildSortedAndFilteredDataset( $oid);
+    while ( !$dataset->eof()) { 
+      if ( !($elementData = $dataset->next())) continue;
+      if ( !$elementData[ 'nname']) continue;
+      $content[ $elementData[ 'nname']] = L_getNodeForExport( $elementData);
+    } 
+    // Compilation cache
+    if ( $ud) {
+        // Save with compiler cache
+        $extendedContent = [
+            'content' => $content,
+            'model' => "",
+            'html' => $ud->content,
+            'program' => $ud->program,
+            'css' => $ud->style,
+            'hidden' => $ud->hidden,
+            'modifiedResources' => UD_getModifiedResources( false),
+            'requiredModules'=>$ud->requiredModules,
+            'pageHeight' => ( $ud->pager->docPageHeight)? $modelUD->pager->docPageHeight : "",
+            'defaultPart' => ( $ud->displayPart) ? $modelUD->displayPart : "",
+            'validDate' => time() + 4 * 60 * 60,                    
+            'date' => LF_date(), //hmm
+            'dependencies' => $ud->loadedModels // UD_getFetchedResources()
+        ];        
+    } else {
+        // Save with no compiler cache
+        $extendedContent = [
+        'content' => $content,
+        'model' => "",
+        'html' => "",
+        'css' => ""
+        ];
+    }
+    // Convert to JSON
+    $json = JSON_encode( $extendedContent, JSON_PRETTY_PRINT); 
+    // Write to downloadable file
+    $tok = "ymbNpnZm8"; // Get user's public token LF_getToken();
+    $name = $node[ 'nname'];  
+   // FILE_write( 'download', $tok."_".$name.".json", -1, $json);
+    FILE_write( 'download', $name.".json", -1, $json);
+    // FILE_write( $cacheDir, $cachedModelFilename, -1, JSON_encode( $save, JSON_PRETTY_PRINT));
+    return $json;    
+}
+
 if ( $argv[0] && strpos( $argv[0], "udutilityfunctions.php") !== false)
 {    
     // Launched with php.ini so run auto-test
+    echo "Syntax: OK\n";
     // Create test environment
     require_once( __DIR__."/../tests/testenv.php");
     require_once( __DIR__."/../ud-view-model/ud.php");
@@ -326,7 +507,7 @@ if ( $argv[0] && strpos( $argv[0], "udutilityfunctions.php") !== false)
     // global $UD;
     // $UD = new UniversalDoc( ['mode'=>"edit"]);
     // Test
-    echo "udutilityfunctions.php auto-test program\n";    
+    echo "udutilityfunctions.php auto-test program\n";        
     {
         // Test data to JSON table
         $test = "data toJSON table conversion";

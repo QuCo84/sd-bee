@@ -12,6 +12,7 @@
 
 // Include function library/ies
 include_once( "udutilityfunctions.php");
+if ( file_exists( __DIR__.'/dataset.php')) include_once( 'dataset.php');
 
 // Class UD_utilities
 class UD_utilities
@@ -38,6 +39,8 @@ class UD_utilities
     public static $botlogCandidates = [ 'BVU00000002200000M', 'BVU00000002000000M']; 
     public static $botlogName = 'BVU00000002200000M'; 
     public static $managePartBuilt = false;
+
+    private static $services = null;
 
   /**
     * Return true if document requires reloading
@@ -219,6 +222,7 @@ class UD_utilities
 
         // Loop through model's elements
         $copy = false;
+        $sharedTarget = "";
         while(  !$model->eof())
         {
             $element = $model->next();
@@ -253,11 +257,74 @@ class UD_utilities
                         $extra[ 'fromModel'] = true;
                         $element[ 'textra'] = JSON_encode( $extra);
                     }
-                    // Change part No  Add E0 if > default part is kept
-                    // Keep a few high spots for document
+                    // Detect shared view
+                    $shared = ""; // disactivate sharing on new view
+                    $extra = JSON_decode( $element[ 'textra'], true);
+                    if ( !$copyAllParts && $extra[ 'system'][ 'share'] == 1) {
+                        // Shared view and not copying complete model
+                        // Look for shared element owned by user in same directory 
+                        $sharedName = 'S' . substr( $modelName, 1);
+                        $dir = $docRootOID;
+                        array_pop( $dir); array_pop( $dir);
+                        $oidLen = (int) ( count( $dir) / 2);
+                        $nos = "";
+                        for ( $leni=0; $leni < $oidLen; $leni++) $nos .= 'NO|NO-';
+                        $dir = "UniversalDocElement--".implode( '-', $dir);
+                        $foundDoc = LF_fetchNode( $dir."-21--{$nos}nname|{$sharedName}");
+                        //$foundDoc = LF_fetchNode( $dir."-21--NO|OIDLENGTH|nname|{$sharedName}");
+                        if ( LF_count( $foundDoc) < 1) {
+                            // Create if needed 2DO savec model's label in name&oid
+                            $d = [ 
+                                [ 'nname', 'nlabel', 'stype', 'nstyle', 'tcontent'],
+                                [ 
+                                    'nname'=> $sharedName, 'nlabel' => 'Shared data for ' . $modelName, 
+                                    'stype' => UD_document, 'nstyle' => 'NONE'
+                                ]
+                            ];
+                            $foundDocId = $createNodeCallback( $dir, 21, $d);
+                        } else {
+                            $foundDocId = $foundDoc[1][ 'id'];
+                        }
+                        if ( $foundDocId <= 0) return false; // throw new Exception('No shared data');
+                        // Add view to shared doc
+                        $nos .= 'NO|NO-';
+                        $foundDocOid = "{$dir}-21-{$foundDocId}";
+                        $foundEl = LF_fetchNode( "{$foundDocOid}-21--{$nos}nname|{$element[ 'nname']}");
+                        //$foundEl = LF_fetchNode( "{$foundDocOid}-21--NO|OIDLENGTH|nname|{$element[ 'nname']}");
+                        if ( LF_count( $foundEl) < 1) {
+                            // Add element to shared doc   
+                            $d = [ 
+                                [ 'nname', 'nlabel', 'stype', 'nstyle', 'tcontent'],
+                                $element
+                            ];                     
+                            $foundElId = $createNodeCallback( $foundDocOid, 21, $d);
+                            // Set flag with oid of shared view to copy all elements in view
+                            $shared = "{$foundDocOid}-21-{$foundElId}";
+                        } else {
+                            // Use existing element
+                            $foundElId = $foundEl[1][ 'id'];
+                            // No need to copy
+                            $copy = false;
+                        }
+                        // Add link to view in target doc
+                        $foundElOid = "{$foundDocOid}-21-{$foundElId}";
+                        $lr = LF_link( $docRootOID, $foundElOid, 3, 'access');
+                        if ( $lr != $foundElId) die( "No link to share {$lr} {$foundElOid}");                       
+                    }
                 }
             }    
             if ( !$copy) continue;
+
+            // Shared elements 
+            if ( $shared) {
+                // Write element to shared container
+                if ( $element[ 'stype'] > UD_view) {
+                    $d = [ ["nname", "nlabel", "stype", "nstyle", "tcontent", "textra"], $element];
+                    $foundElId = $createNodeCallback( $shared, 21, $d);
+                }
+                continue; // next element
+            } 
+
             
             // Get elements source OID
             $sourceOID = LF_stringToOid( $element['oid']);
@@ -301,9 +368,16 @@ class UD_utilities
             $elementTextra = ( $element[ 'textra']) ? JSON_decode( $element[ 'textra'], true) : [ 'system'=>[]];
             // Set ude_place attribute on short titles and paragraphs
             $content = $element[ 'tcontent'];
-            if ( $type >= UD_chapter && $type <= UD_subParagraph 
+            if ( 
+                $type >= UD_chapter && $type <= UD_subParagraph 
                 && strlen( $content) <= 40 && strpos( $content, "<") === false
-            ) $elementTextra[ 'system'][ 'ude_place'] = $content;
+            ) {
+                // Use ude-place attribute to indicate default value
+                $elementTextra[ 'system'][ 'ude_place'] = $content;
+            } else {
+                // Use initialcontent class to indicate default value
+                $element[ 'nclass'] .= ( ($element[ 'nclass']) ? " ": "") . "initialcontent";
+            }
             // Indicate from model
             $elementTextra[ 'system'][ 'fromModel'] = true;
             $element[ 'textra'] = JSON_encode( $elementTextra);
@@ -340,7 +414,7 @@ class UD_utilities
             $lang = LF_env( 'lang');
             $currentName = LF_preDisplay( 't', $targetElement[ 1][ 'tcontent']);
             $appDefaultName = $system[ 'defaultName' . $lang];
-            if ( !$appDefaultName) $appDefaultName = $system[ 'defaultName'];
+            if ( !$appDefaultName) $appDefaultName = $system[ 'defaultName'];            
             if ( !$appDefaultName) {
                 // Move defaults to constants
                 $defaultName = [
@@ -349,15 +423,30 @@ class UD_utilities
                 ];
                 $appDefaultName = $defaultName[ $lang];
             }
+            // subtitle
+            $appDefaultSubtitle = $system[ 'defaultSubtitle' . $lang];
+            if ( !$appDefaultSubtitle) $appDefaultSubtitle = $system[ 'defaultSubtitle'];
+            if ( !$appDefaultSubtitle) $appDefaultSubtitle = "...";
+            global $LF_env;
             if ( $appDefaultName) { // } && !in_array( $currentName, [ "", $defaultNameFR, $defaultNameEN])) {
-                // Rename target based on defaultName parameter
-                global $LF_env;
-                $targetElement[ 1][ 'tcontent'] = LF_substitute( $appDefaultName, $LF_env);
+                // Set doc title & subtitle
+                $docName = LF_substitute( $appDefaultName, $LF_env);
+                $docSubtitle = LF_substitute( $appDefaultSubtitle, $LF_env);
+                $targetElement[ 1][ 'tcontent'] = "<span class=\"title\">{$docName}</span><span class=\"subtitle\">{$docSubtitle}</span>";
                 $targetElement[ 0][] = "tcontent";
-                $targetElement[ 1][ 'nlabel'] = LF_substitute( $appDefaultName, $LF_env);
-                $targetElement[ 0][] = "nlabel";
-                // nname
+                $targetElement[ 1][ 'nlabel'] = $docName;
+                $targetElement[ 0][] = "nlabel";                             
             }
+            /*
+            if ( $dbNameModel) {
+                // DB name
+                $dbNameParts = explode( '_', $targetElement[ 1][ 'nname']);
+                $dbNameParts[1] = LF_substitute( $dbNameModel, $LF_env);
+                $dbName = implode( '_', $dbNameParts);
+                $targetElement[ 1][ 'nname'] = $dbName;
+                $targetElement[ 0][] = "nname";
+            }
+            */   
             if ( $createNodeCallback == "LF_createNode") {                
                 LF_updateNode( $destinationOid, $targetElement);                               
                 // Delete dummy part created before model copy to avoid empty doc 
@@ -466,7 +555,7 @@ class UD_utilities
             $modelDate = $modelData[1][ 'dmodified'];
         }
         // Return name and oid
-        return [ 'name' => $modelName, 'oid' => $modelOid, 'date' => $modelDate];
+        return [ 'name' => $modelName, 'oid' => $modelOid, 'date' => LF_timestamp( (int) $modelDate)];
        
     } // UD_utilities::getModelToLoad()
     
@@ -612,7 +701,7 @@ class UD_utilities
             if ( $level == $targetLevel) {
                 $data2[] = $data[$i];
                 if ( $data[$i]['stype'] == UD_view && substr( $data[$i]['nname'], 0, 2) == "BE" /* && $dirOID*/) {
-                    // Get path to use for listing
+                    // Container listing view - get path to use for listing
                     $path = "UniversalDocElement--".implode( '-', LF_stringToOid($data[$i]['oid']))."-21";
                     $textra = JSON_decode( $data[$i]['textra'], true);
                     if ( $textra[ 'system']['dirPath']) { 
@@ -620,7 +709,7 @@ class UD_utilities
                         if ( $path == "DOC") $path = "UniversalDocElement--".implode('-', LF_stringToOid(LF_env( 'oid')));
                     }
                     if ( !$driveModel) LF_env( 'UD_docOID', $path); else LF_env( 'UD_docOID', "");
-                    // Provide a JS element to fill view with directory content
+                    // Provide a JS element with instructions to fill view with directory content
                     $dirEl = [
                        'nname'=>substr( $data[$i]['nname'], 0, 12)."1".substr( $data[$i]['nname'], 13),
                        'stype'=>UD_js,
@@ -628,6 +717,12 @@ class UD_utilities
                     ];
                     $data2[] = $dirEl;
                 }
+                /*
+                if ( $isView && $shared && $modeModel) {
+                    // Load shared view
+                    // Add to $data2
+                }
+                */
             } elseif ( $keepChildren && $level > $targetLevel) { 
                 // Keep children                
                 $data2[] = $data[$i];
@@ -830,7 +925,7 @@ class UD_utilities
                 $elementData['_titleForProgram'] = $elementData['_title'];
             }
             if ( !$elementData[ '_title'] && $elementData[ 'nlabel']) {
-                $elementData[ '_title'] = $elementData[ '_titleForProgram'] = $elementData[ 'nlabel'];
+                $elementData[ '_title'] = $elementData[ '_titleForProgram'] = LF_preDisplay( 'n', $elementData[ 'nlabel']);
             }    
         } else { $typeName = "element";}
         // Increment index even if caption provided unless an auxillary element (ie text node for JS, JSON etc)
@@ -1320,7 +1415,100 @@ class UD_utilities
         }
         return $path;
     } // UD_utilities::getNamePathToElement()
+
+    /**
+    * Setup ENViromental variables with user's config
+    * @return string Path to element
+    */    
+    static function setupUserEnv() {
+        global $ACCESS;
+        $os = ($ACCESS);
+        // Set OID of configuration document
+        $userConfigOid = LF_env( 'UD_userConfigOid');
+        if (!$userConfigOid || $userConfigOid == "__NOT_FOUND__") {
+            if ( $os) $userConfigOid = $ACCESS->find( "_UserConfig");
+            else {
+                $userConfigData = LF_fetchNode( "UniversalDocElement--21--nname|*_UserConfig");
+                if ( LF_count( $userConfigData) > 1) {
+                    $userConfigOid = "UniversalDocElement--".explode( "--", $userConfigData[1]['oid'])[1];
+                }
+            }
+            if ( !$userConfigOid) {
+                $userConfigOid = "__NOT_FOUND__";
+                // die( "No user config");
+            }
+            LF_env( 'UD_userConfigOid', $userConfigOid);    
+        }
+        if ( $userConfigOid && $userConfigOid != "__NOT_FOUND__")
+            $params = UD_utilities::getNamedElementFromUD( $userConfigOid, 'Global'); // 'Preferences'
+        if ( $params) { 
+            $reservedNames = [
+                "oid", "oidata", "oiddata", "project", "action",
+                "ProjectLabel", "WEBDESK_Images", "lang"
+            ];
+            foreach( $params as $key=>$value) {
+                if ( !in_array( $key, $reservedNames)) {
+                    // Set as ENViromental variable
+                    LF_env( $key, $value);
+                    // Add to app globals transmitted with doc
+                    $globals = LF_env( 'app-globals');
+      	    	    if ( !$globals) $globals = [];
+      	        	$globals[ $key] = $value;
+      	        	LF_env( 'app-globals', $globals);
+                }
+            }
+        }
+        // 2DO Temp directory
+        // Waste bin directory
+        $wasteBinOID = LF_env( 'LINKS_wasteBinOID');
+        if (!$wasteBinOID || $wasteBinOID == "__NOT_FOUND__") {
+            $wasteBinData = LF_fetchNode( "UniversalDocElement--21--nname|*_wastebin");
+            if ( LF_count( $wasteBinData) > 1) 
+                $wasteBinOID = "UniversalDocElement--".explode( "--", $wasteBinData[1]['oid'])[1];
+            else $wasteBinOID = "__NOT_FOUND__";
+            LF_env( 'LINKS_wasteBinOID', $wasteBinOID);   
+            LF_env( 'UD_wasteDir', $wasteBinOID); 
+        }
+        // Share directory
+        $shareOID = LF_env( 'LINKS_shareOID');
+        if (!$shareOID || $shareOID == "__NOT_FOUND__") {
+            $shareData = LF_fetchNode( "UniversalDocElement--21--nname|*_Share");
+            if ( LF_count( $shareData) > 1) 
+                $shareOID = "UniversalDocElement--".explode( "--", $shareData[1]['oid'])[1];
+            else $shareOID = "__NOT_FOUND__";
+            LF_env( 'LINKS_shareOID', $shareOID); 
+            LF_env( 'UD_shareDir', $shareOID);    
+        }
+        // Dates
+        LF_env( 'Date', date( 'd/m/Y'));
+        LF_env( 'Year', date( 'y'));
+        LF_env( 'Week', date( 'W'));
+        LF_env( 'Month', date( 'M'));
+    }
     
+    static function getNamedElementFromUD( $docOID, $elementName) {
+        if ( !UD_utilities::$services) {
+            // Load services
+            global $ACCESS;
+            if ( $ACCESS) include_once __DIR__."/../../local-services/udservices.php";
+            else include_once __DIR__."/../services/udservices.php";
+            $services = new UD_services( [ 'throttle'=>'off']);
+        }
+        if ( is_array( $docOID)) $docOID = "UniversalDocElement--".implode( '-', $docOID);
+        // Read preferences from User config doc    
+        $request = [
+            'service' => 'doc',
+            'action' => 'getNamedContent',
+            'dir' => 'UniversalDocElement-',
+            'docOID' => $docOID,
+            'elementName' => $elementName
+        ];
+        $response = $services->_doRequest( $request);
+        $d = $response[ 'data'];
+        if ( $response[ 'success'] && !(strpos( $d, 'ERR:') === 0)) return JSON_decode($d, true);
+        return "";
+    }
+
 } // PHP class UD_utilities
 
 if ( $argv[0] && strpos( $argv[0], "udutilities.php") !== false)
@@ -1330,6 +1518,7 @@ if ( $argv[0] && strpos( $argv[0], "udutilities.php") !== false)
     require_once( __DIR__."/../tests/testenv.php");
     LF_env( 'cache', 5);
     // Test
+    echo "udutilities.php syntax:OK\n";
     echo "udutilities.php auto-test program\n";    
     global $id_dummy;
     $id_dummy = 100;

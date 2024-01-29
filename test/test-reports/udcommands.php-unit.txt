@@ -1,0 +1,3 @@
+Loading test environment
+Syntax udcommands.php OK
+Test completed

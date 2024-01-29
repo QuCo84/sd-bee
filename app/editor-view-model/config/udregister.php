@@ -1,8 +1,14 @@
 <?php
 /*
- * OS version - include modified
- */
-require_once 'udconstants.php';
+* OS version udregister.php 
+* SOILinks versions udresources.php
+* provides srever-side access to register
+*/
+if ( file_exists( __DIR__.'/udconstants.php')) require_once 'udconstants.php';
+else {
+    require_once __DIR__.'/../ud-view-model/udconstants.php';
+    require VENDOR_AUTOLOAD;
+}
 use ScssPhp\ScssPhp\Compiler;
 
 /*
@@ -41,10 +47,11 @@ function UD_getConstantsAsJSON()
 */
 
 function UD_getExTagAndClassInfo( $exTagOrClass, $param = "") {
-    global $UD_exTagAndClassInfo, $UD_wellKnown, $UD_parameters, $UD_changedResources;
+    global $UD_exTagAndClassInfo, $UD_wellKnown, $UD_parameters, $UD_changedResources, $UD_fetchedResources, $UD_dateCache;
     if ( !$UD_exTagAndClassInfo) {
         // Get JSON data loaded also in JS
-        $js = file_get_contents( __DIR__.'/udregister.js');
+        if (file_exists(  __DIR__.'/udregister.js')) $js = file_get_contents( __DIR__.'/udregister.js');
+        else $js = file_get_contents( __DIR__.'/../require-version/udregister.js');
         $firstAcco = strpos( $js, '{');
         $jsonLen = strrpos( $js, '}', -10) - $firstAcco + 1; // 10 characters to avoid end of "if process is object" block
         $json = substr( $js, $firstAcco, $jsonLen);
@@ -59,6 +66,8 @@ function UD_getExTagAndClassInfo( $exTagOrClass, $param = "") {
         $UD_wellKnown = $register[ 'UD_wellKnown'];
         $UD_parameters = $register[ 'UD_parameters'];
         $UD_changedResources = [];
+        $UD_fetchedResources = [];
+        $UD_dateCache = [];
     }    
     if ( $param) {
         if ( isset( $UD_changedResources[ $exTagOrClass][ $param]))
@@ -106,10 +115,10 @@ function UD_getInfoAsJSON() {
     return JSON_encode( $UD_exTagAndClassInfo);
 }
 // getRegisterModifications
-function UD_getModifiedResources() {
+function UD_getModifiedResources( $htmlentity = true) {
     UD_getExTagAndClassInfo( 'p');
     global $UD_changedResources;
-    if ( $UD_changedResources) return JSON_encode( $UD_changedResources); else return "";
+    if ( $UD_changedResources) return ( $htmlentity) ? htmlentities( JSON_encode( $UD_changedResources)) : JSON_encode( $UD_changedResources); else return "";
 }
 // setModifiedRegister
 function UD_setModifiedResources( $modifiedResources) {
@@ -304,12 +313,17 @@ function UD_autoFillResourcePath( &$path) {
                 $exTag = implode( '.', $cssSelector);
             } elseif ( $key == "defaultContent") {    
                 // Define default content for class
+                // Handle include instructions
+                $value = UD_processPseudoHTMLinstructions( $value);              
                 // 2DO Remove get/set asymetrie
                 $path = $exTag."/defaultContentByClassOrViewType";
                 $currentValue = UD_getExTagAndClassInfo( $exTag, "defaultContentByClassOrViewType");
                 if ( !$currentValue) $currentValue = [];
                 if ( $value) $currentValue[ $class] = $value;
                 UD_setResource( 'UD_tagAndClassInfo', $path, $currentValue);
+            } elseif ( $key == "dico") {
+                $value = str_replace( ["'"], ["\\'"], $value);
+                foreach ( $value as $term => $translation) $js .= "$$$.translateTerm( '{$term}', 1, '{$translation}');\n";
             } elseif ( $key == "style") {
                 if ( is_array( $value)) $sass = "{$exTag}.{$class} {\n".implode( "\n", $value)."\n}\n";
                 else $sass = "{$exTag}.{$class} {\n{$value}\n}\n";
@@ -322,7 +336,7 @@ function UD_autoFillResourcePath( &$path) {
                 $css = UD_convertSASStoCSS( $sass, $path);
                 $cleanCSS = UD_loadCSS( $css);
                 $style .= $cleanCSS;
-            } elseif ( strpos( " program style-block-id template-id ", $key.' ')) {    
+            } elseif ( strpos( " program style-block-id template-id description ", $key.' ')) {    
                 // Ignore these keys used for SFC/VUE files
             } else {
                 // 2DO Make a function so it can be called in Include loop
@@ -368,28 +382,21 @@ function UD_autoFillResourcePath( &$path) {
         $r = UD_fetchResource( $fullPath, $filename,  $fileExt); 
         // Process resource according to extension
         if ( $fileExt == "scss") {
-            // 2DP public-resource-storage or public-access = same job use storage> read ( resources/etc)
             /*
-            global $PUBLIC;
-            if ( $PUBLIC) {
-                // OS version
-                $css = $PUBLIC->read( 'css', str_replace( '.scss', '.css', $filename));
-            } else {
-                // SOILinks version
-                $cssFile = __DIR__."/../css/".str_replace( '.scss', '.css', $filename);
-                $css = @file_get_contents( $cssFile);
-            }
-            */
+            Reading css file disactivated
             $builtinDir = UD_getParameter( 'public-resource-storage');
-            if( $builtinDir) $cssFile = "{$builtinDir}css/".str_replace( '.scss', '.css', $filename);
+            if( $buildinDir) $cssFile = "{$builtinDir}css/".str_replace( '.scss', '.css', $filename);
             else $cssFile = __DIR__."/../css/".str_replace( '.scss', '.css', $filename);
             $css = @file_get_contents( $cssFile);
             if ( !$css) {
                 // Convert SASS to CSS wih scssphp (compatible App engine)
                 // Conversion does not support import currently
                 // 2DO TRy setImportPaths( 'https...)
-                $css = UD_convertSASStoCSS( $r, str_replace( "{$filename}", '', $fullPath));
+                $css = UD_convertSASStoCSS( $r); //, str_replace( "/{$filename}", '', $fullPath));
             }
+            */
+            // Convert sass to css
+            $css = UD_convertSASStoCSS( $r);
             // Load CSS
             $cleanCSS = UD_loadCSS( $css);
             $style .= $cleanCSS;
@@ -407,12 +414,12 @@ function UD_autoFillResourcePath( &$path) {
                     $style .= $w[ 'style'];
                 }
             }
-        } elseif ( $fileExt == "vue" || $fileExt == "sfc") {              
+        } elseif ( $fileExt == "vue" || $fileExt == "sfc") {      
+            // IDEA Loop data data-1, data-2 or <data-anyname> so we can load mutiple defaultCOntents
             $json = LF_subString( $r, "<data>", "</data>");
             $data = JSON_decode( "{".$json."}", true);
-            if ( !$data) {
-                $js .= "$$$.pageBanner( 'temp', 'Error data section is not JSON in {$fullPath}');";
-            } else {
+            if ( !$data) $js .= "$$$.pageBanner( 'temp', 'Error data section is not JSON in {$fullPath}');"; //return null;
+            else {
                 $styleBlockId = $data[ 'style-block-id']; 
                 $sass = LF_subString( $r, "<style id=\"{$styleBlockId}\">", "</style>"); 
                 $data[ 'style'] = $sass;
@@ -451,6 +458,16 @@ function UD_autoFillResourcePath( &$path) {
     }
 
     /**
+     * Get list of fetched resources and clear list
+     */
+    function UD_getFetchedResources( $clear = false) {
+        global $UD_fetchedResources;
+        $r = $UD_fetchedResources;
+        if ( $clear) $UD_fetchedResources = [];
+        return $r;
+    }
+
+    /**
     * Fetch a resource file's content or tagged block inside content
     * @param string $fullPath Full path to a folder
     * @param string &$filename Variable to fill with filename that is loaded
@@ -460,7 +477,8 @@ function UD_autoFillResourcePath( &$path) {
     * @return string Content of file or block in file or empty if not found
     */     
     function UD_fetchResource( $fullPath, &$filename, &$ext, $block="", $blockId="") {
-        $r = "";          
+        $r = "";   
+
         // Analyse resource path
         $filenameParts = explode( '/', $fullPath);
         $filename =  array_pop( $filenameParts);
@@ -471,24 +489,24 @@ function UD_autoFillResourcePath( &$path) {
             $domain = array_shift( $filenameParts);
         }     
         if ( LF_count( $filenameParts)) {       
-            // !!Transition Some models were created with 'resources' assumed
+            // !!Transition Some models were created with 'resources' in path
             if ( $filenameParts[0] != "resources")  $category = "resources/" . implode( '/', $filenameParts);
             $category = implode( '/', $filenameParts);
         } else $category = $ext;
         
         // Look for resource in user's private disk space
         global $USER_CONFIG;
-        if ( $USER_CONFIG && isset( $USER_CONFIG[ 'private-resources'])) {
+        if ( $USER_CONFIG && isset( $USER_CONFIG[ 'private-resources']) && $USER_CONFIG[ 'private-resources']) {
             $privateResources = $USER_CONFIG[ 'private-resources'];
-            $category = str_replace( 'resources/', 'SD-bee-resources/', $category);
+            $categoryPrivate = str_replace( 'resources/', 'SD-bee-resources/', $category);
             // $category = str_replace( ' ', '_', $category); // Until done in FTP
             // $filename = str_replace( ' ', '_', $filename);
             if ( is_object( $privateResources) && $privateResources) {
                 // OS version
-                $r = $privateResources->read( $category, $filename);
+                $r = $privateResources->read( $categoryPrivate, $filename);
             } elseif ( is_string( $privateResources) && $privateResources) {
                 // SOILinks version 
-                $ftpPath = 'www/'.$category.'/'.$filename; //patch www .. to be handled by FTP
+                $ftpPath = 'www/'.$categoryPrivate.'/'.$filename; //patch www .. to be handled by FTP
                 $localCopyOfExternalFile = FILE_FTP_copyFrom( $ftpPath, $privateResources);   
                 $r = @file_get_contents( $localCopyOfExternalFile);   
             }
@@ -506,6 +524,10 @@ function UD_autoFillResourcePath( &$path) {
             }
         }
 
+        // Keep track of fetched resources for model dependencies
+        global $UD_fetchedResources;
+        if ( !in_array( $fullPath, $UD_fetchedResources)) $UD_fetchedResources[] = $fullPath;
+
         // Extract a block from file's contents
         if ( $r && $block) {
             // Extract a single block from ressource
@@ -517,11 +539,8 @@ function UD_autoFillResourcePath( &$path) {
                 foreach( $lines as $line) $r .= trim( $line);
             }
         }
-
-        // Return resource's content
-        return $r;        
+        return $r;
     }
-
    /**
     *  Load a resource module. Used by the include instruction
     *  by UD_processResourceSet()
@@ -600,7 +619,7 @@ function UD_autoFillResourcePath( &$path) {
         }
         return $css;
     }
-    // Not used. Should be used by pseudoCSS 
+    // Used by loadResourceSet. Should be used by pseudoCSS 
     function UD_modifyRegisterForClass( $className, $value) {    
         /* Syntax
         * myClass/UD_addClass/exTag div.table
@@ -715,7 +734,24 @@ function UD_autoFillResourcePath( &$path) {
                             $currentValue[ $addViewType] = [$className];
                         }
                         UD_setResource( 'UD_tagAndClassInfo', "div.part/classesByViewType", $currentValue);
-                    }                    
+                    }          
+                    /*
+                    elseif ( strpos( $exTag, 'div.part') === 0 && strpos( $className, 'LAY_') === 0) {
+                        // Set available layout for view ( these can be independant of view type)
+                        $currentValue = UD_getExTagAndClassInfo( 'div.part', "classesByViewType");
+                        for ( $ti=0; $ti < count( $pseudoParts); $ti++) {
+                            $addViewType = $pseudoParts[ $ti];                        
+                            if ( isset(  $currentValue[ $addViewType])) {
+                                if ( !in_array( $className, $currentValue[ $addViewType])) { 
+                                    $currentValue[ $addViewType][] = $className;
+                                }
+                            } else {
+                                $currentValue[ $addViewType] = [$className];
+                            }
+                        }
+                        UD_setResource( 'UD_tagAndClassInfo', "div.part/classesByViewType", $currentValue);
+                    } 
+                    */                 
                     break;
                 case "addClassByViewClass" :
                 case "setClassByViewClass" : 
@@ -761,9 +797,9 @@ function UD_autoFillResourcePath( &$path) {
                     *   use $selector/$key for most precise
                     *   use $classname/key for least precise
                     */
-                    if ( $storeLabelsByView) $path = "{$selector}/{$key}";
-                    $path = "{$exTag}.{$className}/{$key}";
-                    UD_setResource( 'UD_tagAndClassInfo', $path, $value);
+                    $path = "{$exTag}.{$className}/$key";
+                    if ( strpos( $key, 'label') !== false && $storeLabelsByView) $path = "{$selector}/{$key}";                    
+                    UD_setResource( 'UD_tagAndClassInfo', $path, $value);                    
                     break;
                 case "addContent" :
                     // Add & load default content for this class
@@ -811,9 +847,10 @@ function UD_autoFillResourcePath( &$path) {
     *  @returns {string} The CSS code
     */ 
     function UD_convertSASStoCSS( $sass, $path=null) {
-
+        $path = __DIR__.'/../resources/';
+        
         // Handle @import directives for compatibility with different storage systems
-        $safe = 10;
+        $safe = 10;        
         while ( ($p1 = strpos( $sass, "\n@import")) && $safe--) {
             $p2 = strpos( $sass, ';', $p1);
             $importPath = substr( $sass, $p1 + 10, $p2 - $p1 - 10 - 1);
@@ -827,15 +864,15 @@ function UD_autoFillResourcePath( &$path) {
             }
             $sass = substr( $sass, 0, $p1) . $import . substr( $sass, $p2+1);
         }
-
+        
         // Adjust imports, assuming SASS comes from resource
-        $sass = str_replace( "@import '../", "@import '", $sass);        
+        //$sass = str_replace( "@import '../", "@import '", $sass);        
         try {
             $compiler = new Compiler();
-            $compiler->setImportPaths( $path);
+            $compiler->setImportPaths( __DIR__.'/../resources/'); //$path);
             $css = $compiler->compileString( $sass)->getCss();
         } catch( \Exception $e) {
-            echo $e->getMessage()."<br>\n"; // "$path $sass ".$e->getMessage()."<br>\n";
+            echo "$path $sass ".$e->getMessage()."<br>\n";
         }
         return $css;
     }
@@ -881,7 +918,7 @@ function UD_autoFillResourcePath( &$path) {
         }
         return $cssSet;
     }
-/*
+
     function UD_getResourceFileContents( $path) {
         // Look for resource   
         $builtin =  __DIR__."/../resources/{$path}";
@@ -911,9 +948,82 @@ function UD_autoFillResourcePath( &$path) {
         } else {
             $r = file_get_contents( $fullPath);
         }
-        * /
+        */
         return $r;
-    }*/
+    }
+
+    /**
+     * Handle instructions stored as HTML comments
+     */
+    function UD_processPseudoHTMLinstructions( $html) {
+        if ( is_array( $html)) $json = JSON_encode( $html); else $json = $html;
+        $safe = 20;
+        while ( ( $p1 = strpos( $json, '<!-- UD_include src=')) != 0 && $safe--) {
+            // Get filename
+            $p1b = $p1 + strlen( '<!-- UD_include src=');
+            $p2 = strpos( $json, '-->', $p1b);
+            $filename = str_replace( '\/', '/', substr( $json, $p1b, $p2 - $p1b- 1));
+            // Get contents                        
+            $includeContent = UD_fetchResource( 'resources/'.$filename, $filenameb, $extb);
+            // Remove script and style tags
+            // Add lines            
+            $includeLines = explode( "\n", $includeContent);
+            //var_dump( $includeLines); die();
+            // $newLines = [];
+            // for ( $nli=0; $nli < $li; $nli++) { $newLines[] = $lines[ $nli];}
+            $newLines = '&lt;!-- '.$filename.' --&gt;",';
+            for ( $nli=0; $nli < LF_count( $includeLines); $nli++) { 
+                $line = $includeLines[ $nli];
+                $line = str_replace( ['"', '<', '>'], ['&quot;','&lt;', '&gt;'], $line);
+                $newLines .= "\n".'"'.$line.'",';
+                /*str_replace(  
+                    ['&quot;', '<', '>'], 
+                    [ '\"', '&lt;', '&gt;'],
+                    $includeLines[ $nli]
+                );*/
+            } 
+            $newLines = substr( $newLines, 0, -1);                                         
+            // for ( $nli = $li+1; $nli < LF_count( $lines); $nli++) { $newLines[] = $lines[$nli];}
+            // Replace line with INCLUDED comment
+           // $line = "&lt;!-- {$fileName} --&gt;";
+            // Skip include lines
+            //$li += LF_count( $includedLines);
+            //$lines = $newLines;
+            $json = substr( $json, 0, $p1).$newLines.substr( $json, $p2 + 4); // -->"
+        }
+        if ( is_array( $html)) $html = JSON_decode( $json, true); else $html = $json;
+        return $html;
+    }
+
+    /**
+    * Return true if dependices are less recent than a date
+    */
+    function UD_resourceRecencyBefore( $dateValid, $resources) {
+        global $UD_dateCache;
+        $dateRes = 0;
+        for ( $resi=0; $resi < count( $resources); $resi++) {
+            $resource = $resources[ $resi];
+            if ( isset( $UD_dateCache[ $resource])) $dateRes = $UD_dateCache[ $resource];
+            elseif ( true) { // SOIL
+                if ( strpos( $resource, 'models/') === 0) {
+                    // Get date of model SOIL
+                    $modelName = str_replace( 'models/', '', $resource);
+                    $w = LF_fetchNode( "UniversalDocElement--21-44-21--UD|1-nname|{$modelName}", 'id nname dmodified');
+                    $dateRes = LF_timestamp( (int) $w[1][ 'dmodified']);
+                } else {
+                    // Get date of resource file
+                    if ( file_exists( __DIR__."/../".$resource))
+                        $dateRes = filemtime(__DIR__."/../".$resource); // should work with gs:   
+                } 
+                // Cache date
+                if ( $dateRes) $UD_dateCache[ $resource] = $dateRes;    
+            }
+            if ( $dateRes > $dateValid) return false;
+        }
+        return true;
+    }
+
+
 // ENV usable in models and which will be substituted on instantation
 if ( $argv[0] && strpos( $argv[0], "udresources.php") !== false)
 {    
@@ -947,10 +1057,29 @@ if ( $argv[0] && strpos( $argv[0], "udresources.php") !== false)
     $r = UD_processResourceSet( $json);
     $def = UD_getExTagAndClassInfo( "div.part.doc", "defaultContentByClassOrViewType");
     if ( isset( $def[ 'problem-solution'])) echo "$test: OK\n"; else echo "$test: KO $def\n";
+    
     $test = "Test 5 - SFC/VUE file format";
     $file = "./resources/text elements/trial.vue";
     $r = UD_loadResourceFile( $file);
     if ( $r) echo "$test: OK\n"; else echo "$test: KO $file\n";
+
+    $test = "Test 6 - pseudo HTML instructions";
+    $json = '{ "tag":"div", "type":"html", "label":"catalog-product", "value":{ 
+        "tag":"div", "name":"catalog-product_object", "class":object hidden", "value":{
+            "meta":{"name":"header-catalog","zone":"catalog-productactiveZone","captionPosition":"top","caption":"catalog-product"},
+            "data": { 
+                "edit": { "tag":"div","name":"catalog-product","type":"text", "bind":"catalog-product_object", "value":{
+                    "tag":"textedit","class":"html","mime":"text/html", "value":[
+                        "HTML",
+                        "<!-- UD_include src=HTML-blocks/catalog-product.ejs -->"
+                    ]    
+                }},
+                "display" : { "tag":"div","name":"header-catalogviewZone","class":"htmlView","type":"viewzone","subType":"html","autosave":"off","bind":"header-catalog_object","follow":"off","value":""}
+            },
+            "changes":{}
+    }';
+    $r = UD_processPseudoHTMLinstructions( $json);
+    var_dump( $r);
     echo "Test completed\n";
 } // end of auto-test
 

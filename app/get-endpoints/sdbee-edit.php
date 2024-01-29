@@ -16,9 +16,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-function SDBEE_endpoint_edit( $task, $mode="") {
+function SDBEE_endpoint_edit( $request) {
         // Display a task
         $taskName = $request[ 'task'];
+        /*
+        if ( $request[ 'archive']) {
+                include_once "sdbee_archive.php";
+                $archive = new SDBEE_archive( $request[ 'archive'], $taskName);  
+                $doc = $archive->open( $name),
+        }
+        */
         $doc = new SDBEE_doc( $taskName);
         if ( !$doc->model) {
                 // No model so display market place
@@ -30,4 +37,4 @@ function SDBEE_endpoint_edit( $task, $mode="") {
                 $doc->sendToClient();
         }
 }
-SDBEE_endpoint_edit( $request[ 'task']);
+SDBEE_endpoint_edit( $request);

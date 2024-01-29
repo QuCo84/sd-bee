@@ -112,12 +112,11 @@ class UD_serviceThrottle {
             $dbName = $log[ 'name'];
             $nameParts = explode( '_', $log[ 'name']);
             // Get entry's date   
-            $entryTime = 0;        
-            if ( count( $nameParts) >= 3) {              
-                $date = $nameParts[2];
-                $date = substr( $date, 0, 4).'-'.substr( $date, 4, 2).'-'.substr( $date, 6, 2).' '.substr( $date, 8, 2).':'.substr( $date, 10, 2);
-                $entryTime = strtotime( $date);
-            }     
+            $entryTime = 0;    
+            $date = ( count( $nameParts) >= 3) ? $date = $nameParts[2] : $date = $nameParts[0];
+            $date = substr( $date, 0, 4).'-'.substr( $date, 4, 2).'-'.substr( $date, 6, 2).' '.substr( $date, 8, 2).':'.substr( $date, 10, 2);
+            $entryTime = strtotime( $date);
+            // Get details
             $details = JSON_decode( $log[ 'tdetails'], true);       
             /* Code to manage credits granted by processes
             if ( $taskId && isset( $details[ 'task'])) {
@@ -202,6 +201,9 @@ class UD_serviceThrottle {
         $r = $this->createLogEntry( $service.'_throttle', $entry);
     }
 
+    /**
+     * Add credits after purchase
+     */
     function addCredits( $logName, $credits, $validity, $comment, $taskName="") {
         $entry = [
             'nevent' => "credit",
@@ -224,15 +226,37 @@ class UD_serviceThrottle {
         $details[ 'comment'] = $comment;
         $logEntry = ['nevent'=>"consume", 'iresult'=>$credits, 'tdetails'=>JSON_encode( $details)];   
         $r = $this->createLogEntry( $logName, $logEntry);        
-    }
+        /*
+        if ( $logName == 'Task_throttle' && CDN) {
+            // Carry credit through to marketplace/CDN with less detailed info
+        }
+
+        */
+    }    
 
    /**
     * B - METHODS FOR ACCOUNT PAGES AND ACCOUNTING
     */    
+    
+    /**
+     * Receive credits for use of a resource
+     */
+    function receiveCredits( $credits, $comment, $details=[]) {
+
+    }
+
     // 2DO copy to sd-bee   
     function taskProgressChange( $taskName, $model, $params, $newProgress) {
         // Check caller is allowed
-        if ( debug_backtrace()[1][ 'class'] != "SDBEE_doc") return false;
+        $caller = debug_backtrace()[1];
+        if ( 
+            $caller[ 'class'] != "SDBEE_doc"  // OS version
+            && strpos( $caller['file'], 'linkscore.php') === false  // SOILinks
+        ) {
+            //var_dump( 'bad call', debug_backtrace());
+            //die();
+            return false;
+        }
         // Check progress has changed
         if ( $params[ 'progress'] == $newProgress) return true;
         $comment = "Use of $model";
@@ -260,6 +284,7 @@ class UD_serviceThrottle {
                 $services = $servicesByStep[ $newProgress];
                 for ( $servi=0; $servi < count( $services); $servi++) {
                     $service = $services[ $servi]; // { name:Name, credits:credits, comment:comment}
+                    //2DO get grant from mp & store in details
                     $this->addCredits( $service[ 'name'], $service[ 'credits'], 10, $comment, $taskName);
                 }
             }
@@ -438,16 +463,17 @@ class UD_serviceThrottle {
         else {
             // SOILinks version (still used by sd-bee.com and central marketplace)  
             $w = LF_fetchNode(  "LogEntry--22-0-22--nname|{$logId}");
+            $log = [];
             //$w = LF_fetchNode(  "LogEntry--22-{$logId}-22--NO|OIDLENGTH-OR|nname%20%DESC|FR|1|LR|25"); 
             if ( $w && count( $w)) {
-                // Adapt records to new format
-                unset( $w[ 0]);
-                for ( $wi=0; $wi < count( $w) &&  $wi < 25; $wi++) {
+                // Adapt records to new format                
+                for ( $wi=1; $wi < count( $w) &&  $wi < 25; $wi++) {                    
                    $w[ $wi][ 'name'] =  $w[ $wi][ 'nname'];
                    $w[ $wi][ 'userId'] = LF_env( 'user_id');
+                   $log[] = $w[$wi];
                 }                
             }
-            return $w;
+            return $log;
         }
     }
 

@@ -1,14 +1,8 @@
 echo get latest version
 git pull
-# copy sample config
-mkdir -p .config
-cp config-standard/* .config
-# Setup data directories
-mkdir -p data
-mkdir -p data\access
-mkdir -p data\users
 #Get PHP libraries
 composer require google/cloud-storage
+gcloud app deploy
 # Local run
 echo check localhost:8080
 php -S localhost:8080 index.php
@@ -18,4 +12,4 @@ case $yn in
     [Nn]* ) exit;;
     * ) echo "Please answer yes or no.";;
 esac
-echo end of build
+echo end of update

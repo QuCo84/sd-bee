@@ -1,0 +1,15 @@
+
+Notice: crypt(): No salt parameter was specified. You must use a randomly generated salt and a strong hash function to produce a secure hash. in D:\GitHub\sd-bee\app\editor-view-model\helpers\dataset.php on line 39
+
+Notice: Undefined variable: _TEST in D:\GitHub\sd-bee\app\editor-view-model\helpers\dataset.php on line 384
+Syntax ud_new.php OK
+Setup test environment
+Loading test environment
+Create an UniversalDoc instance with sample data
+Render
+
+Warning: file_get_contents(D:\GitHub\sd-bee\app\editor-view-model/../resources/loadable.json): failed to open stream: No such file or directory in D:\GitHub\sd-bee\app\editor-view-model\ud.php on line 697
+Program log:
+Program's trace checksum:3094513846
+
+Test completed

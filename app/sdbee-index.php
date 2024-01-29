@@ -67,12 +67,14 @@ try {
 $PUBLIC = SDBEE_getStorage( $CONFIG[ 'public-storage']);
 
 if ( !$USER || $USER == -1) {
-    // Display SD bee home page, home with error message or relogin
+    // User not identified -display relogin page
     LF_env( 'UD_accountLink', "API.switchView( 'connect');");
     $DM = new DataModel( $PUBLIC);
-    $home = "A0000001IPLHB0000M_Bienvenu2";
+    // 2DO 
+    $home = LF_env( 'home');
+    if ( !$home) $home = "A0000001BNA3B0000M_Relog"; // "A0000001IPLHB0000M_Bienvenu2";
     $doc = new SDBEE_doc( $home, 'models', $PUBLIC);
-    $doc->sendToClient( [ 'mode'=>'model']);
+    $doc->sendToClient( [ 'mode'=>'model', 'modelShow'=>true]);
     session_write_close();
     exit();
 }
@@ -163,6 +165,12 @@ if ( count( $request)) {
             $taskName = 'Z00000010VKK800001_UserConfig';
             $doc = new SDBEE_doc( $taskName);
             $doc->sendToClient();
+            exit();
+        } elseif ( $test == "archive") {
+            include_once "sdbee-archive.php";
+            $archiveName = "";
+            $archive = new SDBEE_archive( $archiveName);
+            var_dump( $archive->getCollectionContents());
             exit();
         }
         echo "no test $test configurated";

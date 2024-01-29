@@ -16,11 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-/*
- *
- * OS/cloud version
- * 2DO ::: Throttle activate / disactivate
- */
+
 
 class UD_services {
     
@@ -40,6 +36,7 @@ class UD_services {
     function _decodeRequestString( $requestString) { return JSON_decode( urldecode( $requestString), true);}
 
     function do( $serviceRequest) {
+        /* Anonymous tested in endpoint, compatible with service gateway
         // Error if anonymous
         if ( !$this->_identified()) {
             // Prepare error response
@@ -48,7 +45,8 @@ class UD_services {
                 'message'=> "Unidentified",
                 'data' => "" 
             ];             
-        } else $jsonResponse = $this->_doRequest( $serviceRequest);
+        } else */
+        $jsonResponse = $this->_doRequest( $serviceRequest);
         // $LF->out( JSON_encode( $jsonResponse));
         return $jsonResponse;
     }
@@ -60,8 +58,12 @@ class UD_services {
         // Get generic parameters from request  
         $token = ( isset( $serviceRequest['accountOrToken'])) ? $serviceRequest['accountOrToken'] : '';
         $serviceName = strToLower( $serviceRequest['service']);
+        $serviceAndProvider = $serviceName . strToLower( $serviceRequest['provider']);
         $action = $serviceRequest['action'];
-        if ( !in_array( $serviceName, [ 'doc', 'resource', 'tasks'])) {
+        if ( 
+            !in_array( $serviceName, [ 'doc', 'resource', 'tasks', 'scrape'])
+            && !in_array( $serviceAndProvider, [ 'imagesfileimages', 'imagesftpimages'])
+        ) {
             // For 3rd party services, check throttle & parameters
             // Check service throttle     
             if ( $this->throttle && !( $throttleId = $this->throttle->isAvailable( $serviceName))) {
@@ -115,6 +117,7 @@ class UD_services {
             case "doc" : case "document" :
             case "task" :
             case "resource" :
+            case "scrape" :
                 $modPath = __DIR__."/{$serviceName}/uds{$serviceName}service.php";
                 $serviceClass = "UDS_{$serviceName}";
                 break;
@@ -160,7 +163,8 @@ class UD_services {
                 'success'=>True, 
                 'message'=> "Success on $serviceName {$serviceRequest['action']}",
                 'value'=>$service->lastResponse,
-                'data'=>$result
+                'data'=>$result,
+                'credits' => $service->creditsConsumed
             ];
             // if ( debugging) $jsonResponse[ 'request'] = $service->lastRequest;
             $response = "<span class=\"success\">Success on $serviceName $action</span>";
@@ -199,8 +203,9 @@ class UD_services {
             // Get Data from cache file            
             $cacheFileContent = FILE_read( 'tmp', $cacheFile);
             if ( $cacheFileContent) {
-                $response = JSON_decode( $cacheFileContent, true); 
-                if ( !isset( $response[ 'success']))          
+                $response = JSON_decode( $cacheFileContent, true);                 
+                if ( isset( $response[ 'data'][ 'times'])) $response[ 'data'][ 'times'] = [];
+                if ( !isset( $response[ 'success']))         
                     $response = [ 
                         'success'=>true, 
                         'message'=> "Auto",
@@ -231,7 +236,7 @@ class UD_services {
     function _getParamsFromUserConfig( &$serviceRequest) {
         $token = $serviceRequest['token'];
         $service = strToLower( $serviceRequest['service']);
-        /*        
+        /*  Srvice token mgmt      
         if ( !$serviceRequest( 'recurrent')) {
             // Look for service account to use
             // 1 - via a token
@@ -273,8 +278,10 @@ class UD_services {
                     if ( $key == "enabled") $enabled = ( $value == "on");
                     elseif ( $key == "provider") {
                         $provider = strToLower( $value);
-                        $serviceRequest[ 'provider'] = $provider;
-                        $serviceRequest[ $provider] = $params[ $provider]; 
+                        if ( !isset( $serviceRequest[ 'provider']) || $serviceRequest[ 'provider'] == 'default') {
+                            $serviceRequest[ 'provider'] = $provider;
+                            $serviceRequest[ $provider] = $params[ $provider]; 
+                        }
                         if ( $params[ $provider] == 'parent') {
                             /* 2DO Upward search for parameters
                             $serviceRequest[ 'recurrent'] = true;
@@ -287,6 +294,8 @@ class UD_services {
                         $serviceRequest[ '__all'] = $value;
                     }
                 }
+                $provider = strToLower( $serviceRequest[ 'provider']);
+                if ( $provider && isset( $params[ $provider])) $serviceRequest[ $provider] = $params[ $provider];
                 /* might need a fail-safe
                 if ( !$provider && !isset( $serviceRequest[ '__all'])) {
                     foreach( $params as $key=>$value) $serviceRequest[ $key] = $value;
@@ -296,7 +305,7 @@ class UD_services {
             }    
         }        
         {
-            // DEPRECATED
+            // DEPRECATED ALign retr1
             // 2DO use param for reading account info (recursive)
             $paramsOid = "SetOfValues--16--nname|{$service}_service";
             $paramsField = "tvalues";
@@ -318,18 +327,31 @@ class UD_services {
                 else $params = $paramsContent;
                 $params = JSON_decode( $params, true);
                 if ( $params) {
+                    // Examine paramaters
+                    $defaultProvider = "";
                     foreach( $params as $key=>$value) {
                         if ( strpos( $key, "CK_") === 0) {
                             // Decode crypted key
                             //call nodejs udservicesecurty.js $value $service LF_env('user_id')
                         }
-                        if ( $key == "provider") $provider = $value;
+                        if ( $key == "provider") $defaultProvider = $value;
                     }
-                    if ( $provider) {
-                        $serviceRequest[ 'provider'] = $provider;
+                    if ( $defaultProvider 
+                        && ( 
+                            !isset( $serviceRequest[ 'provider']) 
+                            || $serviceRequest[ 'provider'] == 'default'
+                            || isset( $params[ $serviceRequest[ $provider]])
+                        )                      
+                    ) {                        
+                        if ( !isset( $serviceRequest[ $provider]) || $serviceRequest[ 'provider'] == 'default') {
+                            // Use default provider
+                            $serviceRequest[ 'provider'] = $defaultProvider;
+                        }
+                        // Add selected provider's paramaters to service request
+                        $provider = $serviceRequest[ 'provider'];
                         $serviceRequest[ $provider] = $params[ $provider]; // ex mailjet/..
-                        return true;
                     }
+                    return true;
                 }
             }
         }
@@ -360,6 +382,7 @@ class UD_services {
     }
 
 } // PHP clss UD_services
+
 /**
  * Generic service class
  * Defines generic attributes used for handling response data, throttling and caching
@@ -374,11 +397,13 @@ class UD_service {
     protected $params = null;
     protected $throttle = null;
     protected $throttleId = 0;
+    protected $times = [];
 
     function __construct( $params=null, $throttle=null, $throttleId=0) {
         $this->params = $params;
         $this->throttle = $throttle;
         $this->throttleId = 0;
+        $this->times = [ 'service-start'=>time()];
     }
 
     function response( $success, $response, $data) {
@@ -386,11 +411,19 @@ class UD_service {
         $this->lastResponseRaw = $data;
         return $success;
     }
+
+    function error( $msg) {
+        $this->lastResponse = $msg;
+        $this->lastResponseRaw = $msg;
+        return false;
+    }
 }
 
+/*
 function SDBEE_serviceCall( $request) {
 
 }
+*/
 /**
  * Auto-test
  */

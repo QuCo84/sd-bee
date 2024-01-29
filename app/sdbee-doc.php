@@ -60,6 +60,7 @@ class SDBEE_doc {
     private $depths = [];
     private $labelIndex = [];
     private $nextKeep = true;
+    private $sharedElements = [];
 
     function __construct( $name, $dir="", $storage=null) {
         // Initialise
@@ -75,7 +76,16 @@ class SDBEE_doc {
         // Check access
         if ( $this->access && $this->dir != "models") {
             $this->info = $this->access->getDocInfo( $name);
-            if ( !$this->info) return ($this->state = "no access");
+            if ( !$this->info) {
+                if ( 
+                    $this->access->lastError == "ERR: no entry for $name"
+                    && $this->storage->exists( $this->dir, $this->name.'.json')
+                ) {
+                    // File exists with no entry in access DB
+                    // Low security patch for quick import of JSON tasks from archive or developped seperately
+                    $this->import();
+                } else return ($this->state = "no access");
+            }
             // Transfer info to visible attributes
             $this->label = $this->info[ 'label'];
             $this->type = $this->info[ 'type'];
@@ -158,6 +168,7 @@ class SDBEE_doc {
             //if ( !$this->doc) throw new Exception( "Corrupted file {$this->dir}/{$this->name}");
         } else { 
             // No doc so provide marketplace
+            // 2DO Find other docs in directroy and score apps. provide this in request parameter
             // Get marketplace or use AJAX
             if ( !function_exists( 'SDBEE_endpoint_marketplace' )) {
                 include_once( 'get-endpoints/sdbee-marketplace.php');
@@ -221,6 +232,11 @@ class SDBEE_doc {
         // Read next element
         $el = $this->content[ $this->index[ $this->next]];
         $textra = $el[ 'textra'];       
+        /*
+        $params = ( $textra) ? JSON_decode( $textra, true) : [ 'system'=>[]];
+        // Shared element
+        if ( $params[ 'system'][ 'shared']) return $this->accessSharedElement( $params[ 'system'][ 'shared'], $elementId);
+        */
         $el[ 'nname'] = $this->index[ $this->next++];
         if ( $filterLang)  {
             // Filter if not right language
@@ -326,9 +342,29 @@ class SDBEE_doc {
     function existsElement( $elementId) { return isset( $this->content[ $elementId]);}
 
     function readElement( $elementId) {
-        if ( isset( $this->content[ $elementId])) return $this->_jsonResponse( $this->content[ $elementId]);
+        if ( isset( $this->content[ $elementId])) {
+            $el = $this->content[ $elementId];
+            /*
+            $params = ( $el[ 'textra']) ? JSON_decode( $el[ 'textra'], true) : [ 'system'=>[]];
+            // Shared element
+            if ( $params[ 'system'][ 'shared']) return $this->accessSharedElement( $params[ 'system'][ 'shared'], $elementId);
+            */
+            return $this->_jsonResponse( $this->content[ $elementId]);
+        }
         return $this->_jsonResponse( [ 'msg'=>"No $elementId in {$this->name}"], 'KO');
     }
+    /*
+    function accessSharedElement( $sharedDocName, $elementId, $data=null) {    
+        $path = $this->dir.'/'.$sharedDocName;
+        if ( !isset( $this->sharedElements[ $path])) {
+            $this->sharedElements[ $path] = new SDBEE_doc(  $sharedDocName, $this->dir, $this->storage);
+        }
+        $shared = $this->sharedElements[ $path];
+        if ( !$data) return $shared->readElement( $elementId);
+        if ( $shared->existsElement( $elementId)) return $shared->updateElement( $elementId, $data);
+        return $shared->createElement( $elementId, $data, 1);       
+    }
+    */
 
     function getElementContent( $elementId) {
         if ( isset( $this->content[ $elementId])) return $this->content[ $elementId][ 'tcontent'];
@@ -390,6 +426,10 @@ class SDBEE_doc {
             // If name delete old elementId and write new
         }
         $element[ 'modified'] = time();
+        /*
+        // Shared element
+        if ( $elementId[0] == 'S') return $this->accessSharedElement( $elementId, $element);
+        */
         $this->content[ $elementId] = $element;
         // Store modification
         $this->modifications[] = [ 'action'=>'update', 'elementId'=>$elementId, 'data'=>$data];
@@ -421,6 +461,7 @@ class SDBEE_doc {
     function updateProgress( $newProgress) {
         if ( $newProgress != $this->progress) {
             /*
+            if MP call MP
             // Progress has changed
             $source = "PUBLIC";
             $model = $this->model;            
@@ -495,6 +536,10 @@ class SDBEE_doc {
        // $oid = str_replace( '-0', '-'.$id, );
        // $element[ 'oid'] = $oid;   
         //var_dump( $element); die();     
+        /*
+        // Shared element
+        if ( $elementId[0] == 'S') return $this->accessSharedElement( $elementId, $element);
+        */
         // Add element to task
         $this->content[ $elementId] = $element;        
         ksort( $this->content); // !!!important sort by ids to get the right order
@@ -533,7 +578,41 @@ class SDBEE_doc {
 
     function delete() {}
 
-    /* not needed
+    /* 
+    * import file to dir
+    * import zip = dir + all files in zip
+    */
+    function import() {
+        if ( !$this->access) return;
+        $fileType = "";
+        if ( substr( $name, -5) == ".json") $fileType = "json";
+        // Add entry in database
+        if ( $fileType == 'json') {
+            // Check file and extract type
+            $jsonDoc = $this->storage->read( $this->dir, $this->name.'.json');
+            // Add a single task
+            if ( !$type) {
+                // Read file & extract type
+            }            
+            if ( !$dir) $dir = $this->user[ 'home'];            
+            $newDoc = new SDBEE_doc( $name, $dir, $storage);            
+            $newDoc->type = $type;
+            $newDoc->doc = $this->doc;
+            $newDoc->content = $this->content;
+            $newDoc->index = $this->index;
+            $newDoc->info = $this->info;
+            $newDoc->top = $this->top;
+            $this->modifiedInfo = true;
+            $doc = [ 'label'=>"Nouveau document", 'type'=>$type, 'model'=>"", 'description'=>"", 'params'=>"", 'prefix'=> "", 'state'=>"", 'progress'=>0];
+            if ( $dir) 
+                $this->access->addDocToCollection( $name, $dir, $doc, $access=7);
+            else
+                $this->access->addDocToUser( $name, $this->user[ 'id'], $doc, $access=7);             
+        }
+        return $newDoc;
+    }
+
+     /* not needed
     function createNew( $name, $dir, $type, $storage=null) {
         // Add entry in database
         if ( $this->access) {
@@ -556,6 +635,7 @@ class SDBEE_doc {
         return $newDoc;
     }
     */
+
 
     function rename( $name, $dir, $type) {
         $this->name = $name;
@@ -634,11 +714,63 @@ class SDBEE_doc {
                 $copy = in_array( $el[ 'nlabel'], $views); //mb_strtoupper
             }
             if ( $copyAll || $copy) {
-                $name =$el[ 'nname'];
+                $name = $el[ 'nname'];
+                $params = ( $el[ 'textra']) ? JSON_decode( $el[ 'textra'], true) : [ 'system'=>[]];
+                /*
+                // Shared elements
+                if ( $params[ 'system'][ 'share']) {
+                    $sharedDocName = 'S' . substr( $this->name, 1);
+                    if ( !$this->storage->exists( $this->dir, $this->name.'.json') {
+                        // Create shared doc
+                        global $ACCESS, $STORAGE;
+                        if ( $ACCESS) {
+                            // Create new entry in access database
+                            $doc = [ 'label'=>"Shared data for {$this->name}", 'type'=>UD_document, 'model'=>"NONE", 'description'=>"Shared data", 'params'=>"", 'prefix'=> "", 'state'=>"", 'progress'=>0];
+                            if ( !$dir) $dir = $USER[ 'home'];
+                            if ( $dir) {
+                                $id = $ACCESS->addDocToCollection( $sharedDocName, $dir, $doc, $access=7);       
+                            } else {
+                                $id = $ACCESS->addToUser( $sharedDocName, $USER[ 'id'], $doc, $access=7); 
+                            }
+                        }
+                        // Create json
+                        $content = [
+                            "content" => [
+                                $sharedDocName => [
+                                    "depth" => 0,
+                                    "permissions" => 7,
+                                    "nlabel" => $doc[ 'label],
+                                    "stype": $doc[ 'stype'],
+                                    "nstyle": $doc[ 'model'],
+                                    "tcontent": $doc[ 'description'],
+                                    "thtml": "",
+                                    "nlanguage": "",
+                                    "textra": {
+                                        "system": {
+                                            "autoload": "on"
+                                        }
+                                    },
+                                    "dcreated": time(),
+                                    "dmodified": time()                                
+                                ]
+                            ]
+                        ];
+                        $this->storage->write( $this->dir, $sharedDocName . ".json", JSON_encode( $content));
+                    }
+                    $sharedDoc = new SDBEE_doc( $sharedDocName, $this->doc, $this->storage);
+                    if ( !$sharedDoc->existsElement( $name)) {
+                        $sharedDoc->createElement( $name, $el, 1);
+                    }
+                    // Close doc
+                    // Change element to indirect
+                    $params[ 'system'][ 'shared'] = $sharedDocName;
+                    $el[ 'textra] = JSON_encode( $params);
+
+                }
+                */
                 unset( $el[ 'nname']);
                 unset( $el[ 'id']);
-                unset( $el[ 'oid']);
-                $params = ( $el[ 'textra']) ? JSON_decode( $el[ 'textra'], true) : [ 'system'=>[]];
+                unset( $el[ 'oid']);                
                 $params[ 'system'][ 'fromModel'] = true;
                 // $params = ( $el[ 'tparams']) ? JSON_decode( $el[ 'tparams'], true) : ;
                 $content = $el[ 'tcontent'];

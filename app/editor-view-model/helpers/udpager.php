@@ -36,6 +36,10 @@ class UDpager
     private $typeByLevel = [];
     private $currentSubpartOIDlength = 0;
     public  $nextPartIds = [];
+    // Detecting late paging paramters
+    public  $latePageHeightDetected = false;
+    private $viewsWithNoPaging = [];
+    private $layoutsWithNoPaging = [];
     /*public  $nextPartIds = [
         "default"=>"02", 
         "doc"=>"02", "app"=>"30", "models"=>"40", "language"=>"50", "data"=>"60", "clipboard"=>"70",
@@ -103,14 +107,18 @@ class UDpager
                     $styles = explode( ' ', $style);
                     LF_debug( "Searching pageHeight for style {$style}", "UDpager", 8);
                     for ( $stylei=0; $stylei < LF_count( $styles); $stylei++) {
-                        if ( isset( $this->styleHeights[ $styles[ $stylei]])) { // && $this->styleHeights[ $styles[ $stylei]]) {
-                            $this->pageHeight = $this->styleHeights[ $styles[ $stylei]];
-                            LF_debug( "Using pageHeight for style {$styles[ $stylei]}", "UDpager", 8);
+                        $wstyle = $styles[ $stylei];
+                        if ( isset( $this->styleHeights[ $wstyle])) { // && $this->styleHeights[ $styles[ $stylei]]) {
+                            $this->pageHeight = $this->styleHeights[ $wstyle];
+                            LF_debug( "Using pageHeight for style {$wstyle}", "UDpager", 8);
                             break;
+                        } elseif ( strpos( $wstyle, 'LAY_') !== false) {
+                            $this->layoutsWithNoPaging[] = $wstyle;
                         }
-                    }
+                    }                    
                 } else { 
                     $this->pageHeight = $this->docPageHeight;
+                    $this->viewsWithNoPaging[] = $elementData[ '_title'];
                 }                
             }
             return null;
@@ -201,6 +209,7 @@ class UDpager
     function noteStyleWidthAndHeight( $style, $width="", $height="") {
         if ( $width !== "") $this->styleWidths[ $style] = $width;
         if ( $height !== "") $this->styleHeights[ $style] = $height;
+        if ( in_array( $style, $this->layoutsWithNoPaging)) $this->latePageHeightDetected = true;
     } // UD_pager->noteStyleWidth()
     
     function grabDocPageHeight( $style) {

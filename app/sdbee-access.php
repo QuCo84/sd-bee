@@ -207,6 +207,7 @@ class SDBEE_access {
      * @return mixed User's info as array or -1 if failed
      */
     function getUserInfo( $name="") {
+        $this->lastError = "";
         if ( !$name) {
             // Current User
             $userId = $this->userId;
@@ -260,12 +261,16 @@ class SDBEE_access {
      * @return array Doc's info as array with rowid, (u)name, label, model, params, type, prefix, dcreated, dmodified, access
      */
     function getDocInfo( $name) {
+        /*
+        // if archive or use seperate endpoint and sdbee-archive.php derived from sdbee-doc
+        */
         // Get doc's info
         $sql = "SELECT rowid, * FROM Docs WHERE name=:name;";
         $data = [ ':name' => $name]; 
         $candidates = $this->_query( $sql, $data);
         if ( !count( $candidates)) {
             LF_debug( "No info for $name $this->lastError", 'ACCESS', 8);
+            $this->lastError = "ERR: no entry for $name";
             return [];          
         }
         $docInfo = $candidates[ 0];
@@ -315,7 +320,14 @@ class SDBEE_access {
      * @return array Collection's contents as Array of Doc and Collection infos
      */
     function getCollectionContents( $name, $useMap=true) {
-        $contents = [];
+        /*
+        // if $name is archive 
+            include_once "sdbee_archive.php";
+            $archive = new SDBEE_archive( $name);
+            $contents = $archive->getCollectionContents();
+        * new return getCollectionContentsFromArchive
+        */
+        $contents = [];        
         $map = [ 'nname'=>'name', 'tlabel'=>'label', 'stype'=>'type', 'nstyle'=>'model', 'tcontent'=>'content', 'textra'=>'params'];
         if ( $useMap) {
             // Set column names row
@@ -555,6 +567,43 @@ class SDBEE_access {
         }
         $this->cache = [];
         return $target[ 'id'];
+    }
+
+    function archive( $list, $collectionName) {
+        // NOT TESTED
+        $r = "";
+        $archiveFilename = "test-archive.gz";
+        // Build archive data 
+        global $STORAGE;       
+        $archiveData = "{\n";
+        for ( $listi=0; $listi < count( $list); $listi++) {
+            $name = $list[ $listi][ 'nname'];
+            $json = $STORAGE->read( "", $name);
+            $archiveData .= '"'.$name.'":'.$json.",\n";
+        }
+        $archiveData .= "}\n";
+        // Save archive
+        $archiveStorage = new SDBEE_getStorage( $CONFIG[ 'archive-storage']);
+        if ( !$archiveStorage) die( "No sarchive storage");
+        $archiveStorage->write( "archive", $archiveFilename, $archiveData);
+        // Update access database
+        $docInfo = $this->getdocInfo( $list[0][ 'nname']);
+        $existingName = $docInfo[ 'name'];
+        $docInfo[ 'name'] = 'Y'.substr( $existingName, 1);
+        $docInfo[ 'isDoc'] = 0;
+        $ACCESS->updateDocInfo( $docInfo[ 'name'], $docInfo);
+        $STORAGE->delete( "", $existingName);
+        for ( $listi=1; $archi < count( $list); $list++) { // Trial
+            $el = $list[ $listi];
+            if ( $el[ 'stype'] == UD_document) {
+                // Delete doc
+                $targetName = $el[ 'nname'];
+                $ACCESS->removeFromCollection( $targetName, $collectionName, true);
+                $STORAGE->delete( "", $targetName);
+            }
+        }
+        $r .= count( $list) . " files archived<br>\n";
+        return $r;
     }
 
     /**
@@ -908,8 +957,7 @@ names = [fields[1] for fields in desc]
 }
 
 // Auto-test
-if ( isset( $argv[0]) && strpos( $argv[0], "sdbee-access.php") !== false)
-{
+if ( isset( $argv[0]) && strpos( $argv[0], "sdbee-access.php") !== false) {
     // CLI launched for tests
     session_start();
     echo "Syntax sdbee-access.php OK\n";

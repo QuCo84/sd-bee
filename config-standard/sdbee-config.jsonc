@@ -94,7 +94,7 @@
      * App parameters section - paramaters for the SD bee App
      */
     "App-parameters" : {
-        "UD_version" : "-v-0-2-7",
+        "UD_version" : "-v-0-4-4",
         "UD_rootPath" : "/upload/smartdoc/", // "https://www.sd-bee.com/upload/smartdoc/",
         "UD_cache" : 18,
         "UD_sass" : "node node_modules/sass/sass.js",

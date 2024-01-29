@@ -136,33 +136,50 @@ class UDjson extends UDtext
     function __construct( &$datarow)
     {
         parent::__construct( $datarow);
-        // $this->type = UD_json;
-        /*
-        if ( !$this->JSONcontent)
-        {
-            // No JSON content so use system parameters saved in textra field
-            $this->JSONcontent =  $datarow['_extra']['system'];
-            $this->textContent = [ "JSON parent_extra"];
-        }  
-        */
         $len = LF_count( $this->JSONcontent);
         LF_debug( "JSON element with $len element(s)", "UDelement", 5);
         if ( !$this->JSONcontent) $this->JSONcontent = ["defaultPart"=>"", "copyParts"=>""];
         $this->content = JSON_encode( $this->JSONcontent);
     } // UDjson construct
 
-/* use UDtext
     // Return array with content( HTML) and Javascript 
-    function renderAsHTMLandJS( $active=true)
-    
-    can use UD Text
-    but we need to change onclick to setAttribute ud_extra and just save ud_extra ud.setExtra
-       // Replace &nbsp; or br's with spaces
-       $style = str_replace( [ "&nbsp;", "<br>", "<br />"] , [ " ", "\n", "\n"], $style);
-       $js  = implode( "\n", $this->textContent);
-       return ['content'=>"", 'program'=>$js];
+    function renderAsHTMLandJS( $active=true) {
+        $params = $this->JSONcontent[ 'data'][ 'value'];
+        if( $params[ "module"]) {            
+            // Get module relative path in resources
+            $module = $params[ "module"];
+            // Analyse
+            $modParts = explode( '/', $module);
+            $modLastPart = $modParts[ count( $modParts) - 1];
+            $modFile = "ud".strtolower( $modLastPart).".php";
+            // Display JSON element with class = module
+            $this->style = $modLastPart;            
+            $r = parent::renderAsHTMLandJS( $active);
+            // Load module server-side or client-side
+            if ( file_exists( $modFile)) {
+                // OS version load from same directory
+                include_once( $modFile);
+                $el = new $module( $params);
+                $w = $el->renderAsHTMLandJS( $r, $active);                 
+            } elseif ( file_exists( __DIR__."/../".strToLower( $module)."php")) {
+                // SOILinks load from modules/xx/xxx
+                include_once( __DIR__."/../".strToLower( $module)."php");
+                // Create class & get module's content
+                $el = new $module( $params);
+                $w = $el->renderAsHTMLandJS( $r, $active);     
+            } else {
+                // No PHP module so load JS module directly
+                $jsModFile = strToLower( $module);
+                $this->requireModules( [ 
+                    "resources/{$jsModFile}"
+                ]);  
+            }
+        } else {
+            $r = parent::renderAsHTMLandJS( $active);
+        }
+        return $r;
     } // UDjson->renderAsHTMLandJS()   
-*/    
+  
 } // UDjson PHP class
  
 if ( $argv[0] && strpos( $argv[0], "udtext.php") !== false)

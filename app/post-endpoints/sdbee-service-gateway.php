@@ -19,66 +19,88 @@
 
 require_once( __DIR__."/../local-services/udservices.php");
 require_once( __DIR__."/../local-services/udservicethrottle.php");
+require_once( __DIR__."/../sdbee-mp-client.php");
 
 use Google\Auth\ApplicationDefaultCredentials;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 
  function SDBEE_endpoint_service( $request) { // 2DO $serviceRequest
-    global $USER;
+    global $USER_CONFIG;
+    // Error if no user
+    if ( !$USER_CONFIG || LF_env( 'is_Anonymous')) {
+        // Prepare error response
+        $jsonResponse = [
+            'success'=>False, 
+            'message'=> "Unidentified",
+            'data' => "" 
+        ];
+        return $jsonResponse;
+    }
     // Build service map
     $map = SDBEE_service_endpoint_getServiceMap();
     // Parameters
-    $localServices = [ 'doc'];
+    $freeServices = [ 'doc'];
     // Get request and service
     $reqRaw = $request['nServiceRequest'];  // 2DO comment 2 lines
     $serviceRequest = JSON_decode( urldecode( $reqRaw), true);
     $serviceName = $serviceRequest['service'];
-    if ( !isset( $map[ $serviceName])) return [ "result"=>"KO", "msg"=>"No service $serviceName"];    
-    // Throttle control
-    $throttle = new UD_serviceThrottle();
-    $throttleId = $throttle->isAvailable( $serviceName);
-    /* Dev to activate
-    $status = $this->throttle->status( $serviceName, $taskId, $progress);
-    if ( !$status) return [ "success"=>false, "message"=>$this->throttle->lastResponse, "data"=>$this->throttle->lastError];
-    delete block below
-    */
-    if ( !$throttleId) {
-        $result = "{$this->throttle->lastError}: {$this->throttle->lastResponse}";
-        $jsonResponse = [ 
-            'success'=>false, 
-            'message'=> "No credits for $serviceName $action",
-            'data'=>$result
-        ];
-        $response = "<span class=\"error\">No credits for $serviceName $action <a>more</a></span><span>$result</span>"; 
-        return $jsonResponse;
-    }
-    /*
-    // Look up how to access the requested service
-    if ( $status[ 'grant']) {
-        // Using a grant record for the service log
-        $serviceInfo = $status[ 'grant'][ $serviceName];
-        $protocol = $serviceInfo[ 'protocol'];
-        $gateway = $serviceInfo[ 'baseURL'];
-        $functionPath = $serviceInfo[ 'fctPath'];
-        $serviceAccount = $serviceInfo[ 'account'];
-        // $serviceAccountCredentials = $serviceInfo[ 'account'];  
-        // 2DO Transfert variables to serviceRequest
-        $serviceRequestParams = ( isset($serviceInfo[ 'serviceRequest'])) ? $serviceInfo[ 'serviceRequest'] : [];
-        foreach ( $serviceRequestParams as $key=>$value) {
-            $serviceRequest[ $key] = $value;
-        }
-    } else {
-        // Use the service map
+    if ( in_array( $serviceName, $freeServices)) {
+        if ( !isset($map[ $serviceName])) return SDBEE_endpoint_service_error(  "Bad configuration for $serviceName");
         $serviceInfo = explode( ' ', $map[ $serviceName]);
         $protocol = $serviceInfo[0];
         $gateway = $serviceInfo[ 1];
         $functionPath = $serviceInfo[ 2];
         $serviceAccount = $serviceInfo[ 3];
+    } else {
+        // Not a free service so check access
+        $process = $serviceRequest['process']; 
+        if ( SDBEE_MP_isMarketplace( $process)) {
+            // Check if grants available via Markeplace
+            $mpRequest = $serviceRequest;
+            $mpRequest[ 'action'] = 'check-grant';
+            $mpResponse = SDBEE_marketplace( $mpRequest);
+            if ( $mpResponse[ 'success'] && $mpResponse[ 'response']) {
+                $mpData = $mpResponse[ 'data'];
+                $protocol ='soil';
+                $gateway = $mpData[ 'baseURL'];
+                $functionPath = $mpData[ 'fctPath'];
+                $serviceAccount = $mpData[ 'account'];
+                if ( $serviceAccount == 'USER') {
+                    global $CONFIG;
+                    $serviceAccount = $CONFIG[ 'marketplace-account-token'];
+                }
+            }
+        } else {
+            // Check with local service throttle
+            if ( !isset( $map[ $serviceName])) return [ "result"=>"KO", "msg"=>"No service $serviceName"];    
+            // Throttle control
+            $throttle = new UD_serviceThrottle();
+            $throttleId = $throttle->isAvailable( $serviceName);
+            /* Dev to activate
+            $status = $this->throttle->status( $serviceName, $taskId, $progress);
+            if ( !$status) return [ "success"=>false, "message"=>$this->throttle->lastResponse, "data"=>$this->throttle->lastError];
+            delete block below
+            */
+            if ( !$throttleId) {
+                $result = "{$this->throttle->lastError}: {$this->throttle->lastResponse}";
+                $jsonResponse = [ 
+                    'success'=>false, 
+                    'message'=> "No credits for $serviceName $action",
+                    'data'=>$result
+                ];
+                $response = "<span class=\"error\">No credits for $serviceName $action <a>more</a></span><span>$result</span>"; 
+                return $jsonResponse;
+            }
+            // Use the service map
+            $serviceInfo = explode( ' ', $map[ $serviceName]);
+            $protocol = $serviceInfo[0];
+            $gateway = $serviceInfo[ 1];
+            $functionPath = $serviceInfo[ 2];
+            $serviceAccount = $serviceInfo[ 3];
+        }
     }
     if ( $gateway == 'local') {
-    */
-    if ( $map[ $serviceName] == "local") {
         // Handle local services
         // Get parameters
         $params = null;
@@ -89,7 +111,7 @@ use GuzzleHttp\HandlerStack;
         return $response;
     } else {
         // Transmit request to a gateway for external services
-        // Get parameters fro map entry protocol gateway/ functionName accountOrToken
+        // Get parameters from map entry protocol gateway/ functionName accountOrToken
         $serviceInfo = explode( ' ', $map[ $serviceName]);
         $protocol = $serviceInfo[0];
         $gateway = $serviceInfo[ 1];
@@ -135,12 +157,13 @@ function SDBEE_service_endpoint_account( $gateway, $functionPath, $account, $req
 }
 
 function SDBEE_service_endpoint_token( $gateway, $functionPath, $token, $request) {
-    $url = $gateway.$token.'/'.$functionPath.'/';
+    $url = $gateway.'/'.$functionPath.'/';  // $token after gateway ?
     $json = JSON_encode( $request);
     $opts = array('http' =>
         array(
             'method'  => 'POST',
             'header'  => 'Content-type: application/json',
+            'header'  => 'SDBEE_SIGNATURE: ' . $token,
             'content' => "nServiceRequest={$json}"
         )
     );
@@ -205,6 +228,15 @@ function SDBEE_service_endpoint_getServiceMap() {
         }
     }    
     return $map;
+}
+
+function SDBEE_service_endpoint_error( $response, $data=[]) {
+    $jsonResponse = [ 
+        'success'=>false, 
+        'message'=> $response,
+        'data'=>$data
+    ];
+    return $jsonResponse;
 }
 
 define ( 'VENDOR_AUTOLOAD', 'vendor/autoload.php');
