@@ -7,7 +7,7 @@
 $LIB_HTML = $_SCRIPTFILE;
 if (!defined("LIB_html"))
 {
-define( "LIB_html", crypt( "LIB_html"));
+define( "LIB_html", "LIB_html");
 
 global $LF;
 if ( $LF) $LF->registerExt("HTML Library", "$_SCRIPTFILE");

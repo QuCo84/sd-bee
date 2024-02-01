@@ -36,7 +36,7 @@
  */
 if (!defined("CLASS_Dataset"))
 {
-define( "CLASS_Dataset", crypt("Class Dataset"));
+define( "CLASS_Dataset", "Class Dataset");
 
 Class Dataset
 {
