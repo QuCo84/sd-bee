@@ -503,7 +503,7 @@ class UDpager
 } // end of PHP class UDpager
 
 // Auto-test
-if ( $argv[0] && strpos( $argv[0], "udpager.php") !== false)
+if ( isset( $argv[0]) && strpos( $argv[0], "udpager.php") !== false)
 {
     // CLI launched for tests
     echo "Syntax OK\n";

@@ -149,7 +149,7 @@ if ( !class_exists( 'UDelement')) require_once( __DIR__."/../../tests/testenv.ph
  } // PHP class UDhtml
 
 // Auto-test
-if ( $argv[0] && strpos( $argv[0], "udhtml.php") !== false)
+if ( isset( $argv[0]) && strpos( $argv[0], "udhtml.php") !== false)
 {
     // CLI launched for tests
     echo "Syntax OK\n";

@@ -149,7 +149,9 @@ class UD_services {
         }
         // - load
         try {
-            include_once $modPath;
+            // Look for module here and also ../../.services
+            if ( file_exists( $modPath)) include_once $modPath;
+            else include_once( str_replace( __DIR__, __DIR__."/../../services", $modPath));
             $service = new $serviceClass( $params, $this->throttle, $throttleId);                       
         } catch ( Exception $e) {
             return $this->_error( "203 {!Module not available!} : {$modPath}");

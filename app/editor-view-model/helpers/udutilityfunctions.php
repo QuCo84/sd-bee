@@ -493,7 +493,7 @@ function SDBEE_exportUDasJSON( $oid, $ud=null) {
     return $json;    
 }
 
-if ( $argv[0] && strpos( $argv[0], "udutilityfunctions.php") !== false)
+if ( isset( $argv[0]) && strpos( $argv[0], "udutilityfunctions.php") !== false)
 {    
     // Launched with php.ini so run auto-test
     echo "Syntax: OK\n";

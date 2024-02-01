@@ -81,7 +81,7 @@ class UDchart extends UDelement
  } // PHP class UDchart
 
 // Auto-test
-if ( $argv[0] && strpos( $argv[0], "udchart.php") !== false)
+if ( isset( $argv[0]) && strpos( $argv[0], "udchart.php") !== false)
 {
     // CLI launched for tests
     echo "Syntax OK\n";

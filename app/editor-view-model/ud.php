@@ -1211,7 +1211,7 @@ EOT;
 if ( isset( $argv) && $argv[0] && strpos( $argv[0], "ud.php") !== false)
 {
     // CLI launched for tests
-    echo "Syntax ud_new.php OK\n";
+    echo "Syntax ud.php OK\n";
     // Setup test environment
     echo "Setup test environment\n";
     if ( file_exists( __DIR__."/tests/testenv.php")) require_once( __DIR__."/tests/testenv.php");

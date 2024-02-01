@@ -1511,7 +1511,7 @@ class UD_utilities
 
 } // PHP class UD_utilities
 
-if ( $argv[0] && strpos( $argv[0], "udutilities.php") !== false)
+if ( isset( $argv[0]) && strpos( $argv[0], "udutilities.php") !== false)
 {    
     // Launched with php.ini so run auto-test
     // Create test environment

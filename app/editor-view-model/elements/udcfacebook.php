@@ -306,7 +306,7 @@ function FacebookLoginCallback( $params) {
 global $UD_justLoadedClass;
 $UD_justLoadedClass = "UDC_facebook";   
  
-if ( $argv[0] && strpos( $argv[0], "udcfacebook.php") !== false)
+if ( isset( $argv[0]) && strpos( $argv[0], "udcfacebook.php") !== false)
 {    
     // Launched with php.ini so run auto-test
     echo "Syntaxe OK\n";

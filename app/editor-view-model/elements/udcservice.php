@@ -41,7 +41,7 @@
     }
 } // PHP class UDconnector_document
 
-if ( $argv[0] && strpos( $argv[0], "udcservice.php") !== false)
+if ( isset( $argv[0]) && strpos( $argv[0], "udcservice.php") !== false)
 {    
     // Launched with php.ini so run auto-test
     echo "Syntaxe OK\n";

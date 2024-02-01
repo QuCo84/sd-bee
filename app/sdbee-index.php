@@ -34,14 +34,18 @@ $TEST = false; //( strpos( $_SERVER[ 'HTTP_HOST'], "ud-server") === false);
 
 // MAIN
 
-// FILE SERVER
+// Load configuration
+$CONFIG = SDBEE_getconfig();
+
+// Set up Public storage
+$PUBLIC = SDBEE_getStorage( $CONFIG[ 'public-storage']);
+
+// Serve file requests
 if ( LF_fileServer()) exit();
 
 // Session
 session_start();
 
-// Configuration
-$CONFIG = SDBEE_getconfig();
 // ACCESS DATABASE CONNECTION
 try {
     $ACCESS = new SDBEE_access( $CONFIG[ 'access-database']);
@@ -62,9 +66,6 @@ try {
     // Fall back to cabled test user data for now
     $USER = SDBEE_testUser();
 }
-
-// Set up Public storage
-$PUBLIC = SDBEE_getStorage( $CONFIG[ 'public-storage']);
 
 if ( !$USER || $USER == -1) {
     // User not identified -display relogin page
@@ -168,13 +169,14 @@ if ( count( $request)) {
             exit();
         } elseif ( $test == "archive") {
             include_once "sdbee-archive.php";
-            $archiveName = "";
+            $archiveName = "Archive-Trials-beta-TechDir-20240126-1032.gz";
             $archive = new SDBEE_archive( $archiveName);
             var_dump( $archive->getCollectionContents());
             exit();
         }
         echo "no test $test configurated";
     } elseif ( isset( $request[ 'act']) && $request[ 'act'] != "ignore") {
+        // Operational request
         $act = $request[ 'act']; 
         if ( $act == 'fetch') {
             $doc = new SDBEE_doc( $request[ 'task']);

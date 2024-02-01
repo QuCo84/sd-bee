@@ -117,7 +117,7 @@ class UDvideo extends UDelement
  
 
 // Auto-test
-if ( $argv[0] && strpos( $argv[0], "udvideo.php") !== false)
+if ( isset( $argv[0]) && strpos( $argv[0], "udvideo.php") !== false)
 {
     // CLI launched for tests
     echo "Syntax OK\n";

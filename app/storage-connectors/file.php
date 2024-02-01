@@ -71,8 +71,16 @@ class FileStorage extends SDBEE_storage {
     function _getURL( $dir, $filename) {
         $this->_prefix( $dir, $filename);
         if ( $dir && substr( $dir, -1) != '/' ) $dir .= '/';
-	    if ( strpos( $this->topDir, 'http') === 0) $full = "{$this->topDir}{$dir}".rawurlencode($filename);
-        else $full = "{$this->topDir}{$dir}{$filename}";
+	    if ( strpos( $this->topDir, 'http') === 0) {
+            // Reading from Internet
+            // 2DO check dir can contain / (ie multiple levels)
+            //      if not process multiple levels in dir with explode, encode each step and implode
+            $full = $this->topDir.rawurlencode( $dir).'/'.rawurlencode($filename);
+        } else {
+            // Reading from local file system
+            if ( $dir && substr( $dir, -1) != '/' ) $dir .= '/';
+            $full = "{$this->topDir}{$dir}{$filename}";
+        }
         return $full;
     }
 

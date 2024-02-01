@@ -971,6 +971,13 @@ if ( isset( $argv[0]) && strpos( $argv[0], "sdbee-access.php") !== false) {
     $params = [
         'type' => 'sqlite',
         'database' => 'sqlite:sdbee-test2.db',
+        'storage' => [
+            "storageService" => "file",        
+            "top-dir" => "data/access/", // relative to base directory or, with leading /, absolute path
+            "prefix" => "yghtuu3",
+            "crypt-algo" => "DES",
+            "crypt-key" => ""
+        ]
     ];
     $access = new SDBEE_access( $params);
     if ( $access->state) echo "Connect : OK\n"; else echo "Connect : KO\n";

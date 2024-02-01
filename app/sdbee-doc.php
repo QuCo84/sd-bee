@@ -81,9 +81,9 @@ class SDBEE_doc {
                     $this->access->lastError == "ERR: no entry for $name"
                     && $this->storage->exists( $this->dir, $this->name.'.json')
                 ) {
-                    // File exists with no entry in access DB
+                    // File exists with user's prefix with no entry in access DB
                     // Low security patch for quick import of JSON tasks from archive or developped seperately
-                    $this->import();
+                    $this->import( $this->name.'.json');
                 } else return ($this->state = "no access");
             }
             // Transfer info to visible attributes
@@ -267,8 +267,8 @@ class SDBEE_doc {
         }       
         if ( $el[ 'stype'] == UD_view && !$el[ 'nlabel']) {
             // Views must have labels but they may be stored in content
-            $titles = HTML_getContentsByTag( $elp[ 'tcontent'], "span"); 
-            if ( !$titles) $titles = [  $el[ 'tcontent'], ''];
+            $titles = HTML_getContentsByTag( $el[ 'tcontent'], "span"); 
+            if ( !count( $titles)) $titles = [  $el[ 'tcontent'], ''];
             $el[ 'nlabel'] = $titles[ 0];
         }
         // Add id and oid field
@@ -590,19 +590,23 @@ class SDBEE_doc {
         if ( $fileType == 'json') {
             // Check file and extract type
             $jsonDoc = $this->storage->read( $this->dir, $this->name.'.json');
+            $doc = JSON_decode( $jsonDoc, true);
+            if ( !$doc) die ("Cannot import {$this->name}\n");
             // Add a single task
-            if ( !$type) {
-                // Read file & extract type
-            }            
+            // Extract type & label
+            $top = $doc[ 'contents'][ $this->name];           
             if ( !$dir) $dir = $this->user[ 'home'];            
-            $newDoc = new SDBEE_doc( $name, $dir, $storage);            
-            $newDoc->type = $type;
-            $newDoc->doc = $this->doc;
-            $newDoc->content = $this->content;
-            $newDoc->index = $this->index;
+            $newDoc = new SDBEE_doc( $name, $dir, $storage); 
+            $newDoc->label = $top[ 'nlabel'];       
+            $newDoc->type = (int) $top[ 'stype'];
+            $newDoc->doc = $doc;
+            $newDoc->content = $doc[ 'contents'];            
+            $newDoc->top = $top;
+	         /*
+	        $newDoc->index = $this->index;
             $newDoc->info = $this->info;
-            $newDoc->top = $this->top;
             $this->modifiedInfo = true;
+            */
             $doc = [ 'label'=>"Nouveau document", 'type'=>$type, 'model'=>"", 'description'=>"", 'params'=>"", 'prefix'=> "", 'state'=>"", 'progress'=>0];
             if ( $dir) 
                 $this->access->addDocToCollection( $name, $dir, $doc, $access=7);
@@ -801,7 +805,7 @@ class SDBEE_doc {
 }
 
 // Auto-test
-if ( $argv[0] && strpos( __FILE__, $argv[0]) !== false) {
+if ( isset( $argv[0]) && strpos( __FILE__, $argv[0]) !== false) {
     echo __FILE__." syntax : OK\n";       
     include_once( __DIR__.'/editor-view-model/config/udconstants.php'); 
     /*

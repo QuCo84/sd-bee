@@ -161,7 +161,7 @@ class UDlist extends UDelement
  } // PHP class UDlist
 
 // Auto-test
-if ( $argv[0] && strpos( $argv[0], "udlist.php") !== false)
+if ( isset( $argv[0]) && strpos( $argv[0], "udlist.php") !== false)
 {
     // CLI launched for tests
     echo "Syntax OK\n";

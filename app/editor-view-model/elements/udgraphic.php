@@ -108,7 +108,7 @@ class UDgraphic extends UDelement
  } // PHP class UDgraphic
  
  // Auto-test
-if ( $argv[0] && strpos( $argv[0], "udgraphic.php") !== false)
+if ( isset( $argv[0]) && strpos( $argv[0], "udgraphic.php") !== false)
 {
     // CLI launched for tests
     echo "Syntax OK\n";

@@ -182,7 +182,7 @@ class UDjson extends UDtext
   
 } // UDjson PHP class
  
-if ( $argv[0] && strpos( $argv[0], "udtext.php") !== false)
+if ( isset( $argv[0]) && strpos( $argv[0], "udtext.php") !== false)
 {
     // CLI launched for tests
     echo "Syntax OK\n";

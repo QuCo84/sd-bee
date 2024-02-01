@@ -59,7 +59,7 @@ class GoogleCloudStorage extends SDBEE_storage {
     function _getURL( $dir, $filename) {
         $this->_prefix( $dir, $filename);
         if ( $dir && substr( $dir, -1) != '/' ) $dir .= '/';
-        $full = "gs://{$this->bucket}/{$dir}{$filename}";
+        $full = "gs://{$this->bucket}/".rawurlencode( $dir.$filename);
         return $full;
     }
 
@@ -172,7 +172,7 @@ class GoogleCloudStorage extends SDBEE_storage {
     function getFullName( $dir, $filename) {
         if ( $dir != "models") $filename = $this->prefix.'_'.$filename;
         if ( $dir && substr( $dir, -1) != '/' ) $dir .= '/';
-        $full = "gs://{$this->bucket}/{$dir}{$filename}";
+        $full = "gs://{$this->bucket}/".rawurlencode( $dir.$filename);
         return $full;
     }
 

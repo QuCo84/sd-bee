@@ -1,0 +1,5 @@
+Syntax sdbee-access.php OK
+Initialising database
+Connect : OK
+array(0) {
+}

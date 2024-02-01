@@ -121,7 +121,7 @@ EOT;
 $UD_justLoadedClass = "UDconnector_dropZone";   
 
 // Auto-test
-if ( $argv[0] && strpos( $argv[0], "udcdropzone.php") !== false)
+if ( isset( $argv[0]) && strpos( $argv[0], "udcdropzone.php") !== false)
 {
     // CLI launched for tests
     echo "Syntax OK\n";

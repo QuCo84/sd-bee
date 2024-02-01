@@ -173,7 +173,7 @@ class UDtable extends UDelement
  } // PHP class UDtable
  
 // Auto-test
-if ( $argv[0] && strpos( $argv[0], "udtable.php") !== false)
+if ( isset( $argv[0]) && strpos( $argv[0], "udtable.php") !== false)
 {
     // CLI launched for tests
     echo "Syntax OK\n";

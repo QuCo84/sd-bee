@@ -7,6 +7,10 @@ cp config-standard/* .config
 mkdir -p data
 mkdir -p data\access
 mkdir -p data\users
+# Setup services directroy
+mkdir -p services
+ln -s app/local-services/udservices.php udservices.php
+ln -s app/local-services/udservicethrottle.php udservicethrottle.php 
 #Get PHP libraries
 composer require google/cloud-storage
 # Local run

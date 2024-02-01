@@ -162,7 +162,7 @@ class UDconnector_siteExtract extends UDconnector
     }
 } // PHP class UDconnector_siteExtract     
  
-if ( $argv[0] && strpos( $argv[0], "udconnector.php") !== false)
+if ( isset( $argv[0]) && strpos( $argv[0], "udconnector.php") !== false)
 {    
     // Launched with php.ini so run auto-test
     echo "Syntaxe OK\n";

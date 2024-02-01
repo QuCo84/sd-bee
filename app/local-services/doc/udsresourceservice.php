@@ -169,7 +169,7 @@ class UDS_resource extends UD_service {
 } // PHP class UDS_resource
 
 // Auto-test
-if ( $argv[0] && strpos( $argv[0], "udsresourceservice.php") !== false)
+if ( isset( $argv[0]) && strpos( $argv[0], "udsresourceservice.php") !== false)
 {
     function nextTest() {
         global $TEST_NO, $LF, $LFF;        

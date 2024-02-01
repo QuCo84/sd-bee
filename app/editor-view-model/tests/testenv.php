@@ -9,6 +9,8 @@ define ( "TEST_ENV_COLS", "nname stype nstyle tcontent textra");
 define ( "TEST_ENV_CLASSID", 21);
 define( "TEST_USER", "demo");
 define( "TEST_PASS", "demo");
+global $_TEST;
+$_TEST = false;
 if ( !defined( "VENDOR_DIR")) {
     define( "VENDOR_DIR", 'D:\GitHub\vendor\\');
     define( "VENDOR_AUTOLOAD",VENDOR_DIR."autoload.php");

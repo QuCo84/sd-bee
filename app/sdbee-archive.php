@@ -27,7 +27,7 @@ class SDBEE_archive extends SDBEE_doc {
     private $archiveName="";
     private $contentsIndex = [];
 
-    function __construct( $archiveName, $name, $dir="", $storage=null) {
+    function __construct( $archiveName, $name="", $dir="", $storage=null) {
         // Initialise
         global $USER, $STORAGE, $ACCESS, $DM;
         $this->access = ( $storage) ? null : $ACCESS;
@@ -37,12 +37,12 @@ class SDBEE_archive extends SDBEE_doc {
         $this->dir = $dir; //( $dir) ? $dir : $USER[ 'top-dir'];
         $this->name = $name;
         $this->topName= 'A'.substr( $name, 1);
-        if ( !$this->storage->exists( $this->dir, $this->archiveName)) die( "No $archiveName");
+        if ( !$this->storage->exists( $this->dir, $archiveName)) die( "No $archiveName");
         $this->archiveName = $archiveName;
         // Archive exists in storage            
         // Transfert to tmp
-        $archiveContents = $this->storage->read( $this->dir, $this->archiveName.'.gz');
-        $archiveFilename = "/tmp/{$this->name}.gz";
+        $archiveContents = $this->storage->read( $this->dir, $this->archiveName);
+        $archiveFilename = "/tmp/{$this->archiveName}";
         file_put_contents( $archiveFilename, $archiveContents);
         // Open GZIP
         $archiveFile = gzopen( $archiveFilename, 'rb');
@@ -83,7 +83,7 @@ class SDBEE_archive extends SDBEE_doc {
     }
 
     function getCollectionContents() {
-        return $this->contextIndex;
+        return $this->contentsIndex;
     }
 }
 

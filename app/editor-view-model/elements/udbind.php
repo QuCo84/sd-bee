@@ -59,7 +59,7 @@ function UD_processBindedElementWrite() {
     return true;
 }
 // Auto-test
-if ( $argv[0] && strpos( $argv[0], "udbind.php") !== false) {
+if ( isset( $argv[0]) && strpos( $argv[0], "udbind.php") !== false) {
     // CLI launched for tests
     echo "Syntax OK\n";
     echo "Setup test environment\n";    

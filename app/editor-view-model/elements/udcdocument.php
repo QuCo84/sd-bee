@@ -177,7 +177,7 @@ require_once( __DIR__."/udconnector.php");
 global $UD_justLoadedClass;
 $UD_justLoadedClass = "UDconnector_document";  
 
-if ( $argv[0] && strpos( $argv[0], "udcdocument.php") !== false)
+if ( isset( $argv[0]) && strpos( $argv[0], "udcdocument.php") !== false)
 {    
     // Launched with php.ini so run auto-test
     echo "Syntaxe OK\n";

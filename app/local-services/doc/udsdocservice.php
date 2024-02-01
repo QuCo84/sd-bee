@@ -355,7 +355,7 @@ class UDS_doc extends UD_service {
 
 
 // Auto-test
-if ( $argv[0] && strpos( $argv[0], "uddocservice.php") !== false)
+if ( isset( $argv[0]) && strpos( $argv[0], "uddocservice.php") !== false)
 {
     function nextTest() {
         global $TEST_NO, $LF, $LFF;

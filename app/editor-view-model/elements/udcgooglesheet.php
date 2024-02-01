@@ -124,7 +124,7 @@ class UD_connector_googleSheet extends UD_googleConnector {
 global $UD_justLoadedClass;
 $UD_justLoadedClass = "UD_connector_googleSheet";   
  
-if ( $argv[0] && strpos( $argv[0], "udcgooglesheet.php") !== false)
+if ( isset( $argv[0]) && strpos( $argv[0], "udcgooglesheet.php") !== false)
 {    
     // Launched with php.ini so run auto-test
     echo "Syntaxe OK\n";

@@ -121,7 +121,7 @@ if ( !class_exists( 'UDelement')) require_once( __DIR__."/../../tests/testenv.ph
 global $UD_justLoadedClass;
 $UD_justLoadedClass = "UDimagePicker";   
 
-if ( $argv[0] && strpos( $argv[0], "udimagepicker.php") !== false)
+if ( isset( $argv[0]) && strpos( $argv[0], "udimagepicker.php") !== false)
 {    
     // Launched with php.ini so run auto-test
     echo "Syntaxe udimagepicker.php OK\n";

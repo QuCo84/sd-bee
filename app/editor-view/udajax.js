@@ -23,7 +23,7 @@
    html; // HTML code of last response
    js ; // Javascript code of last reponse
    fetchAction = "AJAX_fetch";
-   updateAction = ""; // just use post data
+   updateAction = "DEFAULT"; // just use post data
    refreshAction = "AJAX_show";
    useNodejs = false;
    PHPcookie = "";
@@ -66,7 +66,6 @@
         context.uri = uri;
         context.url = this.url;
         
-        
         if (this.useNodejs)
         {
             // Running as node.js
@@ -77,7 +76,6 @@
         
         
         // Prepare request
-      // if ( postdata && context.action=="reload") context.action="dummy";  // patch for reload bug
         var xhttp = new XMLHttpRequest();
         xhttp.udajax = this;
         xhttp.serverRequestId = ++this.serverRequestId;
@@ -142,8 +140,7 @@
             formData = formData.substring( 0, formData.length-2);
             postdata = formData;
         }
-        xhttp.send( postdata);
-        
+        xhttp.send( postdata);        
         this.pending[ this.serverRequestId] = { method: this.method, url: this.url};
         // Show that request has been sent
         if ( context.action == "fill zone" && context.zone) {            
@@ -441,9 +438,10 @@
         if ( action=="refresh" /*|| action=="remove" || action == "insert"*/ ) setCursor = true;
      
         // Prepare AJAX call with result processing
-        let call = '/'+this.service + '/';
-        if ( this.updateAction) call ='/'+this.service + '/' + oid + '/' + this.updateAction+"/";  
-        if (action == "refresh" /*|| action == "insert"*/) call = '/'+this.service+'/'+oid+"/"+this.refreshAction+"/";   
+        if ( this.updateAction == "DEFAULT") this.updateAction = $$$.getParameter( 'elementUpdateAction');
+        let call = '';
+        if ( this.updateAction) call += '/'+this.service+'/'+oid+"/"+this.updateAction+"/"; 
+        if (action == "refresh" /*|| action == "insert"*/) call = '/'+this.service+'/'+oid+"/"+this.refreshAction+"/";        
         // Prepare context for response handling
         var context = {element:element, action:action, setCursor:setCursor, ud:this.ud};
         // send request to server

@@ -995,7 +995,7 @@ EOT;
  
  } // PHP class UDcommands
  
- if ( $argv[0] && strpos( $argv[0], "udcommands.php") !== false)
+ if ( isset( $argv[0]) && strpos( $argv[0], "udcommands.php") !== false)
 {
     // CLI launched for tests
     echo "Syntax udcommands.php OK\n";

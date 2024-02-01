@@ -535,7 +535,7 @@ class UDelement {
     
 } // PHP class UDelement
 
-if ( $argv[0] && strpos( $argv[0], "udelement.php") !== false) {    
+if ( isset( $argv[0]) && strpos( $argv[0], "udelement.php") !== false) {    
     // Launched with php.ini so run auto-test
     echo "Syntaxe udelement.php OK\n";
     include_once __DIR__.'/../tests/testenv.php';

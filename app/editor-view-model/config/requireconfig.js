@@ -65,9 +65,9 @@ function app_load( user, path) {
         'dayjscdn/plugin/customParseFormat', 'dayjscdn/plugin/weekOfYear', 'dayjscdn/locale/fr',
         'moment', // has to be here until we configure chart.js to use dayjs or don't add v string
         //'config/udregister'+version,
-        'https://www.sd-bee.com/upload/smartdoc/require-version/udregister-v-0-3-1.js',
+        'https://www.sd-bee.com/upload/smartdoc/require-version/udregister' + version + '.js',
         //'https://www.sd-bee.com/upload/smartdoc/browser/udajax-v-0-3-1.js',
-        'https://www.sd-bee.com/upload/ude-min-v-0-3-1.js',
+        'https://www.sd-bee.com/upload/ude-min' + version + '.js',
         // load ajax locally for easier debugging
         ajaxPath + '/app/editor-view/udajax.js',
         /*

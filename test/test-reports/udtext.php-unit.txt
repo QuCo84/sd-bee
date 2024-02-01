@@ -1,0 +1,4 @@
+
+Warning: require_once(D:\GitHub\sd-bee\app\editor-view-model\elements/../../tests/testenv.php): failed to open stream: No such file or directory in D:\GitHub\sd-bee\app\editor-view-model\elements\udtext.php on line 10
+
+Fatal error: require_once(): Failed opening required 'D:\GitHub\sd-bee\app\editor-view-model\elements/../../tests/testenv.php' (include_path='.;C:\php\pear') in D:\GitHub\sd-bee\app\editor-view-model\elements\udtext.php on line 10

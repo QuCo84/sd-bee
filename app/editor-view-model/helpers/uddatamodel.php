@@ -554,7 +554,11 @@ if ( !defined( 'TEST_ENVIRONMENT')) define ( 'TEST_ENVIRONMENT', false);
  {
     global $env, $USER, $CONFIG;
     if ( !$env) {
+        // Load parameters stored in config
         $env = $CONFIG[ 'App-parameters'];
+        // Update version with no stored in version.txt
+        $version = file_get_contents( __DIR__."/config/version.txt");
+        $env[ 'UD_version'] = '-v-'.str_replace( '.', '-', substr( $version, strrpos( $version, ' '))); // -5
         // User-specifc parameters
         if ( $USER) {
             $env[ 'user_id'] = $USER[ 'id'];
@@ -628,50 +632,53 @@ function LF_timestamp( $time) {
 function LF_fetchNode( $oid, $cols="") { return [];}
 
 function LF_fileServer() {
+    // Config
+    $localFiles = [ 'requireconfig.js', 'udajax.js', 'udregister.js'];
+    $authorisedPaths = ["sd-bee", "sdbee", "upload", "tmp", "download", "app", "fonts", "favicon.ico"];
+    // Get and anlyse URI
     $uri = $_SERVER[ 'REQUEST_URI'];
     if ( substr( $uri, 0 ,2) == "/?") return false;
     $uriParts = explode( '/', $uri);
     array_shift( $uriParts);
     $topDir = $uriParts[0];
-    $topList = ["sd-bee", "sdbee", "upload", "tmp", "download"];
-    $dirs = ["app", "fonts", "favicon.ico"];
-    if ( !in_array( $topDir, $topList) && !in_array( $topDir, $dirs)) return false;
+    if ( !in_array( $topDir, $authorisedPaths)) return false;
     $filename = $uriParts[ count( $uriParts) - 1];
-    $fileParts = explode( '.', $filename);
-    $ext = $fileParts[ count( $fileParts) - 1];    
-    if ( count( $fileParts) < 2) return false;   
-    if ( $ext != 'js' || !in_array( $filename, [ 'requireconfig.js', 'udajax.js'])) {
-        // Get from SD bee
-        //header( 'Location: https://www.sd-bee.com/'.$uri);
-        //return true;
-        $path = 'https://www.sd-bee.com/'.implode( '/', $uriParts); // LF_env( 'UD_rootPath')
+    // Remove -v- format version no (use -V- for files where version is to be used)
+    $dotParts = explode( ".", $filename);
+    if ( count( $dotParts) < 2) return false;
+    $ext = $dotParts[ LF_count( $dotParts) - 1];        
+    $filenameVersionPos = strpos( $filename, '-v-');
+    if ( $filenameVersionPos) { 
+    	$filename = substr( $filename, 0, $filenameVersionPos).".".$ext;
+        $uriParts[ count( $uriParts) - 1] = $filename;
+    }       
+    $fileContents = "";
+    if ( $ext != 'js' || !in_array( $filename, $localFiles)) {
+        // Public file
+        global $PUBLIC;
+        if ( $PUBLIC) {
+            // Get from configured space
+            array_pop( $uriParts); // remove filename for dir
+            array_shift( $uriParts); // remove first path
+            $dir = implode( '/', $uriParts);
+            $fileContents = $PUBLIC->read( $dir, $filename);
+        } else {
+            // Fallback on sdbee
+            $path = 'https://www.sd-bee.com/'.implode( '/', $uriParts);
+        }
     } else {
-        // Available locally
-        //if ( $filename == 'requireconfig.js') $path = __DIR__."/../config/requireconfig.js";
-        //elseif ( $filename == 'udajax.js') $path = __DIR__."/../../editor-view/udajax.js";      
-        if ( in_array( $topDir, $topList)) array_shift( $uriParts); // upload or sd-bee
-        //array_shift( $uriParts); // smartdoc or app
+        // Available locally    
+        array_shift( $uriParts); // smartdoc or app or upload
         $path = implode( '/', $uriParts);               
     }
-    return LF_sendFile( $path, $ext);
+    return LF_sendFile( $path, $ext, $fileContents);
 }
 
-function LF_sendFile( $path, $ext) { 
+function LF_sendFile( $path, $ext, $fileContents = "") { 
     if ( strpos( $path, "http") === false) $path = __DIR__.'/../../../'.str_replace( [ '-v-0-2-7', '-v-0-2'], [ '', ''], $path);
-    if ( true || file_exists( $path)) {
-        //$dotParts = explode( ".", $path);
-        //$ext = $dotParts[ LF_count( $dotParts) - 1];
-        // !!! important resource files cannot use hyphens (-)
-        $pathParts = explode( '/', $path);
-        $filename = $pathParts[ LF_count( $pathParts) - 1];
-        $filenameVersionPos = strpos( $filename, '-v-');
-        if ( $filenameVersionPos){ 
-            $filename = substr( $filename, 0, $filenameVersionPos).".".$ext;
-            $pathParts[ LF_count( $pathParts) - 1] = $filename;
-            $path = implode( '/', $pathParts);
-        }
+    if ( $fileContents || file_exists( $path)) {        
          // File read
-        $fileContents = @file_get_contents( $path);
+        if ( !$fileContents) $fileContents = @file_get_contents( $path);
         switch ($ext) {
             case "jpg"  :
             case "jpeg" : 
@@ -820,7 +827,7 @@ Class LinksAPI {
  include_once "LF_PHP_lib.php";
 
  // Auto-test
- if ( $argv[0] && strpos( $argv[0], "uddatamodel.php") !== false) {
+ if ( isset( $argv[0]) && strpos( $argv[0], "uddatamodel.php") !== false) {
     echo "Syntax OK\n";
     $dm = new DataModel( true);
     $dm->out ( "p{ font-size:10pt}", 'head/style');

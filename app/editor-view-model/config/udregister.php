@@ -51,7 +51,7 @@ function UD_getExTagAndClassInfo( $exTagOrClass, $param = "") {
     if ( !$UD_exTagAndClassInfo) {
         // Get JSON data loaded also in JS
         if (file_exists(  __DIR__.'/udregister.js')) $js = file_get_contents( __DIR__.'/udregister.js');
-        else $js = file_get_contents( __DIR__.'/../require-version/udregister.js');
+        else $js = file_get_contents( __DIR__.'/../require-version/udregister.js');       
         $firstAcco = strpos( $js, '{');
         $jsonLen = strrpos( $js, '}', -10) - $firstAcco + 1; // 10 characters to avoid end of "if process is object" block
         $json = substr( $js, $firstAcco, $jsonLen);
@@ -1025,7 +1025,7 @@ function UD_autoFillResourcePath( &$path) {
 
 
 // ENV usable in models and which will be substituted on instantation
-if ( $argv[0] && strpos( $argv[0], "udresources.php") !== false)
+if ( isset( $argv[0]) && strpos( $argv[0], "udresources.php") !== false)
 {    
     // Launched with php.ini so run auto-test
     echo "Syntaxe OK\n";

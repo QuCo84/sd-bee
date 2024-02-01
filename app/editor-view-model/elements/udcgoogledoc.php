@@ -128,7 +128,7 @@ class UD_connector_googleDoc extends UD_googleConnector {
 global $UD_justLoadedClass;
 $UD_justLoadedClass = "UD_connector_googleDoc";   
  
-if ( $argv[0] && strpos( $argv[0], "udcgoogledoc.php") !== false)
+if ( isset( $argv[0]) && strpos( $argv[0], "udcgoogledoc.php") !== false)
 {    
     // Launched with php.ini so run auto-test
     echo "Syntaxe OK\n";

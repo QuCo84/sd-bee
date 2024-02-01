@@ -19,7 +19,7 @@ define( 'VERSION_DEV', "-v-0-1");
 // VENDOR_DIR & VENDOR_AUTOLOAD for 3rd party modules
 if ( !defined( 'VENDOR_DIR')) {
     
-    if ( $argv[0]) {
+    if ( isset( $argv[0])) {
         // TESTING
         define( 'VENDOR_DIR', __DIR__."/../../vendor/");      
     } else define( 'VENDOR_DIR', __DIR__."/../vendor/");
@@ -425,7 +425,7 @@ define( 'UD_viewZoneClose', "__JUST_CLOSE__");
 define ( "UD_standardModules", [ 'modules/editors/udetext', 'modules/tools/zone']);
 
 // ENV usable in models and which will be substituted on instantation
-if ( $argv[0] && strpos( $argv[0], "udconstants.php") !== false)
+if ( isset( $argv[0]) && strpos( $argv[0], "udconstants.php") !== false)
 {    
     // Launched with php.ini so run auto-test
     echo "Syntaxe OK\n";
