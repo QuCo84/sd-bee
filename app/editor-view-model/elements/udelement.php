@@ -126,7 +126,7 @@ class UDelement {
         // AnalyseContent here
         $this->analyseContent( $datarow);         
         // Detect User filter, only show element to indicated users
-        $elementParams = val( $datarow, '_extra')['system'];
+        $elementParams = val( $datarow, '_extra/system');
         if ( isVal( val( $elementParams, 'userFilter')))
         {
             $userFilter = explode( ',', val( $elementParams, 'userFilter'));
@@ -137,10 +137,10 @@ class UDelement {
         }
         
         // Simple transfert of values
-        $this->id = $datarow['id']; // for traceing
-        $this->name = LF_preDisplay( 'n', $datarow['nname']);
+        $this->id = val( $datarow, 'id'); // for traceing
+        $this->name = LF_preDisplay( 'n', val( $datarow, 'nname'));
         $this->label = LF_preDisplay( 'n', val( $datarow, 'nlabel'));
-        if( $datarow['oid'])
+        if( val( $datarow, 'oid'))
         {
             $this->oid = val( $datarow, 'oid');
             $this->shortOid = $this->oid;
@@ -151,16 +151,16 @@ class UDelement {
                 $this->oidLength = LF_count( LF_stringToOid( $this->oid));
             }
         }
-        $this->type = (int) $datarow['stype'];
-        $this->style = LF_preDisplay( 'n', $datarow['nstyle']);
-        $this->lang =  LF_preDisplay( 'n', $datarow['nlanguage']);
-        $this->content = LF_preDisplay( 't', $datarow['tcontent']);
+        $this->type = (int) val( $datarow, 'stype');
+        $this->style = LF_preDisplay( 'n', val( $datarow, 'nstyle'));
+        $this->lang =  LF_preDisplay( 'n', val( $datarow, 'nlanguage'));
+        $this->content = LF_preDisplay( 't', val( $datarow, 'tcontent'));
         $this->html = LF_preDisplay( 't', val( $datarow, 'thtml'));
         if ( isVal( val( $datarow, '_isTopDoc'))) $this->isTopDoc = val( $datarow, '_isTopDoc');
         if ( isVal( val( $datarow, '_noAuxillary'))) $this->noAuxillary = val( $datarow, '_noAuxillary');
         $this->extra = $datarow['_extra'] ?? [];
-        $this->writeAccess = aval( $datarow['_writeAccess']);
-        $this->mode = $datarow['_mode'];
+        $this->writeAccess = val( $datarow, '_writeAccess');
+        $this->mode = val( $datarow, '_mode');
         $this->docType = val( $datarow, '_docType');
         $this->level = val( $datarow, '_level');
         $this->created = (int) val( $datarow, 'dcreated'); // LF_date( (int) val( $datarow, 'dcreated'));
@@ -170,13 +170,13 @@ class UDelement {
         // 2DO Disactivate clicks in content if editing and ude_stage is on        
         /* Extract element's tick nb (obsolete)
         $this->ticks = (int) base_convert( substr( $datarow['nname'], 13), 30, 10);*/
-        if ( $datarow['_elementName'])
+        if ( val( $datarow, '_elementName'))
         {
-            $caption = $datarow['_elementName'];
+            $caption = val( $datarow, '_elementName');
             self::$publicNamesMap[ $caption] = $this->name;
             self::$publicOidMap[ $caption] = $this->oid;
         }
-        $this->debug = "pg".$this->pager->currentPageHeight;
+        if( $this->pager) $this->debug = "pg".$this->pager->currentPageHeight;
     } // UDelement.__construct()
     
     function requireModules( $modules) { $this->requiredModules = $modules;}
@@ -199,10 +199,10 @@ class UDelement {
         // Get DB access rights
         $access = (int) LF_stringToOidParams( $this->oid)[0]['AL'];        
         // Get system parameters stored in textra field
-        $system = ( isVal( $this->extra[ 'system'])) ? $this->extra[ 'system']: [];
+        $system = ( isVal( val( $this->extra, 'system'))) ? $this->extra[ 'system']: [];
         $systemAttr = str_replace( ['"'], ["&quot;"], json_encode( $system));        
         // Get element's height (at last modification)
-        $height = ( isVal( $this->extra['height'])) ? $this->extra['height'] : 0;
+        $height = ( isVal( val( $this->extra, 'height'))) ? $this->extra['height'] : 0;
         // Get user's language
         $lang = LF_env( 'lang');
         // 2DO fct as $lang may have multiple values
@@ -354,8 +354,8 @@ class UDelement {
     }
     function getExtraAttribute( $attrName) {
         $value = "";
-        if ( !isVal( $this->extra[ 'system'])) return $value;
-        $extras = $this->extra[ 'system'];
+        if ( !isVal( val( $this->extra, 'system'))) return $value;
+        $extras = val( $this->extra, 'system');
         $compliantAttrName = "";
         $legacyIndex = array_search( $attrName, UD_legacyAppAttributes);
         if ( $legacyIndex !== false && isVal( UD_appAttributes[ $legacyIndex])) {
@@ -368,8 +368,8 @@ class UDelement {
 
     function analyseContent( &$elementData) {
         if ( val( $elementData, '_analysis') == "OK") return;
-        $content =  LF_preDisplay( 't', $elementData['tcontent']);
-        $type = $elementData['stype'];
+        $content =  LF_preDisplay( 't', val( $elementData, 'tcontent'));
+        $type = val( $elementData, 'stype');
         // Extract label from content if there is a caption span
         $typeName =  UD_getDbTypeInfo( $type, 'ud_type');
         $isContainer = UD_getDbTypeInfo( $type, 'isContainer');        
@@ -380,12 +380,12 @@ class UDelement {
             // Extract caption, content without caption and pre-process content into seperate fields of elementData
             if ( $content[0] == '{' && ( $json = JSON_decode( $content, true))) {
                 // Content is pure JSON
-                $elementData[ DATA_elementName] = val( $json, 'meta')[ 'name'];
+                $elementData[ DATA_elementName] = val( $json, 'meta/name');
                 $elementData[ DATA_cleanContent] = str_replace( ["\n"], ['\n'], $content);
                 $elementData['_JSONcontent'] = $json;
                 if ( $json['meta']['type'] == "text") {
                     // Extract textContent from text objects
-                    $elementData['_textContent'] = val( $json, 'data')[ 'value'];
+                    $elementData['_textContent'] = val( $json, 'data/value');
                 }
                 $elementName = val( $elementData, 'nname');
                 LF_debug( "Analysed composite element $elementName with JSON", "UD", 5);                 
@@ -394,7 +394,7 @@ class UDelement {
                 //echo "OLd format {val( $elementData, 'nname')}<br>\n";
             }
             // Increment text index for all elements derived from text
-            if ( $type >= UD_commands && $type <= UD_apiCalls) { val( $captionIndexes, 'text')++;}
+            if ( $type >= UD_commands && $type <= UD_apiCalls) { $captionIndexes[ 'text']++;}
             $elementData['_saveable'] = $content;
         } elseif ( $typeName && $isContainer) {    
             // Content of container elements (Directory, Document, Model, Part and Sub-part) is the container title or combines 
@@ -414,20 +414,20 @@ class UDelement {
                 $elementData['_titleForProgram'] = HTML_stripTags( $spans[0]);
             } elseif ( strlen( $content) < 100) { 
                 $elementData['_title'] = substr( $content,0, 60);
-                $elementData['_titleForProgram'] = $elementData['_title'];
+                $elementData['_titleForProgram'] = val( $elementData, '_title');
             }
             if ( !val( $elementData, '_title') && val( $elementData, 'nlabel')) {
-                val( $elementData, '_title') = val( $elementData, '_titleForProgram') = val( $elementData, 'nlabel');
+                $elementData[ '_title'] = $elementData[ '_titleForProgram'] = val( $elementData, 'nlabel');
             }    
         } else { $typeName = "element";}
         // Decode textra
-        if ( $elementData['textra']) {
-            // $textra = str_replace( ["&quot;", '\\"', '\"'], ['"', '"', '"'], LF_preDisplay( 't', $elementData['textra']));
-            $textra = LF_preDisplay( 't', $elementData['textra']);
+        if ( val( $elementData, 'textra')) {
+            // $textra = str_replace( ["&quot;", '\\"', '\"'], ['"', '"', '"'], LF_preDisplay( 't', val( $elementData, 'textra')));
+            $textra = LF_preDisplay( 't', val( $elementData, 'textra'));
             $elementData['_extra'] = JSON_decode( $textra, true);
         }
         // Make as analysed
-        val( $elementData, '_analysis') = "OK";
+        $elementData[ '_analysis'] = "OK";
     }
 
    /**
@@ -507,7 +507,7 @@ class UDelement {
 
     function setStatusAndInfo() {
         // if ( $this->type > UD_model) return;
-        $system = $this->extra[ 'system'];
+        $system = val( $this->extra, 'system');
         if ( isVal( val( $system, 'tag'))) $this->tag = val( $system, 'tag');
         if ( val( $system, '_noPlanning')) return;
         else $this->status = '<div class="notification">Pas de planning pour cette tâche</div>';        
@@ -535,7 +535,7 @@ class UDelement {
     
 } // PHP class UDelement
 
-if ( isVal( $argv[0]) && strpos( $argv[0], "udelement.php") !== false) {    
+if ( val( $argv, 0) && strpos( $argv[0], "udelement.php") !== false) {    
     // Launched with php.ini so run auto-test
     echo "Syntaxe udelement.php OK\n";
     include_once __DIR__.'/../tests/testenv.php';

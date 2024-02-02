@@ -497,7 +497,20 @@ function SDBEE_exportUDasJSON( $oid, $ud=null) {
  * Read a value from array avoiding warnings or errors
  */
 function val( $container, $key, $default=null) {
-    if ( isset( $container[ $key])) return $container[ $key];
+    $keyParts = explode( '/', $key);
+    switch ( count( $keyParts)) {
+        case 1: if ( isset( $container[ $key])) return $container[ $key]; break;
+        case 2 : 
+            $w = val( $container, $keyParts[0]);
+            if ( $w && isset( $w[ $keyParts[1]])) 
+                return $w[ $keyParts[1]];
+            break;
+        case 3 :
+            $w = val( $container, $keyParts[0].'/'.$keyParts[1]);
+            if ( $w && isset( $w[ $keyParts[2]])) 
+                return $w[ $keyParts[2]];
+            break;
+    }
     return $default;
 }
 function isVal( $value) { return ( $value);}

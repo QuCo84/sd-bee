@@ -358,7 +358,7 @@
         $data = JSON_decode( $json, true);
         if ( !$data) { var_dump( $json); return null;}
         // Extract UD elements
-        $content = ( isset( $data[ 'content'])) ? $data[ 'content'] : $data;   
+        $content = ( isset( val( $data, 'content'))) ? $data[ 'content'] : $data;   
         // Get filename from 1st element
         $filename =  array_keys( $content)[0];
         // Build data
@@ -371,21 +371,21 @@
             $record[ 'nname'] = $name;
             $record[ 'tlabel'] = "owns";
             // JSONise tcontent, textra, iaccessRequest
-            if ( $record[ 'tcontent'] && !is_string( $record[ 'tcontent'])) {
-                $record[ 'tcontent'] = JSON_encode( $record[ 'tcontent']);
+            if ( $record[ 'tcontent'] && !is_string( val( $record, 'tcontent'))) {
+                $record[ 'tcontent'] = JSON_encode( val( $record, 'tcontent'));
             }
-            if ( $record[ 'textra'] && !is_string( $record[ 'textra'])) {
-                $record[ 'textra'] = JSON_encode( $record[ 'textra']);
+            if ( $record[ 'textra'] && !is_string( val( $record, 'textra'))) {
+                $record[ 'textra'] = JSON_encode( val( $record, 'textra'));
             }
-            if ( $record[ 'iacessRequest'] && !is_string( $record[ 'iaccessRequest'])) {
-                $record[ 'iacessRequest'] = JSON_encode( $record[ 'iaccessRequest']);
+            if ( $record[ 'iacessRequest'] && !is_string( val( $record, 'iaccessRequest'))) {
+                $record[ 'iacessRequest'] = JSON_encode( val( $record, 'iaccessRequest'));
             }
             // Build pseudo OID
             // 2DO use depth or useDepth in UD
-            $permissions = $record[ 'permissions'];
+            $permissions = val( $record, 'permissions');
             $oid = "_FILE_UniversalDocElement-{$filename}-_FILE_UniversalDocElement-{$name}--21-0-21-{$id}--AL|{$permissions}";
             $record[ 'oid'] = $oid;
-            $elLang = $record[ 'nlanguage'];
+            $elLang = val( $record, 'nlanguage');
             // if ( $elLang) echo $record[ 'nname'].$elLang;
             if ( in_array( $record[ 'stype'], [ UD_document, UD_model])) $keep = true;
             elseif ( $record[ 'stype'] == UD_view) {
@@ -407,21 +407,21 @@
     function getDirListingElement( $el) {
         $textra = JSON_decode( $el[ 'textra'], true);                       
         // Determine path to look at
-        if ( isset($textra[ 'system']['dirPath'])) {
+        if ( isset(val( $textra, 'system/dirPath'))) {
             // Directory provided as dirPath parameter in view's parameters 
-            $path = $textra[ 'system']['dirPath'];                  
+            $path = val( $textra, 'system/dirPath');                  
             if ( $path == "DOC") {
                 // Use OID provided in request
                 global $USER;
                 $currentOID = LF_env( 'OID');
-                $home = ($USER[ 'home']) ? $USER[ 'home'] : 'home';
+                $home = (val( $USER, 'home')) ? $USER[ 'home'] : 'home';
                 $path = "_FILE_UniversalDocElement-{$home}--21-1"; // testing
                 //$path = '__FILE__UniversalDocElement-A0012345678920001_trialhome--21-1'; // testing
                 //$path = "__FILE__UniversalDocElement-$currentOID--21-1";
             }
         } else {
             // Use view as container to display
-            $path = "UniversalDocElement--".implode( '-', LF_stringToOid( $el['oid']))."-21";
+            $path = "UniversalDocElement--".implode( '-', LF_stringToOid( val( $el, 'oid')))."-21";
         }
         // Create dir view element and add to data
         return [
@@ -561,7 +561,7 @@ if ( !defined( 'TEST_ENVIRONMENT')) define ( 'TEST_ENVIRONMENT', false);
         $env[ 'UD_version'] = '-v-'.str_replace( '.', '-', substr( $version, strrpos( $version, ' '))); // -5
         // User-specifc parameters
         if ( $USER) {
-            $env[ 'user_id'] = $USER[ 'id'];
+            $env[ 'user_id'] = val( $USER, 'id');
             $env[ 'is_Anonymous'] = false;
             $usr32 = strToUpper( base_convert( $USER[ 'id'], 10, 32));
             $usr32 = substr( "00000".$usr32, strlen( $usr32)); 
@@ -576,7 +576,7 @@ if ( !defined( 'TEST_ENVIRONMENT')) define ( 'TEST_ENVIRONMENT', false);
     if ( $value) $env[ $key] = $value;
     elseif ( isset( $env[ $key])) return $env[ $key];
     else {
-        $lang = ( isset( $USER[ 'lang'])) ? $USER[ 'lang'] : $env[ 'lang'];
+        $lang = ( isset( val( $USER, 'lang'))) ? $USER[ 'lang'] : val( $env, 'lang');
         if ( isset( $env[ $key.'_'.$lang])) return $env[ $key.'_'.$lang];
         else {
             //echo "Call to LF_env with $key not handled"; //die();
@@ -636,7 +636,7 @@ function LF_fileServer() {
     $localFiles = [ 'requireconfig.js', 'udajax.js', 'udregister.js'];
     $authorisedPaths = ["sd-bee", "sdbee", "upload", "tmp", "download", "app", "fonts", "favicon.ico"];
     // Get and anlyse URI
-    $uri = $_SERVER[ 'REQUEST_URI'];
+    $uri = val( $_SERVER, 'REQUEST_URI');
     if ( substr( $uri, 0 ,2) == "/?") return false;
     $uriParts = explode( '/', $uri);
     array_shift( $uriParts);
