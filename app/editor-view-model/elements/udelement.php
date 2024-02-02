@@ -127,7 +127,7 @@ class UDelement {
         $this->analyseContent( $datarow);         
         // Detect User filter, only show element to indicated users
         $elementParams = val( $datarow, '_extra/system');
-        if ( isVal( val( $elementParams, 'userFilter')))
+        if ( val( $elementParams, 'userFilter'))
         {
             $userFilter = explode( ',', val( $elementParams, 'userFilter'));
             if ( !in_array( $this->user, $userFilter)) {
@@ -156,17 +156,17 @@ class UDelement {
         $this->lang =  LF_preDisplay( 'n', val( $datarow, 'nlanguage'));
         $this->content = LF_preDisplay( 't', val( $datarow, 'tcontent'));
         $this->html = LF_preDisplay( 't', val( $datarow, 'thtml'));
-        if ( isVal( val( $datarow, '_isTopDoc'))) $this->isTopDoc = val( $datarow, '_isTopDoc');
-        if ( isVal( val( $datarow, '_noAuxillary'))) $this->noAuxillary = val( $datarow, '_noAuxillary');
+        if ( val( $datarow, '_isTopDoc')) $this->isTopDoc = val( $datarow, '_isTopDoc');
+        if ( val( $datarow, '_noAuxillary')) $this->noAuxillary = val( $datarow, '_noAuxillary');
         $this->extra = $datarow['_extra'] ?? [];
         $this->writeAccess = val( $datarow, '_writeAccess');
         $this->mode = val( $datarow, '_mode');
         $this->docType = val( $datarow, '_docType');
         $this->level = val( $datarow, '_level');
         $this->created = (int) val( $datarow, 'dcreated'); // LF_date( (int) val( $datarow, 'dcreated'));
-        if ( isVal( val( $datarow, 'dmodified'))) $this->modified = LF_date( (int) val( $datarow, 'dmodified'));
+        if ( val( $datarow, 'dmodified')) $this->modified = LF_date( (int) val( $datarow, 'dmodified'));
         if ( $this->type == UD_document) self::$editableByLevel = [];
-        if ( isVal( val( $datarow, '_ud_fields'))) $this->ud_fields = val( $datarow, '_ud_fields');
+        if ( val( $datarow, '_ud_fields')) $this->ud_fields = val( $datarow, '_ud_fields');
         // 2DO Disactivate clicks in content if editing and ude_stage is on        
         /* Extract element's tick nb (obsolete)
         $this->ticks = (int) base_convert( substr( $datarow['nname'], 13), 30, 10);*/
@@ -199,10 +199,10 @@ class UDelement {
         // Get DB access rights
         $access = (int) LF_stringToOidParams( $this->oid)[0]['AL'];        
         // Get system parameters stored in textra field
-        $system = ( isVal( val( $this->extra, 'system'))) ? $this->extra[ 'system']: [];
+        $system = ( val( $this->extra, 'system')) ? $this->extra[ 'system']: [];
         $systemAttr = str_replace( ['"'], ["&quot;"], json_encode( $system));        
         // Get element's height (at last modification)
-        $height = ( isVal( val( $this->extra, 'height'))) ? $this->extra['height'] : 0;
+        $height = ( val( $this->extra, 'height')) ? $this->extra['height'] : 0;
         // Get user's language
         $lang = LF_env( 'lang');
         // 2DO fct as $lang may have multiple values
@@ -210,7 +210,7 @@ class UDelement {
         // Determine if element is displayable
         $display = ( val( $system, 'display')) ? val( $system, 'display') : ($active && $rightLang) ;
         // Determine if element is editable and get parent's editable status       
-        if ( $this->level && isVal( self::$editableByLevel[ $this->level - 1]))
+        if ( $this->level && val( self::$editableByLevel, $this->level - 1))
             $parentEditable = self::$editableByLevel[ $this->level - 1];
         else 
             $parentEditable = true;
@@ -240,8 +240,8 @@ class UDelement {
         
         // 2 - name
         if ( $this->label) { $attr .= " name=\"{$this->label}\"";}
-        elseif ( isVal( $this->title) && $this->title) { $attr .= " name=\"{$this->title}\"";}
-        elseif ( isVal( $this->elementName) && $this->elementName) $attr .= " name=\"{$this->elementName}\"";
+        elseif ( isset( $this->title) && $this->title) { $attr .= " name=\"{$this->title}\"";}
+        elseif ( isset( $this->name) && $this->name) $attr .= " name=\"{$this->name}\"";
         
         // 3 - class
         $class = "";
@@ -327,7 +327,7 @@ class UDelement {
         $attr .= UD_autoAddAttributes( $this->style, [ 'id'=>$this->name]);
         
         // 9 - Debug info
-        if( $this->debug) { $attr .= ' ud_debug="'.$this->debug.'"';}
+        if( isset( $this->debug) && $this->debug) { $attr .= ' ud_debug="'.$this->debug.'"';}
         
         // Update to compliant attribute names
         $attr = $this->renameAttr( $attr);
@@ -354,15 +354,15 @@ class UDelement {
     }
     function getExtraAttribute( $attrName) {
         $value = "";
-        if ( !isVal( val( $this->extra, 'system'))) return $value;
+        if ( !val( $this->extra, 'system')) return $value;
         $extras = val( $this->extra, 'system');
         $compliantAttrName = "";
         $legacyIndex = array_search( $attrName, UD_legacyAppAttributes);
-        if ( $legacyIndex !== false && isVal( UD_appAttributes[ $legacyIndex])) {
+        if ( $legacyIndex !== false && val( UD_appAttributes, $legacyIndex)) {
             $compliantAttrName = UD_appAttributes[ $legacyIndex];
         }
-        if ( $compliantAttrName && isVal( $extras[ $compliantAttrName])) $value = $extras[ $compliantAttrName];
-        if ( !$value && isVal( $extras[ $attrName])) $value = $extras[ $attrName];
+        if ( $compliantAttrName && val( $extras, $compliantAttrName)) $value = $extras[ $compliantAttrName];
+        if ( !$value && val( $extras, $attrName)) $value = $extras[ $attrName];
         return $value;        
     }
 
@@ -508,12 +508,12 @@ class UDelement {
     function setStatusAndInfo() {
         // if ( $this->type > UD_model) return;
         $system = val( $this->extra, 'system');
-        if ( isVal( val( $system, 'tag'))) $this->tag = val( $system, 'tag');
+        if ( val( $system, 'tag')) $this->tag = val( $system, 'tag');
         if ( val( $system, '_noPlanning')) return;
         else $this->status = '<div class="notification">Pas de planning pour cette tâche</div>';        
         if ( $this->modified) $this->info = "Modifié le {$this->modified}";
         if ( !$system) return;       
-        if ( isVal( val( $system, 'progress'))) {
+        if ( val( $system, 'progress')) {
             $progress = (int) val( $system, 'progress');
             $delay = val( $system, 'delay');            
             if ( true || $this->type == UD_document || $this->type == UD_model) {

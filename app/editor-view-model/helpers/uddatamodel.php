@@ -358,7 +358,7 @@
         $data = JSON_decode( $json, true);
         if ( !$data) { var_dump( $json); return null;}
         // Extract UD elements
-        $content = ( isset( val( $data, 'content'))) ? $data[ 'content'] : $data;   
+        $content = ( val(  $data, 'content')) ? $data[ 'content'] : $data;   
         // Get filename from 1st element
         $filename =  array_keys( $content)[0];
         // Build data
@@ -371,13 +371,13 @@
             $record[ 'nname'] = $name;
             $record[ 'tlabel'] = "owns";
             // JSONise tcontent, textra, iaccessRequest
-            if ( $record[ 'tcontent'] && !is_string( val( $record, 'tcontent'))) {
+            if (val( $record, 'tcontent') && !is_string( val( $record, 'tcontent'))) {
                 $record[ 'tcontent'] = JSON_encode( val( $record, 'tcontent'));
             }
-            if ( $record[ 'textra'] && !is_string( val( $record, 'textra'))) {
+            if (val( $record, 'textra') && !is_string( val( $record, 'textra'))) {
                 $record[ 'textra'] = JSON_encode( val( $record, 'textra'));
             }
-            if ( $record[ 'iacessRequest'] && !is_string( val( $record, 'iaccessRequest'))) {
+            if (val( $record, 'iacessRequest') && !is_string( val( $record, 'iaccessRequest'))) {
                 $record[ 'iacessRequest'] = JSON_encode( val( $record, 'iaccessRequest'));
             }
             // Build pseudo OID
@@ -407,7 +407,7 @@
     function getDirListingElement( $el) {
         $textra = JSON_decode( $el[ 'textra'], true);                       
         // Determine path to look at
-        if ( isset(val( $textra, 'system/dirPath'))) {
+        if ( val(  $textra, 'system/dirPath')) {
             // Directory provided as dirPath parameter in view's parameters 
             $path = val( $textra, 'system/dirPath');                  
             if ( $path == "DOC") {
@@ -491,7 +491,8 @@ if ( !defined( 'TEST_ENVIRONMENT')) define ( 'TEST_ENVIRONMENT', false);
 
  function LF_debug( $variable, $context, $level, $ctrl = "", $error_msg = "", $newLevel = 0)
  {
-    global $debug, $LF_debug_start_time;
+    global $debug, $debugTxt, $LF_debug_start_time;
+    $msg = $msgTxt = "";
     if ($debug =="") $debug ="TIME&nbsp;&nbsp;&nbsp;&nbsp;MEM&nbsp;&nbsp;&nbsp;<span style=\"display:inline-block; width:10em;\">MODULE</span>TRACE<br />";
     $msg_size = 500;
     if ($LF_debug_start_time==0) $LF_debug_start_time = microtime(true);
@@ -533,7 +534,7 @@ if ( !defined( 'TEST_ENVIRONMENT')) define ( 'TEST_ENVIRONMENT', false);
  function LF_stringToOid( $oid) // for udelement.php and utilities
  {
      $w = explode( '--', $oid);
-     $r = explode( '-', $w[1]);
+     $r = explode( '-', val( $w, 1));
      return $r;
  }
   function LF_oidToString( $oid, $params="") // udutilities.php
@@ -576,7 +577,7 @@ if ( !defined( 'TEST_ENVIRONMENT')) define ( 'TEST_ENVIRONMENT', false);
     if ( $value) $env[ $key] = $value;
     elseif ( isset( $env[ $key])) return $env[ $key];
     else {
-        $lang = ( isset( val( $USER, 'lang'))) ? $USER[ 'lang'] : val( $env, 'lang');
+        $lang = ( val(  $USER, 'lang')) ? $USER[ 'lang'] : val( $env, 'lang');
         if ( isset( $env[ $key.'_'.$lang])) return $env[ $key.'_'.$lang];
         else {
             //echo "Call to LF_env with $key not handled"; //die();
@@ -604,15 +605,15 @@ function LF_date( $date=null) {
         {
             $good = preg_match( $patterns[$i++], $date, $date_elements);
             if ($good)  {
-                $yr = (int) $date_elements[1];
-                $month = (int) $date_elements[2];
-                $day = (int) $date_elements[3];
-                if (isset($date_elements[4])) $hour = (int) $date_elements[4]; else $hour=0;
-                if (isset($date_elements[5])) $mn = (int) $date_elements[5]; else $mn =0;     
-                if (isset($date_elements[5])) $sec = (int) $date_elements[5]; else $sec =0;      
+                $yr = (int) val( $date_elements, 1);
+                $month = (int) val( $date_elements, 2);
+                $day = (int) val( $date_elements, 3);
+                if (val(  $date_elements, 4)) $hour = (int) val( $date_elements, 4); else $hour=0;
+                if (val(  $date_elements, 5)) $mn = (int) val( $date_elements, 5); else $mn =0;     
+                if (val(  $date_elements, 5)) $sec = (int) val( $date_elements, 5); else $sec =0;      
                 if ($i > 2 && $i <= 5) {
-                    $yr = (int) $date_elements[3];
-                    $day = (int) $date_elements[1];
+                    $yr = (int) val( $date_elements, 3);
+                    $day = (int) val( $date_elements, 1);
                 }
                 break;
             }
@@ -640,7 +641,7 @@ function LF_fileServer() {
     if ( substr( $uri, 0 ,2) == "/?") return false;
     $uriParts = explode( '/', $uri);
     array_shift( $uriParts);
-    $topDir = $uriParts[0];
+    $topDir = val( $uriParts, 0);
     if ( !in_array( $topDir, $authorisedPaths)) return false;
     $filename = $uriParts[ count( $uriParts) - 1];
     // Remove -v- format version no (use -V- for files where version is to be used)
@@ -799,12 +800,12 @@ Class LinksAPI {
       "mMnNoOpPqQrRsStTuUvVwWxXyYzZzh__0A1a2B3b4C5c6D7d8E9eFGfHgIjJkKlL",
       "UvVwWxXyYzZzhe_0A1a2B3b4C5c6D7d8E9eFGfHgIjJkKlLmMnNoOpPqQrRsStTu",
     );
-    $swap_no = hexdec($w[12])&3;
+    $swap_no = hexdec(val( $w, 12))&3;
     for ($i=0; $i<12;$i+=3) {
       $r .= $swap[$swap_no][hexdec($w[$i])*4 + (int) (hexdec($w[$i+1])/4) ];
       $r .= $swap[$swap_no][(hexdec($w[$i+1])&12)*4 + hexdec($w[$i+2])&3];
     }
-    $r .= $swap[0][ min( hexdec($w[12]), 15) *4+$nominatif*2];
+    $r .= $swap[0][ min( hexdec(val( $w, 12)), 15) *4+$nominatif*2];
     return $r;
  }
  
@@ -825,10 +826,11 @@ Class LinksAPI {
  $_TEST = false;
  include_once "html.php";
  include_once "LF_PHP_lib.php";
+ include_once( 'udutilityfunctions.php');
 
  // Auto-test
- if ( isset( $argv[0]) && strpos( $argv[0], "uddatamodel.php") !== false) {
-    echo "Syntax OK\n";
+ if ( isset(  $argv) && strpos( $argv[0], "uddatamodel.php") !== false) {
+    echo "Syntax OK\n";    
     $dm = new DataModel( true);
     $dm->out ( "p{ font-size:10pt}", 'head/style');
     $dm->flush();
