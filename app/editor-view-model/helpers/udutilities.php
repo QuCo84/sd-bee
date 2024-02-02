@@ -944,6 +944,7 @@ class UD_utilities
             }
         } 
         // Decode textra
+        $elementData['_extra'] = [];
         if ( $elementData['textra']) {
             // $textra = str_replace( ["&quot;", '\\"', '\"'], ['"', '"', '"'], LF_preDisplay( 't', $elementData['textra']));
             $textra = LF_preDisplay( 't', $elementData['textra']);

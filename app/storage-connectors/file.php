@@ -70,7 +70,6 @@ class FileStorage extends SDBEE_storage {
     }
     function _getURL( $dir, $filename) {
         $this->_prefix( $dir, $filename);
-        if ( $dir && substr( $dir, -1) != '/' ) $dir .= '/';
 	    if ( strpos( $this->topDir, 'http') === 0) {
             // Reading from Internet
             // 2DO check dir can contain / (ie multiple levels)

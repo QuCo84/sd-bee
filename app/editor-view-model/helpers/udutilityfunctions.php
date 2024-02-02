@@ -493,6 +493,15 @@ function SDBEE_exportUDasJSON( $oid, $ud=null) {
     return $json;    
 }
 
+/**
+ * Read a value from array avoiding warnings or errors
+ */
+function val( $container, $key, $default=null) {
+    if ( isset( $container[ $key])) return $container[ $key];
+    return $default;
+}
+function isVal( $value) { return ( $value);}
+
 if ( isset( $argv[0]) && strpos( $argv[0], "udutilityfunctions.php") !== false)
 {    
     // Launched with php.ini so run auto-test

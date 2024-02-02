@@ -126,10 +126,10 @@ class UDelement {
         // AnalyseContent here
         $this->analyseContent( $datarow);         
         // Detect User filter, only show element to indicated users
-        $elementParams = $datarow[ '_extra']['system'];
-        if ( isset( $elementParams[ 'userFilter']))
+        $elementParams = val( $datarow, '_extra')['system'];
+        if ( isVal( val( $elementParams, 'userFilter')))
         {
-            $userFilter = explode( ',', $elementParams[ 'userFilter']);
+            $userFilter = explode( ',', val( $elementParams, 'userFilter'));
             if ( !in_array( $this->user, $userFilter)) {
                 $this->mode = "ignore";
                 return;
@@ -139,10 +139,10 @@ class UDelement {
         // Simple transfert of values
         $this->id = $datarow['id']; // for traceing
         $this->name = LF_preDisplay( 'n', $datarow['nname']);
-        $this->label = LF_preDisplay( 'n', $datarow[ 'nlabel']);
+        $this->label = LF_preDisplay( 'n', val( $datarow, 'nlabel'));
         if( $datarow['oid'])
         {
-            $this->oid = $datarow[ 'oid'];
+            $this->oid = val( $datarow, 'oid');
             $this->shortOid = $this->oid;
             if ( $this->oid && strpos( $this->oid, '_FILE_UniversalDocElement') === false) {
                 // Shorten SOILinks OIDs
@@ -155,18 +155,18 @@ class UDelement {
         $this->style = LF_preDisplay( 'n', $datarow['nstyle']);
         $this->lang =  LF_preDisplay( 'n', $datarow['nlanguage']);
         $this->content = LF_preDisplay( 't', $datarow['tcontent']);
-        $this->html = LF_preDisplay( 't', $datarow[ 'thtml']);
-        if ( isset( $datarow[ '_isTopDoc'])) $this->isTopDoc = $datarow[ '_isTopDoc'];
-        if ( isset( $datarow[ '_noAuxillary'])) $this->noAuxillary = $datarow[ '_noAuxillary'];
-        $this->extra = $datarow['_extra'];
-        $this->writeAccess = $datarow['_writeAccess'];
+        $this->html = LF_preDisplay( 't', val( $datarow, 'thtml'));
+        if ( isVal( val( $datarow, '_isTopDoc'))) $this->isTopDoc = val( $datarow, '_isTopDoc');
+        if ( isVal( val( $datarow, '_noAuxillary'))) $this->noAuxillary = val( $datarow, '_noAuxillary');
+        $this->extra = $datarow['_extra'] ?? [];
+        $this->writeAccess = aval( $datarow['_writeAccess']);
         $this->mode = $datarow['_mode'];
-        $this->docType = $datarow[ '_docType'];
-        $this->level = $datarow[ '_level'];
-        $this->created = (int) $datarow[ 'dcreated']; // LF_date( (int) $datarow[ 'dcreated']);
-        if ( isset( $datarow[ 'dmodified'])) $this->modified = LF_date( (int) $datarow[ 'dmodified']);
+        $this->docType = val( $datarow, '_docType');
+        $this->level = val( $datarow, '_level');
+        $this->created = (int) val( $datarow, 'dcreated'); // LF_date( (int) val( $datarow, 'dcreated'));
+        if ( isVal( val( $datarow, 'dmodified'))) $this->modified = LF_date( (int) val( $datarow, 'dmodified'));
         if ( $this->type == UD_document) self::$editableByLevel = [];
-        if ( isset( $datarow[ '_ud_fields'])) $this->ud_fields = $datarow[ '_ud_fields'];
+        if ( isVal( val( $datarow, '_ud_fields'))) $this->ud_fields = val( $datarow, '_ud_fields');
         // 2DO Disactivate clicks in content if editing and ude_stage is on        
         /* Extract element's tick nb (obsolete)
         $this->ticks = (int) base_convert( substr( $datarow['nname'], 13), 30, 10);*/
@@ -193,25 +193,24 @@ class UDelement {
    * @param boolean $active True or absent if element is editable (active)
    * @return string HTML string of attributes to include in HTML element
    */   
-   function getHTMLattributes( $active = true, $canBeEditable = true)
-   {
+   function getHTMLattributes( $active = true, $canBeEditable = true) {
         // Get shortened OID for AJAX calls
         $shortOid = $this->shortOid;
         // Get DB access rights
         $access = (int) LF_stringToOidParams( $this->oid)[0]['AL'];        
         // Get system parameters stored in textra field
-        $system = $this->extra[ 'system'];
+        $system = ( isVal( $this->extra[ 'system'])) ? $this->extra[ 'system']: [];
         $systemAttr = str_replace( ['"'], ["&quot;"], json_encode( $system));        
         // Get element's height (at last modification)
-        $height = $this->extra['height'];
+        $height = ( isVal( $this->extra['height'])) ? $this->extra['height'] : 0;
         // Get user's language
         $lang = LF_env( 'lang');
         // 2DO fct as $lang may have multiple values
         $rightLang = ( !$this->lang || $this->lang == $lang);                         
         // Determine if element is displayable
-        $display = ( $system[ 'display']) ? $system[ 'display'] : ($active && $rightLang) ;
+        $display = ( val( $system, 'display')) ? val( $system, 'display') : ($active && $rightLang) ;
         // Determine if element is editable and get parent's editable status       
-        if ( $this->level && isset( self::$editableByLevel[ $this->level - 1]))
+        if ( $this->level && isVal( self::$editableByLevel[ $this->level - 1]))
             $parentEditable = self::$editableByLevel[ $this->level - 1];
         else 
             $parentEditable = true;
@@ -241,8 +240,8 @@ class UDelement {
         
         // 2 - name
         if ( $this->label) { $attr .= " name=\"{$this->label}\"";}
-        elseif ( isset( $this->title) && $this->title) { $attr .= " name=\"{$this->title}\"";}
-        elseif ( isset( $this->elementName) && $this->elementName) $attr .= " name=\"{$this->elementName}\"";
+        elseif ( isVal( $this->title) && $this->title) { $attr .= " name=\"{$this->title}\"";}
+        elseif ( isVal( $this->elementName) && $this->elementName) $attr .= " name=\"{$this->elementName}\"";
         
         // 3 - class
         $class = "";
@@ -267,7 +266,7 @@ class UDelement {
             $viewTypes = UD_getDbTypeInfo( UD_view, 'subTypes');
             foreach ( $viewTypes as $viewType) {
                 $viewTypeInfo = UD_getExTagAndClassInfo( "div.part.{$viewType}");
-                if ( $viewNo >= $viewTypeInfo[ 'blockNoMin']*32 && $viewNo <=  $viewTypeInfo[ 'blockNoMax']*32-1) {
+                if ( $viewNo >= val( $viewTypeInfo, 'blockNoMin')*32 && $viewNo <=  val( $viewTypeInfo, 'blockNoMax')*32-1) {
                     $defaultClass = $viewType;
                     break;
                 }
@@ -301,7 +300,7 @@ class UDelement {
             $attr .= " ud_oid=\"$shortOid\" ud_dupdated=\"0\" ud_dchanged=\"0\" ud_iheight=\"$height\"";
         if ( $this->getExtraAttribute( 'refresh')) {
             $attr .= " ud_refresh=\"yes\"";
-            //unset( $system[ 'refresh']);
+            //unset( val( $system, 'refresh'));
         }
         if ( $this->ud_fields) $attr .= " ud_fields=\"{$this->ud_fields}\"";
         
@@ -313,11 +312,11 @@ class UDelement {
         if ( $editable) $attr .= ' ude_edit="on"'; else $attr .= ' ude_edit="off"';
         if ( $this->getExtraAttribute( 'ude_place') && $editable) {
             $attr .= "ude_place=\"".$this->getExtraAttribute( 'ude_place')."\"";
-            //unset( $system[ 'refresh']);
+            //unset( val( $system, 'refresh'));
         }
         if ( !$autosave) {
             $attr .= " ude_autosave=\"off\""; // always on by default
-            //unset( $system[ 'autosave']);
+            //unset( val( $system, 'autosave'));
         }
         if ( LF_count( $system)) {
             // Communicate system attributes in ud_extra so they are saved 
@@ -354,20 +353,21 @@ class UDelement {
         return $newAttr;
     }
     function getExtraAttribute( $attrName) {
+        $value = "";
+        if ( !isVal( $this->extra[ 'system'])) return $value;
         $extras = $this->extra[ 'system'];
         $compliantAttrName = "";
-        $value = "";
         $legacyIndex = array_search( $attrName, UD_legacyAppAttributes);
-        if ( $legacyIndex !== false) {
+        if ( $legacyIndex !== false && isVal( UD_appAttributes[ $legacyIndex])) {
             $compliantAttrName = UD_appAttributes[ $legacyIndex];
         }
-        if ( $compliantAttrName) $value = $extras[ $compliantAttrName];
-        if ( !$value) $value = $extras[ $attrName];
+        if ( $compliantAttrName && isVal( $extras[ $compliantAttrName])) $value = $extras[ $compliantAttrName];
+        if ( !$value && isVal( $extras[ $attrName])) $value = $extras[ $attrName];
         return $value;        
     }
 
     function analyseContent( &$elementData) {
-        if ( $elementData[ '_analysis'] == "OK") return;
+        if ( val( $elementData, '_analysis') == "OK") return;
         $content =  LF_preDisplay( 't', $elementData['tcontent']);
         $type = $elementData['stype'];
         // Extract label from content if there is a caption span
@@ -380,21 +380,21 @@ class UDelement {
             // Extract caption, content without caption and pre-process content into seperate fields of elementData
             if ( $content[0] == '{' && ( $json = JSON_decode( $content, true))) {
                 // Content is pure JSON
-                $elementData[ DATA_elementName] = $json[ 'meta'][ 'name'];
+                $elementData[ DATA_elementName] = val( $json, 'meta')[ 'name'];
                 $elementData[ DATA_cleanContent] = str_replace( ["\n"], ['\n'], $content);
                 $elementData['_JSONcontent'] = $json;
                 if ( $json['meta']['type'] == "text") {
                     // Extract textContent from text objects
-                    $elementData['_textContent'] = $json[ 'data'][ 'value'];
+                    $elementData['_textContent'] = val( $json, 'data')[ 'value'];
                 }
-                $elementName = $elementData[ 'nname'];
+                $elementName = val( $elementData, 'nname');
                 LF_debug( "Analysed composite element $elementName with JSON", "UD", 5);                 
             } else {
                 //var_dump( $json, $elementData);
-                //echo "OLd format {$elementData[ 'nname']}<br>\n";
+                //echo "OLd format {val( $elementData, 'nname')}<br>\n";
             }
             // Increment text index for all elements derived from text
-            if ( $type >= UD_commands && $type <= UD_apiCalls) { $captionIndexes[ 'text']++;}
+            if ( $type >= UD_commands && $type <= UD_apiCalls) { val( $captionIndexes, 'text')++;}
             $elementData['_saveable'] = $content;
         } elseif ( $typeName && $isContainer) {    
             // Content of container elements (Directory, Document, Model, Part and Sub-part) is the container title or combines 
@@ -416,8 +416,8 @@ class UDelement {
                 $elementData['_title'] = substr( $content,0, 60);
                 $elementData['_titleForProgram'] = $elementData['_title'];
             }
-            if ( !$elementData[ '_title'] && $elementData[ 'nlabel']) {
-                $elementData[ '_title'] = $elementData[ '_titleForProgram'] = $elementData[ 'nlabel'];
+            if ( !val( $elementData, '_title') && val( $elementData, 'nlabel')) {
+                val( $elementData, '_title') = val( $elementData, '_titleForProgram') = val( $elementData, 'nlabel');
             }    
         } else { $typeName = "element";}
         // Decode textra
@@ -427,7 +427,7 @@ class UDelement {
             $elementData['_extra'] = JSON_decode( $textra, true);
         }
         // Make as analysed
-        $elementData[ '_analysis'] = "OK";
+        val( $elementData, '_analysis') = "OK";
     }
 
    /**
@@ -508,14 +508,14 @@ class UDelement {
     function setStatusAndInfo() {
         // if ( $this->type > UD_model) return;
         $system = $this->extra[ 'system'];
-        if ( isset( $system[ 'tag'])) $this->tag = $system[ 'tag'];
-        if ( $system[ '_noPlanning']) return;
+        if ( isVal( val( $system, 'tag'))) $this->tag = val( $system, 'tag');
+        if ( val( $system, '_noPlanning')) return;
         else $this->status = '<div class="notification">Pas de planning pour cette tâche</div>';        
         if ( $this->modified) $this->info = "Modifié le {$this->modified}";
         if ( !$system) return;       
-        if ( isset( $system[ 'progress'])) {
-            $progress = (int) $system[ 'progress'];
-            $delay = $system[ 'delay'];            
+        if ( isVal( val( $system, 'progress'))) {
+            $progress = (int) val( $system, 'progress');
+            $delay = val( $system, 'delay');            
             if ( true || $this->type == UD_document || $this->type == UD_model) {
                 if ( !$delay) $delay = 5;                   
                 $deadline = $delay * 86400 + LF_timestamp( $this->created);
@@ -528,14 +528,14 @@ class UDelement {
                 elseif ( $progress < 100 && ($now - $deadline) > (100-$progress)*86400/20) $this->status = $warning;
                 else $this->status = $ok;
             }            
-            $this->info = "Tâche complétée à {$system[ 'progress']}%";
+            $this->info = "Tâche complétée à {val( $system, 'progress')}%";
         }
     }
     
     
 } // PHP class UDelement
 
-if ( isset( $argv[0]) && strpos( $argv[0], "udelement.php") !== false) {    
+if ( isVal( $argv[0]) && strpos( $argv[0], "udelement.php") !== false) {    
     // Launched with php.ini so run auto-test
     echo "Syntaxe udelement.php OK\n";
     include_once __DIR__.'/../tests/testenv.php';
