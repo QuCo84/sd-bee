@@ -26,7 +26,7 @@ class UD_services {
 
     function __construct( $params = null) {
         $this->params = $params;
-        if ( !isset( $params[ 'throttle']) || $params[ 'throttle'] == "on") {
+        if ( !val( $params, 'throttle') ||  val( $params, 'throttle') == "on") {
             require_once( "udservicethrottle.php");
             $this->throttle = new UD_serviceThrottle();
         }
@@ -56,10 +56,10 @@ class UD_services {
         $jsonResponse = []; 
         $error = false;
         // Get generic parameters from request  
-        $token = ( isset( $serviceRequest['accountOrToken'])) ? $serviceRequest['accountOrToken'] : '';
-        $serviceName = strToLower( $serviceRequest['service']);
-        $serviceAndProvider = $serviceName . strToLower( $serviceRequest['provider']);
-        $action = $serviceRequest['action'];
+        $token = ( val( $serviceRequest, 'accountOrToken')) ? $serviceRequest['accountOrToken'] : '';
+        $serviceName = strToLower( val( $serviceRequest, 'service'));
+        $serviceAndProvider = $serviceName . strToLower( val( $serviceRequest, 'provider'));
+        $action = val( $serviceRequest, 'action');
         if ( 
             !in_array( $serviceName, [ 'doc', 'resource', 'tasks', 'scrape'])
             && !in_array( $serviceAndProvider, [ 'imagesfileimages', 'imagesftpimages'])
@@ -101,9 +101,9 @@ class UD_services {
             if ( !$this->_getParamsFromUserConfig( $serviceRequest)) {
                 return $this->_error( "202 {!No parameters for service!} $serviceName");
             };
-            $provider = $serviceRequest[ 'provider'];
+            $provider = val( $serviceRequest, 'provider');
             $providerLC = strtoLower( $provider);
-            $params = $serviceRequest[ $providerLC];
+            $params =  val( $serviceRequest, $providerLC);
             //if ( !$provider) $provider = $service:
             // if ( !$params || !$provider) return $this->_error( "202 {!No parameters or syntax error!}");
         }  // 3rd party throttle & params processing     
@@ -191,7 +191,7 @@ class UD_services {
                                                           
     function _cache( $serviceRequest, $response=null) {       
         // Determine cache file
-        if ( isset( $serviceRequest[ 'cacheTag'])) $tag = LF_removeAccents( $serviceRequest[ 'cacheTag']);
+        if ( val( $serviceRequest, 'cacheTag')) $tag = LF_removeAccents( val( $serviceRequest, 'cacheTag'));
         else $tag = $this->_cacheTag( $serviceRequest);
         $cacheFile = "serviceCache/" . str_replace( ':', '_', $tag) . ".json";
         if ( $tag && $response) {
@@ -200,14 +200,14 @@ class UD_services {
         } elseif ( $tag && isset( $this->cache[ $tag])) {
             // DO check a validity date
             FILE_write( 'tmp', $cacheFile, -1, JSON_encode( $this->cache[ $tag]));
-            return $this->cache[ $tag];
+            return  val( $this->cache, $tag);
         } else {
             // Get Data from cache file            
             $cacheFileContent = FILE_read( 'tmp', $cacheFile);
             if ( $cacheFileContent) {
                 $response = JSON_decode( $cacheFileContent, true);                 
-                if ( isset( $response[ 'data'][ 'times'])) $response[ 'data'][ 'times'] = [];
-                if ( !isset( $response[ 'success']))         
+                if ( val( $response, 'data/times')) $response[ 'data'][ 'times'] = [];
+                if ( !val( $response, 'success'))         
                     $response = [ 
                         'success'=>true, 
                         'message'=> "Auto",
@@ -236,18 +236,18 @@ class UD_services {
 
     // Get parameters from User's configuration UD
     function _getParamsFromUserConfig( &$serviceRequest) {
-        $token = $serviceRequest['token'];
-        $service = strToLower( $serviceRequest['service']);
+        $token = val( $serviceRequest, 'token');
+        $service = strToLower( val( $serviceRequest, 'service'));
         /*  Srvice token mgmt      
         if ( !$serviceRequest( 'recurrent')) {
             // Look for service account to use
             // 1 - via a token
-            $token = $serviceRequest[ 'token'];
-            $task = $serviceRequest[ 'task'];
+            $token = val( $serviceRequest, 'token');
+            $task = val( $serviceRequest, 'task');
             if ( $token) $serviceAccount = $ACCESS->getToken[ $token.$task];
             if ( !$serviceAccount) {
                 // 2 - from process (model) parameters
-                $process = $serviceRequest[ 'process'];
+                $process = val( $serviceRequest, 'process');
                 $params = $this->getModelParams( $process)
                 $serviceAccount = $params[ 'service-accounts'][ $service];
             }
@@ -267,9 +267,9 @@ class UD_services {
             'elementName' => $service.'service' /* $paramsName */
         ];
         $response = $this->_doRequest( $request);
-        if ( $response[ 'success']) {
+        if ( val( $response, 'success')) {
             $paramsContent = JSON_decode( $response[ 'data'], true);
-            if ( $paramsContent && is_array( $paramsContent)) $params = $paramsContent[ 'data']['value'];
+            if ( $paramsContent && is_array( $paramsContent)) $params = val( $paramsContent, 'data/value');
             if ( $params) {
                 foreach( $params as $key=>$value) {
                     $key = strToLower( $key);
@@ -280,9 +280,9 @@ class UD_services {
                     if ( $key == "enabled") $enabled = ( $value == "on");
                     elseif ( $key == "provider") {
                         $provider = strToLower( $value);
-                        if ( !isset( $serviceRequest[ 'provider']) || $serviceRequest[ 'provider'] == 'default') {
+                        if ( !val( $serviceRequest, 'provider') ||  val( $serviceRequest, 'provider') == 'default') {
                             $serviceRequest[ 'provider'] = $provider;
-                            $serviceRequest[ $provider] = $params[ $provider]; 
+                            $serviceRequest[ $provider] =  val( $params, $provider); 
                         }
                         if ( $params[ $provider] == 'parent') {
                             /* 2DO Upward search for parameters
@@ -296,10 +296,10 @@ class UD_services {
                         $serviceRequest[ '__all'] = $value;
                     }
                 }
-                $provider = strToLower( $serviceRequest[ 'provider']);
-                if ( $provider && isset( $params[ $provider])) $serviceRequest[ $provider] = $params[ $provider];
+                $provider = strToLower( val( $serviceRequest, 'provider'));
+                if ( $provider && isset( $params[ $provider])) $serviceRequest[ $provider] =  val( $params, $provider);
                 /* might need a fail-safe
-                if ( !$provider && !isset( $serviceRequest[ '__all'])) {
+                if ( !$provider && !val( $serviceRequest, '__all')) {
                     foreach( $params as $key=>$value) $serviceRequest[ $key] = $value;
                 }
                 */
@@ -325,7 +325,7 @@ class UD_services {
             if ( LF_count( $paramsData) < 2 ) $paramsData = $this->fetchNode( str_replace( "_", "%20", $paramsOid));
             if ( LF_count( $paramsData) > 1) {
                 $paramsContent = LF_preDisplay( 't', $paramsData[1]['tvalues']);
-                if ( $paramsContent && $paramsPath) $params = $paramsContent[ 'data']['value']; 
+                if ( $paramsContent && $paramsPath) $params = val( $paramsContent, 'data/value'); 
                 else $params = $paramsContent;
                 $params = JSON_decode( $params, true);
                 if ( $params) {
@@ -340,18 +340,18 @@ class UD_services {
                     }
                     if ( $defaultProvider 
                         && ( 
-                            !isset( $serviceRequest[ 'provider']) 
-                            || $serviceRequest[ 'provider'] == 'default'
+                            !val( $serviceRequest, 'provider') 
+                            ||  val( $serviceRequest, 'provider') == 'default'
                             || isset( $params[ $serviceRequest[ $provider]])
                         )                      
                     ) {                        
-                        if ( !isset( $serviceRequest[ $provider]) || $serviceRequest[ 'provider'] == 'default') {
+                        if ( !isset( $serviceRequest[ $provider]) ||  val( $serviceRequest, 'provider') == 'default') {
                             // Use default provider
                             $serviceRequest[ 'provider'] = $defaultProvider;
                         }
                         // Add selected provider's paramaters to service request
-                        $provider = $serviceRequest[ 'provider'];
-                        $serviceRequest[ $provider] = $params[ $provider]; // ex mailjet/..
+                        $provider = val( $serviceRequest, 'provider');
+                        $serviceRequest[ $provider] =  val( $params, $provider); // ex mailjet/..
                     }
                     return true;
                 }
@@ -370,11 +370,11 @@ class UD_services {
             'elementName' => $service.'service'
         ];
         $response = $this->_doRequest( $request);
-        if ( !$response[ 'success']) return null;
+        if ( !val( $response, 'success')) return null;
         // Extract parameters set
         $paramsContent = JSON_decode( $response[ 'data'], true);
         if ( !$paramsContent || !is_array( $paramsContent)) return null;
-        return $paramsContent[ 'data']['value'];
+        return val( $paramsContent, 'data/value');
     }
 
     function fetchNode( $oid, $cols="") {

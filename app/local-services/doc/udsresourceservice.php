@@ -17,16 +17,16 @@ class UDS_resource extends UD_service {
     // Central function for all actions
     function call( $data)
     {
-        $action = $data['action'];
+        $action = val( $data, 'action');
         $r = "";
         switch ( $action) {
             case "getInfo" : {
-                $path = $data[ 'path'];
+                $path = val( $data, 'path');
                 $r = [
                     'exists'=>file_exists( 'upload/smartdoc/media/'.$path)
                 ];
                 $this->lastResponseRaw = JSON_encode( $r);
-                $this->lastResponse = $r[ 'exists'];
+                $this->lastResponse = val( $r, 'exists');
                 $this->creditsConsumed = 0;
                 $this->creditComment = "Free service";
                 $this->cacheable=true;
@@ -37,7 +37,7 @@ class UDS_resource extends UD_service {
                 return $this->getModelsByTag( $data);
             } break;
             case "get" :
-                $content = UD_fetchResource( $data[ 'path'], $filename, $ext, $data[ 'block'], $data[ 'block_id']);
+                $content = UD_fetchResource( $data[ 'path'], $filename, $ext, $data[ 'block'], val( $data, 'block_id'));
                 if ( $content) {
                     $this->lastResponseRaw = [ 'content'=>$content, 'filename'=>$filename, 'ext'=>$ext];
                     $this->lastReponse = $filename." retrieved";
@@ -62,8 +62,8 @@ class UDS_resource extends UD_service {
        
         $models = $this->getModelsInfo( $request[ 'dir'], $request[ 'click-model']);
         for ( $modeli = 0; $modeli < count( $models); $modeli++) {
-            $model = $models[ $modeli];
-            $tag = $model[ 'params'][ 'tag'];
+            $model =  val( $models, $modeli);
+            $tag = val( $model, 'params/tag');
             if ( $tag) $r[ $tag][] = $model;
         }
         $this->lastResponseRaw =[ "list"=>$r];
@@ -82,7 +82,7 @@ class UDS_resource extends UD_service {
             // 2DO !tested, move to sd-bee OS
             $modelNames = $PUBLIC->getList( 'models');            
             for ( $namei = 0; $namei < count( $modelNames); $namei++) {
-                $modelName = $modelNames[ $namei];
+                $modelName =  val( $modelNames, $namei);
                 $modelContent = $PUBLIC->read( 'models', $modelName);
                 $modelData = JSON_decode( $modelContent, true);
                 /*
@@ -98,7 +98,7 @@ class UDS_resource extends UD_service {
             $cols = "";
             $data = ($LFF) ? $LFF->fetchNode( $oid, $cols) : LF_fetchNode( $oid, $cols);   
             for ( $datai=1; $datai < count( $data); $datai++) {
-                $d = $data[ $datai];
+                $d =  val( $data, $datai);
                 /*
                 // 2DO aligne with OS model
                 name text NOT NULL,
@@ -130,11 +130,11 @@ class UDS_resource extends UD_service {
                 */
                 // Check for app parameters
                 $params = JSON_decode( $d[ 'textra'], true)[ 'system'];
-                $tag = $params[ 'tag'];
+                $tag = val( $params, 'tag');
                 if ( !$params || !$tag) continue;
                 // Prepare  OS-compatible data with thumbnail JSON100
-                $label = LF_preDisplay( 'n', $d[ 'nlabel']);
-                $spans = HTML_getContentsByTag( LF_preDisplay( 't', $d[ 'tcontent']), 'span');
+                $label = LF_preDisplay( 'n', val( $d, 'nlabel'));
+                $spans = HTML_getContentsByTag( LF_preDisplay( 't', val( $d, 'tcontent')), 'span');
                 $descr = ( count( $spans) > 1) ? $spans[ 1] : "";
                 $onclick = LF_substitute( $clickModel, $d);
                 $thumbnail = [
@@ -147,14 +147,14 @@ class UDS_resource extends UD_service {
                 ];
                 $model = [
                     "name" => $d[ 'nname'],
-                    "label" => LF_preDisplay( 'n', $d[ 'nlabel']),
+                    "label" => LF_preDisplay( 'n', val( $d, 'nlabel')),
                     "stype" => (int) $d[ 'stype'],
                     "model" => $d[ 'nstyle'],
                     "description" => $descr,
                     "params" => $params,
                     "prefix" => "",                    
-                    "created" => LF_timestamp( $d[ 'dcreated']),
-                    "modified" => LF_timestamp( $d[ 'dmodified']),
+                    "created" => LF_timestamp( val( $d, 'dcreated')),
+                    "modified" => LF_timestamp( val( $d, 'dmodified')),
                     "state" => "model",
                     "progress" => 0,
                     "deadline" => 0,
@@ -169,7 +169,7 @@ class UDS_resource extends UD_service {
 } // PHP class UDS_resource
 
 // Auto-test
-if ( isset( $argv[0]) && strpos( $argv[0], "udsresourceservice.php") !== false)
+if ( isset( $argv) && strpos( $argv[0], "udsresourceservice.php") !== false)
 {
     function nextTest() {
         global $TEST_NO, $LF, $LFF;        

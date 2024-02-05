@@ -5,11 +5,11 @@
  * Marketplace Request 
  */
 function SDBEE_marketplace( $request) {
-    if ( !SDBEE_isMarketplace( $request[ 'processus']))
+    if ( !SDBEE_isMarketplace( val( $request, 'processus')))
         return [ 'success'=>false, 'response'=>"{$request[ 'processus']} not in marketplace"];
     // Get marketplace url & user
     $url = UD_getParameter( 'marketpace-url');  
-    $token = ( isset( $request[ 'token'])) ? $request[ 'token'] : UD_getParameter( 'markeplace-user-private-key');
+    $token = ( val( $request, 'token')) ? $request[ 'token'] : UD_getParameter( 'markeplace-user-private-key');
     $json = JSON_encode( $request);
     $opts = array('http' =>
         array(
@@ -24,7 +24,7 @@ function SDBEE_marketplace( $request) {
     $r = JSON_decode( $response, true);
     return $r;
     /*
-    if ( $r[ 'success']) {
+    if ( val( $r, 'success')) {
         return true;
     }
     return false;

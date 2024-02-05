@@ -32,13 +32,13 @@ class UDlist extends UDelement
         parent::__construct( $datarow);
         /*if ( $this->isJSON100) return;*/
         /* DEPRECATED Code */        
-        $this->caption = $datarow['_caption'];
-        $this->elementName = $datarow['_elementName'];
-        $this->saveable = $datarow['_saveable'];
-        $this->JSONcontent = $datarow['_JSONcontent'];
+        $this->caption = val( $datarow, '_caption');
+        $this->elementName = val( $datarow, '_elementName');
+        $this->saveable = val( $datarow, '_saveable');
+        $this->JSONcontent = val( $datarow, '_JSONcontent');
         if ( !$this->JSONcontent)
         {
-            if ( $datarow['_textContent'])
+            if ( val( $datarow, '_textContent'))
             {
                 // Convert text lines to JSON 
             
@@ -48,7 +48,7 @@ class UDlist extends UDelement
                 /* HTML OK but may be caption+object */
                 // HTML text (backward compatibility with version--4)
                 $this->MIMEtype = "text/html";
-                $this->HTMLcontent = $datarow['_cleanContent'];
+                $this->HTMLcontent = val( $datarow, '_cleanContent');
                 if ( !$this->HTMLcontent) $this->HTMLcontent = $this->content;
                 $this->HTMLcontent = str_replace( ["\n"], ["<br>"], $this->HTMLcontent);
             }
@@ -101,7 +101,7 @@ class UDlist extends UDelement
             // Content is already setup   
             $r .= ">";
             if ( $this->content[0] == '{') {
-               $name = $this->JSONcontent[ 'meta']['name'];
+               $name = val( $this->JSONcontent, 'meta/name');
                $holder = $name."_object";
                $r .= "<div id=\"{$holder}\" class=\"object hidden\">{$this->content}</div>";
                if ( $this->html) 
@@ -109,7 +109,7 @@ class UDlist extends UDelement
             } else $r .= $this->content; // 2DO Bug Names not regenerated
             /*
             // Get autosave mode from extra>system
-            $autosave = "On"; //$this->extra['system']['autosave']; // 2DO extra yes
+            $autosave = "On"; //val( $this->extra, 'system/autosave'); // 2DO extra yes
             $r .= "<span class=\"caption\">$this->caption</span>";
             if ( !$autosave || $autosave == "Off")
             {
@@ -147,9 +147,9 @@ class UDlist extends UDelement
        foreach( $json as $key=>$element)
        { 
             if ( $key[0] == '_') continue;
-            $value = $element['value'];
-            $formula = $element['ude_formula'];
-            $class = $element['class'];
+            $value = val( $element, 'value');
+            $formula = val( $element, 'ude_formula');
+            $class = val( $element, 'class');
             $list .= "<li";
             if ( $formula) $list .= " ude_formula=\"{$formula}\"";
             $list .= ">{$element['value']}</li>";
@@ -161,7 +161,7 @@ class UDlist extends UDelement
  } // PHP class UDlist
 
 // Auto-test
-if ( isset( $argv[0]) && strpos( $argv[0], "udlist.php") !== false)
+if ( isset( $argv) && strpos( $argv[0], "udlist.php") !== false)
 {
     // CLI launched for tests
     echo "Syntax OK\n";

@@ -54,36 +54,15 @@ function app_load( user, path) {
         console.log( e.stack);
         alert( "Loading error Please reload page " + e.message);
     };
-    // !!! Uodate standard modules in udconstants.php when changing loaded modules under modules/    / *'ude-view/udecalc_css'+version,* /
-    /*
-    node_modules/dayjs/dayjs.min', 'node_modules/dayjs/plugin/relativeTime', 'node_modules/dayjs/plugin/customParseFormat',
-        //'node_modules/dayjs/locale/fr',
-        'node_modules/dayjs/plugin/weekOfYear',
-    */
+    // Load SD bee client & configuration
     modules = [
         'dayjs', 'dayjscdn/plugin/relativeTime', 
         'dayjscdn/plugin/customParseFormat', 'dayjscdn/plugin/weekOfYear', 'dayjscdn/locale/fr',
         'moment', // has to be here until we configure chart.js to use dayjs or don't add v string
-        //'config/udregister'+version,
         'https://www.sd-bee.com/upload/smartdoc/require-version/udregister' + version + '.js',
-        //'https://www.sd-bee.com/upload/smartdoc/browser/udajax-v-0-3-1.js',
         'https://www.sd-bee.com/upload/ude-min' + version + '.js',
-        // load ajax locally for easier debugging
-        ajaxPath + '/app/editor-view/udajax.js',
-        /*
-        'debug/debug'+version,
-        'ud-view-model/udconstants'+version, 'ud-view-model/udregister'+version,
-        'ud-utilities/udjson'+version, 
-        'browser/domcursor'+version, 'browser/domvalue'+version, 'browser/dom'+version, 'browser/udajax'+version,
-        'ude-view/udeconstants'+version, 'ude-view/udecalc'+version, 
-        'ude-view/udemenu'+version, 'ude-view/udelayout'+version, 
-        'ude-view/udeclickhandler'+version, 'ude-view/ude'+version, 
-        'modules/editors/udetext'+version,
-        'api/apiset1'+version, 'api/apiset2'+version, 'api/udapi'+version, 'api/udmodule'+version, 'ud-utilities/udutilities'+version,
-        'ud-utilities/udresources'+version,'ud-utilities/udcontent'+version,
-        'modules/tools/zone'+version,
-        'ud-view-model/ud'+version,
-        */
+        // load module for ctaching exchanges with server
+        ajaxPath + '/app/editor-view/servertracker.js',
     ];
     let led = document.getElementById( 'STATUS_busy');
     if (led) {

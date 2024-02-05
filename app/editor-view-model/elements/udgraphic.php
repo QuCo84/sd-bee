@@ -23,11 +23,11 @@ class UDgraphic extends UDelement
     function __construct( $datarow)
     {
         parent::__construct( $datarow);
-        $this->caption = $datarow['_caption'];
-        $this->elementName = $datarow['_elementName'];        
-        $this->drawing =  $datarow['_cleanContent']; 
-        $this->saveable = $datarow['_saveable'];
-        $this->JSONcontent = $datarow['_JSONcontent'];          
+        $this->caption = val( $datarow, '_caption');
+        $this->elementName = val( $datarow, '_elementName');        
+        $this->drawing =  val( $datarow, '_cleanContent'); 
+        $this->saveable = val( $datarow, '_saveable');
+        $this->JSONcontent = val( $datarow, '_JSONcontent');          
         if ( $this->JSONcontent && $this->content[0] == '{') { $this->MIMEtype = "text/json";}
         elseif ( $this->JSONcontent) { $this->MIMEtype = "text/mixed";}
         else
@@ -108,7 +108,7 @@ class UDgraphic extends UDelement
  } // PHP class UDgraphic
  
  // Auto-test
-if ( isset( $argv[0]) && strpos( $argv[0], "udgraphic.php") !== false)
+if ( isset( $argv) && strpos( $argv[0], "udgraphic.php") !== false)
 {
     // CLI launched for tests
     echo "Syntax OK\n";

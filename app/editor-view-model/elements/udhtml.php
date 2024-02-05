@@ -25,17 +25,17 @@ if ( !class_exists( 'UDelement')) require_once( __DIR__."/../../tests/testenv.ph
     // UDhtml construct
     function __construct( $datarow) {
         parent::__construct( $datarow);
-        $this->caption = $datarow['_caption'];
-        $this->elementName = $datarow['_elementName'];
-        $this->content =  $datarow['_cleanContent']; 
-        $this->saveable = $datarow['_saveable']; 
-        $this->JSONcontent = $datarow[ '_JSONcontent'];
+        $this->caption = val( $datarow, '_caption');
+        $this->elementName = val( $datarow, '_elementName');
+        $this->content =  val( $datarow, '_cleanContent'); 
+        $this->saveable = val( $datarow, '_saveable'); 
+        $this->JSONcontent = val( $datarow, '_JSONcontent');
         if ( $this->JSONcontent && $this->content[0] == '{') { $this->MIMEtype = "text/json";}
         else {
             $this->MIMEtype = "text/html";
-            $this->textContent = $datarow['_textContent'];
+            $this->textContent = val( $datarow, '_textContent');
             if ( $this->textContent == []) $this->textContent = [ "HTML", $this->content, "..."];        
-            $this->params = $datarow['_extra']['system'];
+            $this->params = val( $datarow, '_extra/system');
         }
         $this->requireModules( ['modules/editors/udehtml', 'ejs']);    // , 'ejs.js'
     } // UDhtml->construct()
@@ -65,8 +65,8 @@ if ( !class_exists( 'UDelement')) require_once( __DIR__."/../../tests/testenv.ph
         if ( $this->MIMEtype == "text/json") {
             // JSON100 format
             $json = $this->JSONcontent;
-            $name = $json[ 'meta'][ 'name'];
-            $activeZoneName = $json[ 'meta'][ 'zone'];
+            $name = val( $json, 'meta/name');
+            $activeZoneName = val( $json, 'meta/zone');
             $lines = $json[ 'data'][ 'edit'][ 'value'][ 'value'];
             for ( $li=0; $li < LF_count( $lines); $li++) { 
                 $line = $lines[ $li];
@@ -149,7 +149,7 @@ if ( !class_exists( 'UDelement')) require_once( __DIR__."/../../tests/testenv.ph
  } // PHP class UDhtml
 
 // Auto-test
-if ( isset( $argv[0]) && strpos( $argv[0], "udhtml.php") !== false)
+if ( isset( $argv) && strpos( $argv[0], "udhtml.php") !== false)
 {
     // CLI launched for tests
     echo "Syntax OK\n";

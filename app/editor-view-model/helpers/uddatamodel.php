@@ -634,7 +634,7 @@ function LF_fetchNode( $oid, $cols="") { return [];}
 
 function LF_fileServer() {
     // Config
-    $localFiles = [ 'requireconfig.js', 'udajax.js', 'udregister.js'];
+    $localFiles = [ 'requireconfig.js', 'udajax.js', 'udregister.js', 'servertracker.js'];
     $authorisedPaths = ["sd-bee", "sdbee", "upload", "tmp", "download", "app", "fonts", "favicon.ico"];
     // Get and anlyse URI
     $uri = val( $_SERVER, 'REQUEST_URI');

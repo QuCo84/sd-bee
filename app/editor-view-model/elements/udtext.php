@@ -23,12 +23,12 @@ class UDtext extends UDelement
     function __construct( &$datarow)
     {
         parent::__construct( $datarow);
-        $this->caption = $datarow['_caption'];
-        $this->elementName = $datarow['_elementName'];
-        $this->content =  $datarow['_cleanContent']; 
-        $this->saveable = $datarow['_saveable'];
-        $this->textContent = $datarow['_textContent'];
-        $this->JSONcontent = $datarow['_JSONcontent'];
+        $this->caption = val( $datarow, '_caption');
+        $this->elementName = val( $datarow, '_elementName');
+        $this->content =  val( $datarow, '_cleanContent'); 
+        $this->saveable = val( $datarow, '_saveable');
+        $this->textContent = val( $datarow, '_textContent');
+        $this->JSONcontent = val( $datarow, '_JSONcontent');
         if ( $this->JSONcontent && isset( $this->JSONcontent[ "meta"])) $this->MIMEtype = "text/json";
         else $this->MIMEtype = "text/text";
         if ( $this->textContent == []) $this->textContent = [ $this->content, "...", "..."];        
@@ -144,7 +144,7 @@ class UDjson extends UDtext
 
     // Return array with content( HTML) and Javascript 
     function renderAsHTMLandJS( $active=true) {
-        $params = $this->JSONcontent[ 'data'][ 'value'];
+        $params = val( $this->JSONcontent, 'data/value');
         if( $params[ "module"]) {            
             // Get module relative path in resources
             $module = $params[ "module"];
@@ -182,7 +182,7 @@ class UDjson extends UDtext
   
 } // UDjson PHP class
  
-if ( isset( $argv[0]) && strpos( $argv[0], "udtext.php") !== false)
+if ( isset( $argv) && strpos( $argv[0], "udtext.php") !== false)
 {
     // CLI launched for tests
     echo "Syntax OK\n";

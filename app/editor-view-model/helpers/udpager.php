@@ -55,7 +55,7 @@ class UDpager
         $viewTypes = UD_getDbTypeInfo( UD_part, 'subTypes');
         foreach ( $viewTypes as $viewType) {
             $viewTypeInfo = UD_getExTagAndClassInfo( "div.part.{$viewType}");
-            $this->nextPartIds[ $viewType] = $viewTypeInfo[ 'nextId'];
+            $this->nextPartIds[ $viewType] = val( $viewTypeInfo, 'nextId');
         }
     }
    /**
@@ -69,17 +69,17 @@ class UDpager
         // Best logic would be to create the element, manage pages and then add element
         // so we could use a  getHeight method or public attribute
         if ( !$this->enablePaging) return null;
-        $type = (int) $elementData['stype'];
+        $type = (int) val( $elementData, 'stype');
         $force = false;
         $skipOnce = false;
         $pageElement = true;
-        $style = $elementData['nstyle'];
+        $style = val( $elementData, 'nstyle');
         if ( in_array( $type, [ UD_page])) { $force = true; $pageElement = false;}
         elseif ( $type == UD_view) {
             // Decide if view is displayable and needs paging
             $this->skip = true;
-            $partName = $elementData[ 'nlabel'] ? mb_strtoupper( $elementData[ 'nlabel']) : mb_strtoupper( $elementData[ '_title']);
-            $mode = $elementData[ '_mode'];
+            $partName = $elementData[ 'nlabel'] ? mb_strtoupper( val( $elementData, 'nlabel')) : mb_strtoupper( val( $elementData, '_title'));
+            $mode = val( $elementData, '_mode');
             if ( $mode == "edit") {
                 $this->skip = false;
             } elseif ( $mode == "model") {
@@ -90,7 +90,7 @@ class UDpager
             } else { // if ( $this->ud->mode == "display") {
                 // Display mode - always display default,   and public mode              
                 if ( !LF_count( $this->views)) {
-                    $this->skip = ( strpos( $partName, mb_strtoupper( $elementData[ '_defaultPart'])) === false); 
+                    $this->skip = ( strpos( $partName, mb_strtoupper( val( $elementData, '_defaultPart'))) === false); 
                 } else {         
                     $this->skip = !in_array( $partName, $this->views);
                 }
@@ -107,9 +107,9 @@ class UDpager
                     $styles = explode( ' ', $style);
                     LF_debug( "Searching pageHeight for style {$style}", "UDpager", 8);
                     for ( $stylei=0; $stylei < LF_count( $styles); $stylei++) {
-                        $wstyle = $styles[ $stylei];
+                        $wstyle =  val( $styles, $stylei);
                         if ( isset( $this->styleHeights[ $wstyle])) { // && $this->styleHeights[ $styles[ $stylei]]) {
-                            $this->pageHeight = $this->styleHeights[ $wstyle];
+                            $this->pageHeight =  val( $this->styleHeights, $wstyle);
                             LF_debug( "Using pageHeight for style {$wstyle}", "UDpager", 8);
                             break;
                         } elseif ( strpos( $wstyle, 'LAY_') !== false) {
@@ -118,7 +118,7 @@ class UDpager
                     }                    
                 } else { 
                     $this->pageHeight = $this->docPageHeight;
-                    $this->viewsWithNoPaging[] = $elementData[ '_title'];
+                    $this->viewsWithNoPaging[] = val( $elementData, '_title');
                 }                
             }
             return null;
@@ -128,7 +128,7 @@ class UDpager
             $width = 100;         
             // 2DO if closeZone skipZone = false
             $this->skipZone = true;
-            if ( isset( $this->styleWidths[ $style])) $width = $this->styleWidths[ $style];
+            if ( isset( $this->styleWidths[ $style])) $width =  val( $this->styleWidths, $style);
             // Ignore if new currentPageWidth < 100%
             $currentWidth = $this->currentPageWidth;
             if ( $width) $this->currentPageWidth += $width;
@@ -142,7 +142,7 @@ class UDpager
             // 2DO if no height in style then ignore zone for paging 
             if ( !$this->skipZone && isset( $this->styleHeights[ $style])) {
                 $this->skip = true;
-                $this->currentPageHeight += $this->styleHeights[ $style];
+                $this->currentPageHeight +=  val( $this->styleHeights, $style);
             }
             // $skipOnce = true;
             // 2DO add test skipZOne on l 139
@@ -151,20 +151,20 @@ class UDpager
         $averageMargin = 18;
         $returnElement = null;
         if ( $force || ( !$this->skip && !$skipOnce)) {
-            if ( !$elementData['textra']) $elementData['textra'] = '{"height":16}';
+            if ( !val( $elementData, 'textra')) $elementData['textra'] = '{"height":16}';
             // Decode JSON extra data
-            $extra = JSON_decode( LF_preDisplay( 't', $elementData['textra']), true);
+            $extra = JSON_decode( LF_preDisplay( 't', val( $elementData, 'textra')), true);
             // 2DO if $this->reCompute page Heights or if too far away (twice last element's height then ignore) 
             $top = max( $extra['offsetTop'], $this->currentPageOffsetTop);
-            $height = $extra['height'];
+            $height = val( $extra, 'height');
             $relTop = $top - $this->currentPageOffsetTop;
             $relTop2 = 0;
             $margins = $averageMargin;
-            if ( isset( $extra[ 'marginTop']) && is_numeric($extra[ 'marginTop']) && (int) $extra[ 'marginBottom'] > $margins) {
-                $margins = (int) $extra[ 'marginTop'];
+            if ( val( $extra, 'marginTop') && is_numeric(val( $extra, 'marginTop')) && (int) $extra[ 'marginBottom'] > $margins) {
+                $margins = (int) val( $extra, 'marginTop');
             }
-            if ( isset( $extra[ 'marginBottom']) && is_numeric($extra[ 'marginBottom']) && (int) $extra[ 'marginBottom'] > $margins) {
-                   $margins = (int) $extra[ 'marginBottom'];
+            if ( val( $extra, 'marginBottom') && is_numeric(val( $extra, 'marginBottom')) && (int) $extra[ 'marginBottom'] > $margins) {
+                   $margins = (int) val( $extra, 'marginBottom');
             }
             // 2DO use relTop only if height extravagant = too small or too high for 
             /*if ($relTop > $this->currentPageHeight && ($relTop - $this->currentPageHeight) < 300)
@@ -335,8 +335,8 @@ class UDpager
     function addToOutline( $elementData)
     {   
         // Get name of part or sub-part 
-        $label =  ( $elementData['_title']) ? $elementData['_title'] : $elementData['nlabel'];
-        $type = (int) $elementData['stype']; 
+        $label =  ( val( $elementData, '_title')) ? $elementData['_title'] : val( $elementData, 'nlabel');
+        $type = (int) val( $elementData, 'stype'); 
         $includeInOutline = false;
         if ( $type == UD_view) {
             // Set current part pointer
@@ -353,7 +353,7 @@ class UDpager
                 }
             }
             // Decide if view is displayable and therefore must be in outline
-            $mode = $elementData[ '_mode'];
+            $mode = val( $elementData, '_mode');
             if ( $mode == "edit") {
                 $includeInOutline = true;
             } elseif ( $mode == "model") {
@@ -372,12 +372,12 @@ class UDpager
             // Check not already in outline
             $present = false;
             foreach ( $this->outline as $key=>$val) {
-                if ( $val[ 'label'] == $label) { 
+                if (  val( $val, 'label') == $label) { 
                     $present = true; 
                     break;
                 }
             }
-            $this->nextPartIds['default'] = $this->nextPartIds['doc'];            
+            $this->nextPartIds['default'] = val( $this->nextPartIds, 'doc');            
         }
         // Leave here if not be included in outline
         if ( !$includeInOutline || $present) { return $this->outline;}
@@ -386,7 +386,7 @@ class UDpager
         $level = $type - 3;       
         if ( $level > 0 && $level < 4) // 2DO Let through pther levels but skip if parent not sent otherwise ... tabs
         {    
-            $blockName = LF_preDisplay( 'n', $elementData['nname']); // , 1, 12);
+            $blockName = LF_preDisplay( 'n', val( $elementData, 'nname')); // , 1, 12);
             // $useLevel = $pFirstT = strpos( $blockName, "T",1);
             $stackLen = LF_count( $this->outlineStack);
             while ( $stackLen && $level <= $this->outlineStack[ $stackLen - 1]['l'])
@@ -394,7 +394,7 @@ class UDpager
                 array_pop( $this->outlineStack); 
                 $stackLen--; 
             }  
-            $shortOid = "UniversalDocElement--".explode( '--',  $elementData['oid'])[1];            
+            $shortOid = "UniversalDocElement--".explode( '--',  val( $elementData, 'oid'))[1];            
             array_push( $this->outlineStack, array( 'n'=>$blockName, 'l'=>$level, 'oid'=>$shortOid, 'label'=>$label, 'children'=>[]));
             $stackLen++;          
             $w = $this->outlineStack;
@@ -449,7 +449,7 @@ class UDpager
         foreach ($root as $key=>$value)
         {
             $attr = " id=\"".$value['n']."_li\" class=\"viewoutline\" target_id=\"".$value['n']."\" ud_oid=\"".$value['oid']."\"";
-            $label = $value['label'];
+            $label = val( $value, 'label');
             $onclick = "window.ud.ude.focus('".$value['n']."');";
             if ( substr( $value['n'], 3, 10)== "0000000000" )
             {    
@@ -466,7 +466,7 @@ class UDpager
                 foreach ( $viewTypes as $viewType) {
                     $viewTypeInfo = UD_getExTagAndClassInfo( "div.part.{$viewType}");
                     if ( $blockNo >= $viewTypeInfo[ 'blockNoMin']*32 && $blockNo <=  $viewTypeInfo[ 'blockNoMax']*32-1) {
-                        $blockLabel = ( $lang != 'EN') ? $viewTypeInfo[ 'label_'.$lang] : $viewTypeInfo[ 'label'];
+                        $blockLabel = ( $lang != 'EN') ? $viewTypeInfo[ 'label_'.$lang] : val( $viewTypeInfo, 'label');
                         break;
                     }
                 }
@@ -492,7 +492,7 @@ class UDpager
                     $r .= "</ul></li><li>{$blockLabel}:<ul>\n";
                 } else { $lastBlockLabel = $blockLabel;}
                 $r .= "<li $attr onclick=\"$onclick\">{$label}</li>\n";
-               // if ( LF_count( $value['children'])>0) $r .= $this->renderOutlineAsList( $value['children'], $key);
+               // if ( LF_count( val( $value, 'children'))>0) $r .= $this->renderOutlineAsList( $value['children'], $key);
             }  
         }
         $r .= "</ul></li></ul></li></ul>\n";
@@ -503,7 +503,7 @@ class UDpager
 } // end of PHP class UDpager
 
 // Auto-test
-if ( isset( $argv[0]) && strpos( $argv[0], "udpager.php") !== false)
+if ( isset( $argv) && strpos( $argv[0], "udpager.php") !== false)
 {
     // CLI launched for tests
     echo "Syntax OK\n";

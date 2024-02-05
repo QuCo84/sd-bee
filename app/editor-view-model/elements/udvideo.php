@@ -28,7 +28,7 @@ class UDvideo extends UDelement
     function __construct( $datarow)
     {
         parent::__construct( $datarow);
-        $content = $datarow[ 'tcontent'];
+        $content = val( $datarow, 'tcontent');
         $jsonParams = HTML_getContentsByTag( $content, 'div')[0];
         if ( $jsonParams)
         {
@@ -38,12 +38,12 @@ class UDvideo extends UDelement
                 $this->error = "Configuration erronnée";
                 return;
             }
-            $src = $params['src'];
+            $src = val( $params, 'src');
             $this->sourceList = $src;
-            $this->playMode = $params[ 'mode'];
-            $this->videoWidth = $params[ 'width'];
-            $this->videoHeight = $params[ 'height'];
-            $this->videoPoster = $params[ 'poster'];
+            $this->playMode = val( $params, 'mode');
+            $this->videoWidth = val( $params, 'width');
+            $this->videoHeight = val( $params, 'height');
+            $this->videoPoster = val( $params, 'poster');
             $this->elementName = str_replace( " ", "_", HTML_getContentsByTag( $content, 'span')[0]); 
         }
         else $src = $content;
@@ -117,7 +117,7 @@ class UDvideo extends UDelement
  
 
 // Auto-test
-if ( isset( $argv[0]) && strpos( $argv[0], "udvideo.php") !== false)
+if ( isset( $argv) && strpos( $argv[0], "udvideo.php") !== false)
 {
     // CLI launched for tests
     echo "Syntax OK\n";

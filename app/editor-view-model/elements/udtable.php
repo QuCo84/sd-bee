@@ -34,19 +34,19 @@ class UDtable extends UDelement
         parent::__construct( $datarow);
         /*if ( $this->isJSON100) return;*/
         /* DEPRECATED COde */
-        $this->caption = $datarow['_caption'];
-        $this->elementName = $datarow['_elementName']; // Caption with no whitespace
-        $this->saveable = $datarow['_saveable'];
-        $this->JSONcontent = $datarow['_JSONcontent'];
+        $this->caption = val( $datarow, '_caption');
+        $this->elementName = val( $datarow, '_elementName'); // Caption with no whitespace
+        $this->saveable = val( $datarow, '_saveable');
+        $this->JSONcontent = val( $datarow, '_JSONcontent');
         if ( $this->JSONcontent && $this->content[0] == '{') $this->MIMEtype = "text/json";
         else {
-            if ( $datarow['_textContent']) {
+            if ( val( $datarow, '_textContent')) {
 				$this->MIMEtype = "text/text";
 				// Look for ; \t ,
             } elseif ( $this->content[0] == '<') { // or strpos( c, "span") {
                 // HTML table
                 $this->MIMEtype = "text/html";
-                //$this->HTMLcontent = $datarow['_cleanContent'];
+                //$this->HTMLcontent = val( $datarow, '_cleanContent');
                 if ( !$this->HTMLcontent) $this->HTMLcontent = $this->content;
 				// Remove line breaks
                 $this->HTMLcontent = str_replace( ["\n"], ["<br>"], $this->HTMLcontent);
@@ -91,7 +91,7 @@ class UDtable extends UDelement
             // Content is text/json 
             $r .= ">";
             if ( $this->content[0] == '{') {
-               $name = $this->JSONcontent[ 'meta']['name'];
+               $name = val( $this->JSONcontent, 'meta/name');
                $holder = $name."_object";
                $r .= "<div id=\"{$holder}\" class=\"object hidden\">{$this->content}</div>";
                if ( $this->html) 
@@ -126,26 +126,26 @@ class UDtable extends UDelement
              // expected JSON { _class: "rowClass", fieldname1 : { cel1}, fieldname2: {cell2}, ...}
              $table .= "<tr";
              // <tr> can have onclick, class and editmode attrbutes
-             if ( isset( $row['_class'])) $table .= " class=\"{$row[ '_class']}\""; 
-             if ( isset( $row['_onclick'])) $table .= " onclick=\"{$row[ '_onclick']}\""; 
-             if ( isset( $row['_editmode'])) $table .= " contenteditable=\"{$row[ '_editmode']}\"";
+             if ( val( $row, '_class')) $table .= " class=\"{$row[ '_class']}\""; 
+             if ( val( $row, '_onclick')) $table .= " onclick=\"{$row[ '_onclick']}\""; 
+             if ( val( $row, '_editmode')) $table .= " contenteditable=\"{$row[ '_editmode']}\"";
              $table .= ">"; 
              // Cell loop
              foreach ( $row as $fieldname=>$cell)
              {                
                 // expected JSON fieldname:{ tag:"th", ude_formula:"a+b", value:abc}
                 if ( $fieldname[0] == "_") continue;
-                if ( !isset( $cell['tag'])) $cell['tag'] = "td";
+                if ( !val( $cell, 'tag')) $cell['tag'] = "td";
                 // <td> & <th> can have ude_formula and class attributes
                 $attr = "";
                 //if ( isNaN( $cell['value')) $attr = "ud_type=\"t\"";
                 //else $attr = "ud_type=\"i\"";
-                if ( isset( $cell['ude_formula'])) $attr .= " ude_formula=\"{$cell['ude_formula']}\"";
-                if ( isset( $cell['_onclick'])) $attr .= " onclick=\"{$cell[ '_onclick']}\""; 
+                if ( val( $cell, 'ude_formula')) $attr .= " ude_formula=\"{$cell['ude_formula']}\"";
+                if ( val( $cell, '_onclick')) $attr .= " onclick=\"{$cell[ '_onclick']}\""; 
                 // Id column is non editable
-                if ( $fieldname == "" || $cell['_editmode'] == "false") $attr .= " contenteditable=\"false\"";
+                if ( $fieldname == "" ||  val( $cell, '_editmode') == "false") $attr .= " contenteditable=\"false\"";
                 $table .= "<{$cell['tag']} $attr>";
-                if ( isset( $cell['value']))$table .= str_replace( ['_BR_'], ['<br>'], $cell['value']);
+                if ( val( $cell, 'value'))$table .= str_replace( ['_BR_'], ['<br>'], val( $cell, 'value'));
                 $table .= "</{$cell['tag']}>";                
              } // end of cell loop
              $table .= "</tr>";             
@@ -173,7 +173,7 @@ class UDtable extends UDelement
  } // PHP class UDtable
  
 // Auto-test
-if ( isset( $argv[0]) && strpos( $argv[0], "udtable.php") !== false)
+if ( isset( $argv) && strpos( $argv[0], "udtable.php") !== false)
 {
     // CLI launched for tests
     echo "Syntax OK\n";

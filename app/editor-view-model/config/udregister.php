@@ -62,9 +62,9 @@ function UD_getExTagAndClassInfo( $exTagOrClass, $param = "") {
             echo "\n".$json;
             die();
         }
-        $UD_exTagAndClassInfo = $register[ 'UD_exTagAndClassInfo'];
-        $UD_wellKnown = $register[ 'UD_wellKnown'];
-        $UD_parameters = $register[ 'UD_parameters'];
+        $UD_exTagAndClassInfo = val( $register, 'UD_exTagAndClassInfo');
+        $UD_wellKnown = val( $register, 'UD_wellKnown');
+        $UD_parameters = val( $register, 'UD_parameters');
         $UD_changedResources = [];
         $UD_fetchedResources = [];
         $UD_dateCache = [];
@@ -88,7 +88,7 @@ function UD_getDbTypeInfo( $dbType, $param = "") {
     if ( !$UD_dbTypeIndex) {
         UD_getExTagAndClassInfo( 'p');
         foreach( $UD_exTagAndClassInfo as $exTagOrClass=>$info) {
-            if ( isset( $info[ 'db_type'])) {
+            if ( val( $info, 'db_type')) {
                 $UD_dbTypeIndex[ (int) $info[ 'db_type']] = $exTagOrClass;
             }
         }
@@ -96,7 +96,7 @@ function UD_getDbTypeInfo( $dbType, $param = "") {
     // Get exTag
     $exTag = $UD_dbTypeIndex[ (int) $dbType];
     // Return info
-    if ( $param)  return $UD_exTagAndClassInfo[ $exTag][ $param];
+    if ( $param) return val( $UD_exTagAndClassInfo,"$exTag/$param");
     else return $UD_exTagAndClassInfo[ $exTag];
 
 } // UD_getDbTypeInfo()
@@ -248,18 +248,18 @@ function UD_autoFillResourcePath( &$path) {
                 for ( $filei=0; $filei < LF_count( $filenames); $filei++) {             
                     // Load file
                     $resource = UD_loadResourceFile( $filenames[ $filei]);
-                    $html .= $resource[ 'content'];
-                    $js .= $resource[ 'program'];
-                    $style .= $resource[ 'style'];   
-                    $models .= $resource[ 'models'];
+                    $html .= val( $resource, 'content');
+                    $js .= val( $resource, 'program');
+                    $style .= val( $resource, 'style');   
+                    $models .= val( $resource, 'models');
                 }
             } elseif ( $key == "load") {
                 // LOAD a directory of resources, ie a module
                 $resource = UD_loadResourceModule( $filenames[ $filei]);
-                $html .= $resource[ 'content'];
-                $js .= $resource[ 'program'];
-                $style .= $resource[ 'style'];   
-                $models .= $resource[ 'models'];
+                $html .= val( $resource, 'content');
+                $js .= val( $resource, 'program');
+                $style .= val( $resource, 'style');   
+                $models .= val( $resource, 'models');
             } elseif ( strpos( $key, '.')) {
                 // Key parts are attribute for selector, or resource to change or media query
                /** 
@@ -410,8 +410,8 @@ function UD_autoFillResourcePath( &$path) {
                 // Process valid JSON using recurrence
                 if ( $includeData) {
                     $w = UD_processResourceSet( $includeData, str_replace( "{$filename}", '', $fileUsed));
-                    $js .= $w[ 'program']; 
-                    $style .= $w[ 'style'];
+                    $js .= val( $w, 'program'); 
+                    $style .= val( $w, 'style');
                 }
             }
         } elseif ( $fileExt == "vue" || $fileExt == "sfc") {      
@@ -425,8 +425,8 @@ function UD_autoFillResourcePath( &$path) {
                 $data[ 'style'] = $sass;
                 $data[ 'dstyle'] = LF_subString( $r, "<dstyle>", "</dstyle>");
                 $w = UD_processResourceSet( $data, str_replace( "{$filename}", '', $fileUsed));
-                $js .= $w[ 'program']; 
-                $style .= $w[ 'style'];
+                $js .= val( $w, 'program'); 
+                $style .= val( $w, 'style');
             }
         } elseif ( $fileExt == "ejs") {
             // Load an Embedded JS HTML template
@@ -633,9 +633,9 @@ function UD_autoFillResourcePath( &$path) {
                 case "UD_addClass" : {
                     // Add to or set available classes for an extended tag
                     $params = $paramA;
-                    $exTag = $params[ 'exTag'];
-                    $addViewTypes = $params[ 'addViewTypes'];
-                    $setViewTypes = $params[ 'setViewTypes'];
+                    $exTag = val( $params, 'exTag');
+                    $addViewTypes = val( $params, 'addViewTypes');
+                    $setViewTypes = val( $params, 'setViewTypes');
                     $currentValue = UD_getExTagAndClassInfo( $exTag, "classesByViewType");
                     foreach( $addViewTypes as $addViewType) {
                         if ( isset(  $currentValue[ $addViewType])) $currentValue[ $addViewType][] = $className;
@@ -650,9 +650,9 @@ function UD_autoFillResourcePath( &$path) {
                     for ( $pi=0; $pi < LF_count( $paramA); $pi++) {
                         $params = $paramA[ $pi]; 
                         // Obtain CSS code for a specific selector from a style sheet
-                        $cssFile = $params[ 'sourceFile'];
-                        $sourceSelector = $params[ 'sourceSelector'];
-                        $selector = $params[ 'selector'];
+                        $cssFile = val( $params, 'sourceFile');
+                        $sourceSelector = val( $params, 'sourceSelector');
+                        $selector = val( $params, 'selector');
                         // CSS set is an array with media queries max-width as key
                         $cssSet = UD_getCSSFromFile( $cssFile, $sourceSelector);
                         // Replace className in selector
@@ -1025,7 +1025,7 @@ function UD_autoFillResourcePath( &$path) {
 
 
 // ENV usable in models and which will be substituted on instantation
-if ( isset( $argv[0]) && strpos( $argv[0], "udresources.php") !== false)
+if ( isset( $argv) && strpos( $argv[0], "udresources.php") !== false)
 {    
     // Launched with php.ini so run auto-test
     echo "Syntaxe OK\n";

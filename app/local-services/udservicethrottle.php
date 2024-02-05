@@ -72,9 +72,9 @@ class UD_serviceThrottle {
         // Get status
         $throttleStatus =  $this->getStatus( $service);
         // Check throttle data
-        $credits = $throttleStatus[ 'icredits'];
-        $allowedOverdraft =  ( isset( $throttleStatus[ 'iallowedOverdraft'])) ? $throttleStatus[ 'iallowedOverdraft'] : 0;
-        $currentPeriodEnds = $throttleStatus[ 'dvalidity'];
+        $credits = val( $throttleStatus, 'icredits');
+        $allowedOverdraft =  ( val( $throttleStatus, 'iallowedOverdraft')) ? $throttleStatus[ 'iallowedOverdraft'] : 0;
+        $currentPeriodEnds = val( $throttleStatus, 'dvalidity');
         //var_dump( $throttleLogId, $throttleStatus);
         if ( $credits > -$allowedOverdraft) {
             // Sufficient credits
@@ -108,9 +108,9 @@ class UD_serviceThrottle {
         if ( !$logData) return $this->error( THROTTLE_noService, "No log for $service");
         $today = LF_date();
         for ( $datai=0; $datai < count( $logData); $datai++) {
-            $log = $logData[ $datai];
-            $dbName = $log[ 'name'];
-            $nameParts = explode( '_', $log[ 'name']);
+            $log =  val( $logData, $datai);
+            $dbName = val( $log, 'name');
+            $nameParts = explode( '_', val( $log, 'name'));
             // Get entry's date   
             $entryTime = 0;    
             $date = ( count( $nameParts) >= 3) ? $date = $nameParts[2] : $date = $nameParts[0];
@@ -119,40 +119,40 @@ class UD_serviceThrottle {
             // Get details
             $details = JSON_decode( $log[ 'tdetails'], true);       
             /* Code to manage credits granted by processes
-            if ( $taskId && isset( $details[ 'task'])) {
+            if ( $taskId && val( $details, 'task')) {
                 // Ignore record if not this task
-                if ( $taskId != $details[ 'task']) continue;
-                // if ( $progress != $details[ 'progress']) continue;
+                if ( $taskId != val( $details, 'task')) continue;
+                // if ( $progress != val( $details, 'progress')) continue;
             }
             */
             // Check validity date
-            if ( isset( $details[ 'dvalidity']))  {      
-                if ( is_string( $details[ 'dvalidity'])) $validityDate = LF_date( $details[ 'dvalidity']);
+            if ( val( $details, 'dvalidity'))  {      
+                if ( is_string( val( $details, 'dvalidity'))) $validityDate = LF_date( val( $details, 'dvalidity'));
                 else $validityDate = $entryTime + $details[ 'dvalidity']*86400;                
                 if ( $validityDate < $today) continue;
             }    
                   
-            if ( $log[ 'nevent'] == "status") { 
+            if (  val( $log, 'nevent') == "status") { 
                 // Status record : add already counted credits, take latest validity and return
                 $status = $details;
                 $status[ 'icredits'] += $credits;
-                if ( $validityDate > $status[ 'dvalidity'])  $status[ 'dvalidity'] = $validityDate;
+                if ( $validityDate > val( $status, 'dvalidity'))  $status[ 'dvalidity'] = $validityDate;
                 $credits = 0;                
-            } elseif ( $log[ 'nevent'] == "consume") {
+            } elseif (  val( $log, 'nevent') == "consume") {
                 // Consume record
-                $credits -= $log[ 'iresult'];
+                $credits -= val( $log, 'iresult');
                 /* Code to manage credits granted by processes
-                if ( $details[ 'grant']) {
+                if ( val( $details, 'grant')) {
                     unset( $grants[ $details[ 'grant'][ 'id']]);
                 }
                 */
-            } elseif ( $log[ 'nevent'] == "credit") {                
+            } elseif (  val( $log, 'nevent') == "credit") {                
                 // Credit record               
-                $credits += $log[ 'iresult'];
+                $credits += val( $log, 'iresult');
                 /* Code to manage credits granted by processes
-                if ( $details[ 'grant']) {
+                if ( val( $details, 'grant')) {
                     // could use progress as grant key
-                    $grants[ $details[ 'grant'][ 'id']] = $details[ 'grant'];
+                    $grants[ $details[ 'grant'][ 'id']] = val( $details, 'grant');
                 }
                 */
             }
@@ -180,7 +180,7 @@ class UD_serviceThrottle {
             // Don't do anything            
         }*/
         // Return as error if no credits
-        if ( ( $status[ 'icredits'] + $status[ 'iallowedOverDraft']) <= 0) return $this->error( THROTTLE_noCredits, "No credits for $service");
+        if ( ( $status[ 'icredits'] + val( $status, 'iallowedOverDraft')) <= 0) return $this->error( THROTTLE_noCredits, "No credits for $service");
         return $status;
     }
 /*
@@ -258,7 +258,7 @@ class UD_serviceThrottle {
             return false;
         }
         // Check progress has changed
-        if ( $params[ 'progress'] == $newProgress) return true;
+        if (  val( $params, 'progress') == $newProgress) return true;
         $comment = "Use of $model";
         // Lookup credits associated with progress value
         $creditsByStep = $params[ 'credits-by-step'];
@@ -267,7 +267,7 @@ class UD_serviceThrottle {
         $logData = $this->getLog( 'Task_throttle');
         $add = true;
         for ( $logi=i; $logi < count( $logData); $logi++) {
-            $log = $logData[ $logi];
+            $log =  val( $logData, $logi);
             $details = JSON_decode( $log[ 'tdetails'], true);
             if ( $details[ 'task'] != $taskName) continue;
             if ( $details[ 'step'] != $newProgress) continue;
@@ -281,9 +281,9 @@ class UD_serviceThrottle {
             // Enable services 
             $servicesByStep = $params[ 'services-by-step'];
             if ( isset( $servicesByStep[ 'n'.$newProgress])) {
-                $services = $servicesByStep[ $newProgress];
+                $services =  val( $servicesByStep, $newProgress);
                 for ( $servi=0; $servi < count( $services); $servi++) {
-                    $service = $services[ $servi]; // { name:Name, credits:credits, comment:comment}
+                    $service =  val( $services, $servi); // { name:Name, credits:credits, comment:comment}
                     //2DO get grant from mp & store in details
                     $this->addCredits( $service[ 'name'], $service[ 'credits'], 10, $comment, $taskName);
                 }
@@ -362,7 +362,7 @@ class UD_serviceThrottle {
         $accountParentData = $this->fetchNode( $useOid, "* tlabel");
         while ( LF_count( $accountParentData) >= 2) {
             $parentData = $accoutParentData[1];
-            $parentId = $parentData[ 'id'];
+            $parentId = val( $parentData, 'id');
             $currentOid = LF_mergeOid( $currentOid, [LINKS_user, $parentId]);
             $accountUserOid = LF_mergeOid( $accountUserOid, [LINKS_user, $parentId]);
             $account = $parentId;
@@ -428,8 +428,8 @@ class UD_serviceThrottle {
         if ( $this->db) return $this->db->createLogEntry( $logId, $entry);
         else {
             // SOILinks version (still used by sd-bee.com and central marketplace)
-            $entry[ 'nname'] = $entry[ 'name'];
-            $entry[ 'iuser'] = $entry[ 'userId'];
+            $entry[ 'nname'] = val( $entry, 'name');
+            $entry[ 'iuser'] = val( $entry, 'userId');
             unset( $entry[ 'name']);
             unset( $entry[ 'userId']);
             $logData = [[ 'nname', 'iuser', 'nevent', 'iresult', 'tdetails'], $entry];
@@ -470,7 +470,7 @@ class UD_serviceThrottle {
                 for ( $wi=1; $wi < count( $w) &&  $wi < 25; $wi++) {                    
                    $w[ $wi][ 'name'] =  $w[ $wi][ 'nname'];
                    $w[ $wi][ 'userId'] = LF_env( 'user_id');
-                   $log[] = $w[$wi];
+                   $log[] =  val( $w, $wi);
                 }                
             }
             return $log;

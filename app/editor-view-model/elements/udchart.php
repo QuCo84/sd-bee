@@ -24,10 +24,10 @@ class UDchart extends UDelement
     function __construct( $datarow)
     {
         parent::__construct( $datarow);
-        $this->caption = $datarow['_caption'];
-        $this->elementName = $datarow['_elementName'];
-        $this->saveable = $datarow['_saveable'];
-        $this->JSONcontent = $datarow['_JSONcontent'];
+        $this->caption = val( $datarow, '_caption');
+        $this->elementName = val( $datarow, '_elementName');
+        $this->saveable = val( $datarow, '_saveable');
+        $this->JSONcontent = val( $datarow, '_JSONcontent');
         if ( $this->JSONcontent && $this->content[0] == '{') { $this->MIMEtype = "text/json";}
         elseif ( $this->JSONcontent) { $this->MIMEtype = "text/mixed";}
         else
@@ -54,7 +54,7 @@ class UDchart extends UDelement
        } elseif ( $this->MIMEtype == "text/mixed") {
             // Mixed content (old)
             // Get autosave mode from extra>system
-            $autosave = "Off"; //$this->extra['system']['autosave'];
+            $autosave = "Off"; //val( $this->extra, 'system/autosave');
             $r .= "<span class=\"caption\">$this->caption</span>";
             // if ( !$autosave || $autosave == "Off")
             {
@@ -81,7 +81,7 @@ class UDchart extends UDelement
  } // PHP class UDchart
 
 // Auto-test
-if ( isset( $argv[0]) && strpos( $argv[0], "udchart.php") !== false)
+if ( isset( $argv) && strpos( $argv[0], "udchart.php") !== false)
 {
     // CLI launched for tests
     echo "Syntax OK\n";

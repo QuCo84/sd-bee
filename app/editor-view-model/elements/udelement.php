@@ -176,7 +176,7 @@ class UDelement {
             self::$publicNamesMap[ $caption] = $this->name;
             self::$publicOidMap[ $caption] = $this->oid;
         }
-        if( $this->pager) $this->debug = "pg".$this->pager->currentPageHeight;
+        if( $this->pager && $this->pager->currentPageHeight) $this->debug = "pg".$this->pager->currentPageHeight;
     } // UDelement.__construct()
     
     function requireModules( $modules) { $this->requiredModules = $modules;}

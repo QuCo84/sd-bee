@@ -32,7 +32,7 @@ function UDUTILITY_listContainersAsThumbnails( $dataOrDataset, $params=[ 'sort'=
     }
     if ( !$dataset) return "";
     $r = "";
-    if ( isset( $params[ 'sort'])) $dataset->sort( $params[ 'sort'], $params[ 'ascOrDesc']); 
+    if ( val( $params, 'sort')) $dataset->sort( $params[ 'sort'], val( $params, 'ascOrDesc')); 
     // Loop through provided elements
     global $UDUTILITY_imageGenCount;
     $UDUTILITY_imageGenCount = 3;
@@ -51,9 +51,9 @@ function UDUTILITY_listContainersAsThumbnails( $dataOrDataset, $params=[ 'sort'=
         $elementData = $dataset->next();
         $docsRemaining--;
         UD_utilities::analyseContent( $elementData, $captionIndexes);
-        $type = (int) $elementData[ 'stype'];
+        $type = (int) val( $elementData, 'stype');
         $typeCounts[ $type]++;
-        $elementData[ 'nname'] = str_replace( ' ', '_', $elementData[ 'nname']);
+        $elementData[ 'nname'] = str_replace( ' ', '_', val( $elementData, 'nname'));
         if ( $type == UD_document || $type == UD_model || $type == UD_docThumb) {
             if ( $elementData[ 'nname'][0] == 'S') continue; // !!! IMPORTANT do this first so no archiving on S elements
             // Automatic archiving
@@ -62,20 +62,20 @@ function UDUTILITY_listContainersAsThumbnails( $dataOrDataset, $params=[ 'sort'=
                 $archiving 
                 && ( $docsRemaining >= $archiveMinDocs || count( $archive))
                 && $type == UD_document && $elementData[ 'nname'][0] == 'A'
-                && ($archiveDays * 86400 + LF_timestamp( (int) $elementData[ 'dcreated'])) < $now
+                && ($archiveDays * 86400 + LF_timestamp( (int) val( $elementData, 'dcreated'))) < $now
             ) {
                 // Old task so mark for archiving
                 $archive[] = $elementData;
                 if ( count( $archive) == 1) {
                     // Replace with archive to be created
                     $elementData[ 'stype'] = UD_dirThumb; // UD_archiveThumb
-                    $elementData[ '_link'] = 'UniversalDocElement--'.implode('-', LF_stringToOid( $elementData[ 'oid'])).'-21/AJAX_listContainers/';
+                    $elementData[ '_link'] = 'UniversalDocElement--'.implode('-', LF_stringToOid( val( $elementData, 'oid'))).'-21/AJAX_listContainers/';
                     $elementData[ 'nlabel'] = '{!Ouvrir!}';
                     $elementData['_title'] .= " Archive";
                     //$elementData[ 'oid'] = "";
                     $element = new UDdirectory( $elementData);
                     $w = $element->renderAsHTMLandJS();
-                    $r .= $w[ 'content'];
+                    $r .= val( $w, 'content');
                 } 
                 continue;
             }
@@ -85,46 +85,46 @@ function UDUTILITY_listContainersAsThumbnails( $dataOrDataset, $params=[ 'sort'=
             if ( isset( $params[ 'click-model']) && $params[ 'click-model']) {
                 $elementData[ '_onclick'] = LF_substitute( $params[ 'click-model'], $elementData);
             }
-            if ( !isset( $elementData[ '_link'])) $elementData[ '_link'] = "/webdesk/" . L_oidChildren( $elementData[ 'oid']).'--{OIDPARAM}/show/';
+            if ( !val( $elementData, '_link')) $elementData[ '_link'] = "/webdesk/" . L_oidChildren( val( $elementData, 'oid')).'--{OIDPARAM}/show/';
             $elementData[ 'nlabel'] = '{!Ouvrir!}';
             // Get an image for this element
             $elementData[ '_image'] = UDUTILITY_getDocImage( $elementData);
             //$elementData[ 'oid'] = "";
-            // textra $this->extra[ 'system']; ['thumbnail'] = UDUTILITY_getDocImage
-            switch( $elementData[ 'stype']) {
+            // textra val( $this->extra, 'system'); ['thumbnail'] = UDUTILITY_getDocImage
+            switch( val( $elementData, 'stype')) {
                 case UD_docThumb  : $element = new UDdocument( $elementData); break;
                 case UD_articleThumb : $element = new UDarticle( $elementData); break;
             }
             $w = $element->renderAsHTMLandJS();
-            $r .= $w[ 'content'];
+            $r .= val( $w, 'content');
         } elseif ( $type == UD_directory || $type == UD_dirThumb) {
             // Directory thumbnail with link to update view with directorie's contents 
             $elementData[ 'stype'] = UD_dirThumb;
             $sort = "";
             if ( stripos( $elementData['nlabel'], 'models') !== false || stripos( $elementData['tcontent'], 'models') !== false) 
                  $sort = "?s=nlabel&o=0";
-            if ( !isset( $elementData[ '_link'])) 
-                $elementData[ '_link'] = 'UniversalDocElement--'.implode('-', LF_stringToOid( $elementData[ 'oid']))."-21/AJAX_listContainers/{$sort}";
+            if ( !val( $elementData, '_link')) 
+                $elementData[ '_link'] = 'UniversalDocElement--'.implode('-', LF_stringToOid( val( $elementData, 'oid')))."-21/AJAX_listContainers/{$sort}";
             $elementData[ 'nlabel'] = '{!Ouvrir!}';
             //$elementData[ 'oid'] = "";
             $element = new UDdirectory( $elementData);
             $w = $element->renderAsHTMLandJS();
-            $r .= $w[ 'content'];
+            $r .= val( $w, 'content');
         } 
     }
     if ( $archiving && count( $archive)) {
         global $ACCESS;
         if ( $ACCESS) {
             // OS version
-            $ACCESS->archive( $archive, $params[ 'collection']);
+            $ACCESS->archive( $archive, val( $params, 'collection'));
         } else {
             // SOILinks version
             include_once( __DIR__."/../ud-view-model/udfile.php"); 
-            $r .= UDFILE::archive( $archive, $params[ 'collection']);
+            $r .= UDFILE::archive( $archive, val( $params, 'collection'));
         }
     }
     
-    if ( $params[ 'wrEnable']) {
+    if ( val( $params, 'wrEnable')) {
         // Add a new task, process or process model
         $title = '{!Nouvelle tâche!} {!ou!} {!groupe de tâches!}';
         $subTitle = '{!Ajouter!} {!une nouvelle tâche!} {!ou!} {!un groupe de tâches!} ici en cliquant sur Ajouter!}';
@@ -170,9 +170,9 @@ function UDUTILITY_breadcrumbs( $pathWithLinks) {
  */
 function UDUTILITY_updateDocInfo( $elementData) {
     $js = "";
-    $title = $nodeData[ '_title'];
-    $subtitle =  $nodeData[ '_subtitle'];
-    $oid = LF_stringToOid( $elementData[ 'oid']);
+    $title = val( $nodeData, '_title');
+    $subtitle =  val( $nodeData, '_subtitle');
+    $oid = LF_stringToOid( val( $elementData, 'oid'));
     $docOID = "UniversalDocElement--".implode( '-', $oid);
     $oidNew = $docOID."-0";
     $oidChildren = $docOID."-21";
@@ -190,13 +190,13 @@ function UDUTILITY_updateDocInfo( $elementData) {
  * Cache info 
  */ 
 function UDUTILITY_getDocImage( $docData, $width=280, $height=120) {
-    $id = $docData[ 'id'];    
+    $id = val( $docData, 'id');    
     $thumbnail = ( TEST_ENVIRONMENT) ? "../" : "";
     $thumbnail .= "tmp/udthumbnail{$id}.jpg";
     // Return thumnail image if it exists
     if ( file_exists( $thumbnail)) return "/".$thumbnail;
     // Generate thumbnail image
-    $type = (int) $docData[ 'stype'];
+    $type = (int) val( $docData, 'stype');
     if ( $type == UD_directory || $type == UD_dirThumb) {
         // Directory contents
     } elseif ( $type == UD_model || $type == UD_modelThumb) {
@@ -204,10 +204,10 @@ function UDUTILITY_getDocImage( $docData, $width=280, $height=120) {
     } elseif ( in_array( $type, [ UD_document, UD_docThumb, UD_articleThumb])) {
         // Document contents
         // Look at extra paramaters in docData
-        $params = $docData[ '_extra'][ 'system'];
+        $params = val( $docData, '_extra/system');
         if ( $params && isset( $params[ 'thumbnail-image'])) return $params['thumbnail-image'];
         return "";     
-        $oid = LF_oidToString( LF_stringToOid( $docData[ 'oid']))."--UD|1|NO|OIDLENGTH|CD|5"; //.LF_env( 'OIDPARAM');
+        $oid = LF_oidToString( LF_stringToOid( val( $docData, 'oid')))."--UD|1|NO|OIDLENGTH|CD|5"; //.LF_env( 'OIDPARAM');
         $uri = "webdesk/{$oid}/show"; //VIEWAS%7CPRINT/";
         //$url = "https://www.sd-bee.com/webdesk/{$oid}/show/";
         $options = "--enable-local-file-access --images";
@@ -271,10 +271,10 @@ function buildJSONtableFromData( $data, $system)
     // Get columns
     $cols = $data[0];    
     // Get system variables
-    $name = $system[ 'name'];
-    $cssClass = $system[ 'cssClass'];
-    $sourceURL = $system[ 'source']; 
-    $version = $system[ 'version'];    
+    $name = val( $system, 'name');
+    $cssClass = val( $system, 'cssClass');
+    $sourceURL = val( $system, 'source'); 
+    $version = val( $system, 'version');    
     // Add system variables
     $date = date( DateTimeInterface::ISO8601);
     $table['_table'] = ['_id'=>$name, '_classList'=>$cssClass, '_sourceURL'=>$sourceURL, '_updateMinutes'=>1440, '_lastUpdated'=>$date];
@@ -301,7 +301,7 @@ function buildJSONtableFromData( $data, $system)
         include_once( __DIR__."/../modules/data-versions/uddataversion--2.6.php");
         $elementData= [ 'tcontent'=>"<span class=\"caption\">Caption<span class=\"objectName\">{$name}</span></span><div>{$tableJSON}</div>"];
         UD_alignContent( $elementData);
-        $tableJSON = $elementData['tcontent'];
+        $tableJSON = val( $elementData, 'tcontent');
     }
     return $tableJSON;
 
@@ -312,24 +312,24 @@ function new_buildJSONtableFromData( $data, $system) {
     // Get columns
     $cols = $data[0];    
     // Get system variables
-    $name = $system[ 'name'];
-    $cssClass = $system[ 'cssClass'];
-    $sourceURL = $system[ 'source']; 
-    $version = $system[ 'version']; 
-    $caption = $system[ 'caption'];
-    $offset = $system[ 'offset'];
-    $modelRow = $system[ 'modelRow'];
-    $linksDB = $system[ 'linksDB'];
+    $name = val( $system, 'name');
+    $cssClass = val( $system, 'cssClass');
+    $sourceURL = val( $system, 'source'); 
+    $version = val( $system, 'version'); 
+    $caption = val( $system, 'caption');
+    $offset = val( $system, 'offset');
+    $modelRow = val( $system, 'modelRow');
+    $linksDB = val( $system, 'linksDB');
     if ( !$offset) $offset = 0;
     // Add system variables
     $date = date( DateTimeInterface::ISO8601);
     $table[ 'meta'] = [ 'type'=>'table', 'name'=>$name, 'zone'=>$name."editZone"];         
-    if ( isset( $system[ 'zone'])) { $table['meta']['zone'] = $system[ 'zone'];}
+    if ( val( $system, 'zone')) { $table['meta']['zone'] = val( $system, 'zone');}
     if ( $offset || true) { $table[ 'meta'][ 'offset'] = $offset;}
     if ( $caption) $table[ 'meta'] = array_merge( $table[ 'meta'], ['caption'=>$caption, 'captionPosition'=>"top"]);
     // Use jsonTable
     $tableData = [ 'tag'=>"jsontable", 'class'=>$cssClass, 'sourceURL'=>$sourceURL, 'updateMinutes'=>1440, '_lastUpdated'=>$date];
-    if ( isset( $system[ 'datasrc'])) { $tableData['datasrc'] = $system[ 'datasrc'];}
+    if ( val( $system, 'datasrc')) { $tableData['datasrc'] = val( $system, 'datasrc');}
     $tableValue = [];
     if ( $modelRow) { $tableValue['model'] = $modelRow;}
     for ( $i=1; $i<LF_count( $data); $i++) {
@@ -360,40 +360,40 @@ function SDBEE_translate( $text, $lang, $targetLang) {
     require_once( __DIR__."/../services/translation/udstranslation.php");
     $translateService = new UDS_translation();
     $rep = $translateService->call( $req);
-    if ( !$rep[ 'success']) return "";
-    else return $rep[ 'data'][ 'translation'];
+    if ( !val( $rep, 'success')) return "";
+    else return val( $rep, 'data/translation');
 }
 
 function SDBEE_exportUDasJSON( $oid, $ud=null) {
     function L_getNodeForExport( $node) {
         // Node's depth
         global $EXPORTUD_topDepth;
-        $depth = (int) LF_count( LF_stringToOid( $node[ 'oid']))/2;
+        $depth = (int) LF_count( LF_stringToOid( val( $node, 'oid')))/2;
         if ( !$EXPORTUD_topDepth) $EXPORTUD_topDepth = $depth;
         $depth -= $EXPORTUD_topDepth;
         // Permissions
         $access = 0;
-        $w = LF_stringToOidParams( $node['oid']);
+        $w = LF_stringToOidParams( val( $node, 'oid'));
         if ( $w) $access = (int) $w[0]['AL'];
         // tcontent can be JSON
-        $tcontent = LF_preDisplay( 't', $node[ 'tcontent']);
+        $tcontent = LF_preDisplay( 't', val( $node, 'tcontent'));
         if ( ( $JSONcontent = JSON_decode( $tcontent, true))) $content = $JSONcontent;
         else $content = $tcontent;
         // Get language (avoid null)
-        $lang = ( $node[ 'nlanguage']) ? $node[ 'nlanguage'] : "";
+        $lang = ( val( $node, 'nlanguage')) ? $node[ 'nlanguage'] : "";
         // Extract useful parameters from textra
-        $params = JSON_decode( LF_preDisplay( 't', $node[ 'textra']), true);
+        $params = JSON_decode( LF_preDisplay( 't', val( $node, 'textra')), true);
         $exportParams = [];
         if ( $params) {
-          if ($params[ 'height']) {
-              $exportParams[ 'height'] = $params[ 'height'];
-              $exportParams[ 'width'] = $params[ 'width'];
-              if ( $params[ 'offsetLeft']) $exportParams[ 'offsetLeft'] = $params[ 'offsetLeft'];
-              if ( $params[ 'offsetTop']) $exportParams[ 'offsetTop'] = $params[ 'offsetTop'];
-              if ( $params[ 'marginTop']) $exportParams[ 'marginTop'] = $params[ 'marginTop'];
-              if ( $params[ 'marginBottom']) $exportParams[ 'marginBottom'] = $params[ 'marginBottom'];
+          if (val( $params, 'height')) {
+              $exportParams[ 'height'] = val( $params, 'height');
+              $exportParams[ 'width'] = val( $params, 'width');
+              if ( val( $params, 'offsetLeft')) $exportParams[ 'offsetLeft'] = val( $params, 'offsetLeft');
+              if ( val( $params, 'offsetTop')) $exportParams[ 'offsetTop'] = val( $params, 'offsetTop');
+              if ( val( $params, 'marginTop')) $exportParams[ 'marginTop'] = val( $params, 'marginTop');
+              if ( val( $params, 'marginBottom')) $exportParams[ 'marginBottom'] = val( $params, 'marginBottom');
           } 	
-          $system = $params[ 'system'];
+          $system = val( $params, 'system');
           if ( $system) {
             foreach ( $system as $key=>$value) {
                if ( !in_array( $key, ["botlog"])) {
@@ -404,38 +404,38 @@ function SDBEE_exportUDasJSON( $oid, $ud=null) {
           }
         }  
         // Dates
-        $d = DateTime::createFromFormat( 'd/m/Y H:i:s', LF_date( (int) $node[ 'dcreated']));
-        if ( !$d) $d = DateTime::createFromFormat( 'd/m/Y H:i', LF_date( (int) $node[ 'dcreated']));
-        if ($d) $dcreated = $d->getTimestamp(); else $dcreated = LF_date( (int) $node[ 'dcreated']);
-        $d = DateTime::createFromFormat( 'd/m/Y H:i:s', LF_date( (int) $node[ 'dmodified']));
-        if ( !$d) $d = DateTime::createFromFormat( 'd/m/Y H:i', LF_date( (int) $node[ 'dmodified']));
-        if ($d) $dmodified = $d->getTimestamp(); else $dmodified = LF_date( (int) $node[ 'dmodified']);
+        $d = DateTime::createFromFormat( 'd/m/Y H:i:s', LF_date( (int) val( $node, 'dcreated')));
+        if ( !$d) $d = DateTime::createFromFormat( 'd/m/Y H:i', LF_date( (int) val( $node, 'dcreated')));
+        if ($d) $dcreated = $d->getTimestamp(); else $dcreated = LF_date( (int) val( $node, 'dcreated'));
+        $d = DateTime::createFromFormat( 'd/m/Y H:i:s', LF_date( (int) val( $node, 'dmodified')));
+        if ( !$d) $d = DateTime::createFromFormat( 'd/m/Y H:i', LF_date( (int) val( $node, 'dmodified')));
+        if ($d) $dmodified = $d->getTimestamp(); else $dmodified = LF_date( (int) val( $node, 'dmodified'));
         // Compile content
         $exportNode = [
          //'nname' => $node[ 'nname'],
          'depth' => $depth,
          'permissions' => $access,
-         'nlabel' => LF_preDisplay( 'n', $node[ 'nlabel']),
+         'nlabel' => LF_preDisplay( 'n', val( $node, 'nlabel')),
          'stype' => $node[ 'stype'],
-         'nstyle' => LF_preDisplay( 'n',$node[ 'nstyle']),
+         'nstyle' => LF_preDisplay( 'n',val( $node, 'nstyle')),
          'tcontent' => $content,
          'thtml' => "",
          'nlanguage' => $lang,
          'textra' => $exportParams,
          // 'iaccessRequest' => $node[ 'iaccessRequest'],
-         'dcreated' => $dcreated, //strtotime( LF_date( (int) $node[ 'dcreated'])),    '
-         'dmodified' => $dmodified, // strtotime( LF_date( (int) $node[ 'dmodified']))
-         //'tcreated' => LF_date( (int) $node[ 'dcreated']). ' from '.$node[ 'dcreated'],
-         //'tmodified' => LF_date( (int) $node[ 'dmodified'])
+         'dcreated' => $dcreated, //strtotime( LF_date( (int) val( $node, 'dcreated'))),    '
+         'dmodified' => $dmodified, // strtotime( LF_date( (int) val( $node, 'dmodified')))
+         //'tcreated' => LF_date( (int) val( $node, 'dcreated')). ' from '.$node[ 'dcreated'],
+         //'tmodified' => LF_date( (int) val( $node, 'dmodified'))
        ];
        return $exportNode;
     }
     // Main
     $content = [];
     // Detect Task(Doc) or Collection(Dir)
-    if ( (int) $node[ 'stype'] == UD_directory) {
+    if ( (int)  val( $node, 'stype') == UD_directory) {
        // Directory
-       $childrenOid =  LF_mergeOID( LF_stringToOid( $node[ 'oid']), "--21");
+       $childrenOid =  LF_mergeOID( LF_stringToOid( val( $node, 'oid')), "--21");
        $children = LF_fetchNode( $childrenOid, "* tlabel"); 
        echo $childrenOid.' ';
        for ( $childi=1; $childi < LF_count( $children); $childi++) {
@@ -452,7 +452,7 @@ function SDBEE_exportUDasJSON( $oid, $ud=null) {
     $dataset = UD_utilities::buildSortedAndFilteredDataset( $oid);
     while ( !$dataset->eof()) { 
       if ( !($elementData = $dataset->next())) continue;
-      if ( !$elementData[ 'nname']) continue;
+      if ( !val( $elementData, 'nname')) continue;
       $content[ $elementData[ 'nname']] = L_getNodeForExport( $elementData);
     } 
     // Compilation cache
@@ -486,7 +486,7 @@ function SDBEE_exportUDasJSON( $oid, $ud=null) {
     $json = JSON_encode( $extendedContent, JSON_PRETTY_PRINT); 
     // Write to downloadable file
     $tok = "ymbNpnZm8"; // Get user's public token LF_getToken();
-    $name = $node[ 'nname'];  
+    $name = val( $node, 'nname');  
    // FILE_write( 'download', $tok."_".$name.".json", -1, $json);
     FILE_write( 'download', $name.".json", -1, $json);
     // FILE_write( $cacheDir, $cachedModelFilename, -1, JSON_encode( $save, JSON_PRETTY_PRINT));
@@ -497,7 +497,11 @@ function SDBEE_exportUDasJSON( $oid, $ud=null) {
  * Read a value from array avoiding warnings or errors
  */
 function val( $container, $key, $default=null) {
-    $keyParts = explode( '/', $key);
+    /*
+    * idea $default="__UNSET__" to delete value unset( val => val,,__UNSET__)
+    */
+    if ( is_string( $key)) $keyParts = explode( '/', $key);
+    else $keyParts = [ $key];
     switch ( count( $keyParts)) {
         case 1: if ( isset( $container[ $key])) return $container[ $key]; break;
         case 2 : 
@@ -510,6 +514,7 @@ function val( $container, $key, $default=null) {
             if ( $w && isset( $w[ $keyParts[2]])) 
                 return $w[ $keyParts[2]];
             break;
+        default : die( "error in udutilityfunctions/val : too many steps in key");
     }
     return $default;
 }

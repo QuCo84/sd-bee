@@ -23,10 +23,10 @@ if ( !class_exists( 'UDelement')) require_once( __DIR__."/../../tests/testenv.ph
     {
         $r = "";
         // Read component's parameters in textra
-        $filter = $this->extra[ 'system']['filter'];
+        $filter = val( $this->extra, 'system/filter');
         if ( !$filter) $filter = $this->extractTags( $this->label);
         elseif ( is_array( $filter)) $filter = implode( ',', $filter);
-        $selection = $this->extra[ 'system'][ 'selection'];
+        $selection = val( $this->extra, 'system/selection');
         if ( !$selection) $selection = $this->fetchImages( $filter);
         $content = $this->content;        
         // Generate HTML
@@ -121,7 +121,7 @@ if ( !class_exists( 'UDelement')) require_once( __DIR__."/../../tests/testenv.ph
 global $UD_justLoadedClass;
 $UD_justLoadedClass = "UDimagePicker";   
 
-if ( isset( $argv[0]) && strpos( $argv[0], "udimagepicker.php") !== false)
+if ( isset( $argv) && strpos( $argv[0], "udimagepicker.php") !== false)
 {    
     // Launched with php.ini so run auto-test
     echo "Syntaxe udimagepicker.php OK\n";

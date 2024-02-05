@@ -185,14 +185,14 @@ class UniversalDoc {
     function __construct( $context = [ "mode"=>"edit", "displayPart" => "default"], $dataModel = null, $parentUD = null)
     {
         // Set mode (edit, display, model)
-        $this->mode = $context['mode'];
-        if ( $context[ 'modelShow']) $this->modelShow = $context[ 'modelShow'];
-        if ( isset( $context[ 'cacheModels'])) $this->cacheModels = $context[ 'cacheModels'];
-        if ( isset( $context[ 'cssFile'])) $this->cssFile = $context[ 'cssFile'];
+        $this->mode = val( $context, 'mode');
+        if ( val( $context, 'modelShow')) $this->modelShow = val( $context, 'modelShow');
+        if ( val( $context, 'cacheModels')) $this->cacheModels = val( $context, 'cacheModels');
+        if ( val( $context, 'cssFile')) $this->cssFile = val( $context, 'cssFile');
         // Set access to data 
         if ( $dataModel) {
             $this->dm = $this->dataModel = $dataModel;
-            $this->oidTop = ($context[ 'oid']) ? $context[ 'oid'] : LF_env( 'oid');
+            $this->oidTop = (val( $context, 'oid')) ? $context[ 'oid'] : LF_env( 'oid');
             $this->oid = LF_mergeOid( $this->oidTop, [21]);   
             $this->user = "me";
             $this->userId = 1;
@@ -205,7 +205,7 @@ class UniversalDoc {
             $this->dm = new DataModel();
             */
             $this->elementNames = LF_env("UD_navData"); 
-            $this->oidTop = ($context[ 'oid']) ? $context[ 'oid'] : LF_env( 'oid');
+            $this->oidTop = (val( $context, 'oid')) ? $context[ 'oid'] : LF_env( 'oid');
             $this->oid = LF_mergeOid( $this->oidTop, [21]);
             $this->user = LF_env( 'user');
             $this->userId = (int) LF_env('user_id');
@@ -215,10 +215,10 @@ class UniversalDoc {
         // Set available element classes
         self::$elementClasses = array_replace(WellKnownElementClasses, []);
         // Setup paging
-        $enablePaging = ( isset( $context['enablePaging'])) ? $context['enablePaging'] : true;     
+        $enablePaging = ( val( $context, 'enablePaging')) ? $context['enablePaging'] : true;     
         $this->pager = new UDpager( $this, $enablePaging, 0);
         // Setup default view
-        $this->displayPart = $context['displayPart'];       
+        $this->displayPart = val( $context, 'displayPart');       
     } // UniversalDoc->construct()
 
    /**
@@ -252,21 +252,21 @@ class UniversalDoc {
         // Render element as [ 'content'=>html, 'style'=>css, 'program'=>js, 'models'=>list string, 'hidden'=>data, ] 
         $w = $element->renderAsHTMLandJS( $active);            
         // Send HTML content dircet to output buffer except if model then store for caching
-        if ( $this->mode == "model") $this->content .= $w[ 'content']; else $this->dm->out( $w['content']); 
+        if ( $this->mode == "model") $this->content .= val( $w, 'content'); else $this->dm->out( val( $w, 'content')); 
         // Hidden data (not used)
-        if (isset( $w['hidden'])) $this->hidden .= $w['hidden'];
+        if (val( $w, 'hidden')) $this->hidden .= val( $w, 'hidden');
         // Store programs fr output in onload block
-        $this->program .= $w['program'];
+        $this->program .= val( $w, 'program');
         // Store styles for output in head and analyse for page heights
-        if ( isset( $w['style'])) {
-            $style = $w[ 'style'];
+        if ( val( $w, 'style')) {
+            $style = val( $w, 'style');
             $this->style[$element->name] .= $style;  
             // Extract page height info for pager
             $this->pager->noteStyleWidthsAndHeights( $style);
         }
         // Model elements list
-        if ( isset( $w['models'])) {
-            $this->models .= $w[ 'models'];
+        if ( val( $w, 'models')) {
+            $this->models .= val( $w, 'models');
         } 
         $trace = "Added & outputted element id: {$element->id} name: {$element->name} type:{$element->type}";
         $trace .= " to part {$this->currentPart} {$this->currentSubPart}";
@@ -297,7 +297,7 @@ class UniversalDoc {
         while ( !$dataset->eof()) {           
             if ( !($elementData = $dataset->next())) continue;             
             // Get element's type
-            $type = (int) $elementData['stype'];
+            $type = (int) val( $elementData, 'stype');
             // Trace
             LF_debug( "Processing element id: {$elementData['id']} name: {$elementData['nname']} type:$type autoload:{$this->autoload}", "UD", 5);   
             // Add permissions and mode attributes( mode, doc type, lang, level) to element
@@ -305,7 +305,7 @@ class UniversalDoc {
             $this->addModeAttributesToElement( $elementData);
             // Get OID length for monitoring level
             // 2DO if 'depth' $oidLength = $depth*2
-            $oid = $elementData[ 'oid'];
+            $oid = val( $elementData, 'oid');
             $oidLength = LF_count( LF_stringToOid( $oid));            
             // Analyse tcontent field            
             UD_utilities::analyseContent( $elementData, $this->captionIndexes); 
@@ -349,9 +349,9 @@ class UniversalDoc {
         if (!$modelName || strtolower($modelName) == "none") return;
         if ( !method_exists( $this->dataModel, 'getModelAsDataset')) {
             $modelNameAndOid = UD_utilities::getModelToLoad( $modelName, $this->dataModel);
-            $modelName = $modelNameAndOid['name'];
-            $modelOid = $modelNameAndOid['oid'];
-            $modelDate = $modelNameAndOid['date'];
+            $modelName = val( $modelNameAndOid, 'name');
+            $modelOid = val( $modelNameAndOid, 'oid');
+            $modelDate = val( $modelNameAndOid, 'date');
         }
         // Check not already loaded
         if ( in_array( $modelName, $this->loadedModels))
@@ -372,7 +372,7 @@ class UniversalDoc {
             /* OS compat, may be replaced with cache inside doc
             $cachedModel = UD_fetchResource( "models/{$modelName}", "cache");            
             $cachedModelData = JSON_decode( $cachedModel, true);
-            if ( $cachedModelData && $cachedModelData[ 'cache']) $cachedModelData = $cachedModelData[ 'cache'];
+            if ( $cachedModelData && val( $cachedModelData, 'cache')) $cachedModelData = val( $cachedModelData, 'cache');
             else $cachedModelData= null;
             */
             $cacheDir = "tmp/modelCache";
@@ -382,32 +382,32 @@ class UniversalDoc {
             if ( $cachedModel) {
                 $cachedModelData = JSON_decode( $cachedModel, true);
                 // Quick fix for validity
-                $validDate = ( isset( $cachedModelData[ 'validDate'])) ? $cachedModelData[ 'validDate'] : 0;
-                $genDate = ( isset( $cachedModelData[ 'date'])) ? $cachedModelData[ 'date'] : 0;
+                $validDate = ( val( $cachedModelData, 'validDate')) ? $cachedModelData[ 'validDate'] : 0;
+                $genDate = ( val( $cachedModelData, 'date')) ? $cachedModelData[ 'date'] : 0;
                 $this->cacheValid = ($genDate && $modelDate) ? ($genDate > $modelDate) : (( $validDate) ? ($validDate > time()) : false); 
                 // Check dependencies
-                if ( $this->cacheValid && $genDate) $this->cacheValid &= UD_resourceRecencyBefore( $genDate, $cachedModelData[ 'dependencies']);
+                if ( $this->cacheValid && $genDate) $this->cacheValid &= UD_resourceRecencyBefore( $genDate, val( $cachedModelData, 'dependencies'));
             }
         }
         if ( $cachedModel && $this->cacheValid) { //} && $valid && $valid > time()) {
             LF_debug( "Using cached model $cachedModelFilename", "UD", 8);
             $w = $cachedModelData;
-            $content = $w[ 'content'];
+            $content = val( $w, 'content');
             // Hide all parts
             $content = str_replace( 'class="part ', 'class="part hidden ', $content);
             $dm->out( $content);
-            $this->program .= $w[ 'program'];
+            $this->program .= val( $w, 'program');
             // Process styles
-            $styleA = $w[ 'style'];
+            $styleA = val( $w, 'style');
             foreach ( $styleA as $name=>$style) {
                 $this->pager->noteStyleWidthsAndHeights( $style);
                 $this->style[ $name] = $style;
             }
-            $this->hidden .= $w[ 'hidden'];
-            if ( $w[ 'modifiedResources']) UD_setModifiedResources( $w[ 'modifiedResources']);
-            if ( $w[ 'pageHeight']) $this->pager->docPageHeight = $w[ 'pageHeight'];
-            if ( $w[ 'defaultPart'] && $this->displayPart == "default") $this->displayPart = $w[ 'defaultPart'];
-            if ( LF_count( $w[ 'requiredModules'])) $this->requireModules(  $w[ 'requiredModules']);
+            $this->hidden .= val( $w, 'hidden');
+            if ( val( $w, 'modifiedResources')) UD_setModifiedResources( val( $w, 'modifiedResources'));
+            if ( val( $w, 'pageHeight')) $this->pager->docPageHeight = val( $w, 'pageHeight');
+            if ( val( $w, 'defaultPart') && $this->displayPart == "default") $this->displayPart = val( $w, 'defaultPart');
+            if ( LF_count( val( $w, 'requiredModules'))) $this->requireModules(  val( $w, 'requiredModules'));
         } else {            
             //$this->docType = UD_model; // ??       
             // Create a UniversalDoc for Model or use current ud if modelShow AND no document yet (using title for this)
@@ -557,10 +557,10 @@ class UniversalDoc {
             } else {
                 $systemProgram .= "  API.changeClass( 'edit', 'document');\n";
             }
-            $edit = ( isset( $preferences[ 'ude_edit'])) ? $preferences[ 'ude_edit'] : "on";
-            $menu = ( isset( $preferences[ 'ude_menu'])) ? $preferences[ 'ude_menu'] : "on";
+            $edit = ( val( $preferences, 'ude_edit')) ? $preferences[ 'ude_edit'] : "on";
+            $menu = ( val( $preferences, 'ude_menu')) ? $preferences[ 'ude_menu'] : "on";
             $systemProgram .= "  $$$.dom.attr( 'document', 'ude_menu', '{$menu}');\n";
-            $stage = ( isset( $preferences[ 'ude_stage'])) ? $preferences[ 'ude_stage'] : "off";
+            $stage = ( val( $preferences, 'ude_stage')) ? $preferences[ 'ude_stage'] : "off";
             $systemProgram .= "  $$$.dom.attr( 'document', 'ude_stage', '{$stage}');\n";
         } else { 
             $systemProgram .= "   $$$.changeClass( 'readOnly', 'document', null, false);\n"; //document.getElementById( 'document').className ='readOnly'\n";
@@ -815,18 +815,18 @@ EOT;
     function setDocAttributes( $elementData) {
         LF_debug( "Setting doc atributes ", "UD", 8);
         if ( in_array( $elementData[ 'stype'], [ UD_document, UD_model, UD_directory])) 
-            $this->docType = $elementData[ 'stype'];
-        $this->title = $elementData[ '_title'];
-        $this->titleForProgram = $elementData[ '_titleForProgram'];
-        $this->subTitle = $elementData[ '_subTitle'];
-        $this->oidTop = $elementData['oid'];        
-        $this->dbName = LF_preDisplay( 'n', $elementData[ 'nname']);
-        $oid = LF_stringToOid($elementData[ 'oid']);
+            $this->docType = val( $elementData, 'stype');
+        $this->title = val( $elementData, '_title');
+        $this->titleForProgram = val( $elementData, '_titleForProgram');
+        $this->subTitle = val( $elementData, '_subTitle');
+        $this->oidTop = val( $elementData, 'oid');        
+        $this->dbName = LF_preDisplay( 'n', val( $elementData, 'nname'));
+        $oid = LF_stringToOid(val( $elementData, 'oid'));
         $id = $oid[ LF_count( $oid) -1];
         $this->docId = $id;
         // $this->author
         // Write model if not already filled (!!!IMPORTANT for directoryModel)
-        if ( !$this->model) $this->model = $elementData['nstyle'];   
+        if ( !$this->model) $this->model = val( $elementData, 'nstyle');   
     } // UniversalDoc->setDocAttributes()
     
    /**
@@ -839,7 +839,7 @@ EOT;
     
     function createElement( $elementData) {
         $element = null;
-        $type = (int) $elementData[ 'stype'];
+        $type = (int) val( $elementData, 'stype');
         $class = self::$elementClasses[ $type];
         if ( $class) { 
             if ( strpos( $class, ".php")) {
@@ -864,7 +864,7 @@ EOT;
     
     function preProcessElement( &$elementData) {
         // Process in edit & display modes 
-        $type =  (int) $elementData[ 'stype'];            
+        $type =  (int) val( $elementData, 'stype');            
         if ( in_array( $type, [ UD_directory, UD_document, UD_model])) {
             $this->grabDocAttributesOrConvertToThumb( $elementData);
         } elseif( $type == UD_view 
@@ -879,7 +879,7 @@ EOT;
             $style = str_ireplace( 
                 [ "CSS\n", "&nbsp;", "&amp;amp;nbsp;", "&quot;"], 
                 [ "", " ", " ", '"'],  
-                implode( "\n", $elementData[ '_textContent'])
+                implode( "\n", val( $elementData, '_textContent'))
             );
             $this->pager->noteStyleWidthsAndHeights( $style);
         }
@@ -888,8 +888,8 @@ EOT;
     }
 
     function grabDocAttributesOrConvertToThumb( $elementData) {
-        $type =  (int) $elementData[ 'stype']; 
-        $model = LF_preDisplay( 'n', $elementData[ 'nstyle']);
+        $type =  (int) val( $elementData, 'stype'); 
+        $model = LF_preDisplay( 'n', val( $elementData, 'nstyle'));
         /*if ( $this->mode == "model") {
             if ($model != "NONE") $this->loadModel( $model);
         } else*/
@@ -899,7 +899,7 @@ EOT;
             $this->setDocAttributes( $elementData);
             $elementData[ '_isTopDoc'] = true;
             // Determine document's model for this session
-            $model = LF_preDisplay( 'n', $elementData[ 'nstyle']);
+            $model = LF_preDisplay( 'n', val( $elementData, 'nstyle'));
             $cacheable = true;
             if ( !$model && $type == UD_document) {
                 // No model so for this request use the model selection marketplace
@@ -924,17 +924,17 @@ EOT;
         $public = ( $this->mode == "public");
         $blockNo = base_convert( substr( $elementData['nname'], 1, 2), 32, 10);
         // Process according to type & mode 
-        $type =  (int) $elementData[ 'stype']; 
+        $type =  (int) val( $elementData, 'stype'); 
         if ( $type == UD_view) { 
             $publicPart = ( $blockNo >= 30*32 && $blockNo < 31*32);
             $elementData[ '_defaultPart'] = mb_strtoupper( $this->defaultPart);
             // Filter views that are not in the right language
-            $elLang = $elementData[ 'nlanguage'];
+            $elLang = val( $elementData, 'nlanguage');
             if ( !$elLang) {
                 $suffix = substr( $elementData[ 'nlabel'], -2);
                 if ( in_array( $suffix, [ 'EN', 'FR', 'EP', 'DE', 'IT'])) $elLang = $suffix;
             }
-            $viewName = mb_strtoupper( $elementData[ 'nlabel']);
+            $viewName = mb_strtoupper( val( $elementData, 'nlabel'));
             if ( $elLang && $elLang != $this->lang && !in_array( $viewName, $this->viewsToIgnore))
                 $this->viewsToIgnore[] = $viewName;
         }
@@ -945,23 +945,23 @@ EOT;
             if ( $type == UD_model) {
                 // Use model's copyParts parameter to determine which views to display
                 $this->viewsToIgnore = [ 'MANAGE'];
-                $params = $elementData[ '_extra']['system'];                 
-                if ( $params[ 'copyParts'])  {
+                $params = val( $elementData, '_extra/system');                 
+                if ( val( $params, 'copyParts'))  {
                     $params[ 'copyParts'][] = 'MANAGE';
-                    $w = array_flip( $params[ 'copyParts']);
+                    $w = array_flip( val( $params, 'copyParts'));
                     $w = array_change_key_case( $w, CASE_UPPER);
                     $this->viewsToIgnore = array_flip( $w);
                 }
                 $this->onTheFlyDrop = false;
                 $this->loadSystemParameters( $elementData);
-                $model = LF_preDisplay( 'n', $elementData[ 'nstyle']);
+                $model = LF_preDisplay( 'n', val( $elementData, 'nstyle'));
                 if ($model != "NONE") $this->loadModel( $model);
             } elseif ( $type == UD_document) {
                 $this->loadSystemParameters( $elementData); // or use #2217007 below
             } elseif ( $type == UD_view) {
                 // Skip views that are in doc
-                $view = $elementData[ 'nlabel'];
-                if ( !$view) $view = $elementData[ '_title'];
+                $view = val( $elementData, 'nlabel');
+                if ( !$view) $view = val( $elementData, '_title');
                 if ( $this->viewsToIgnore && in_array( strToUpper( $view), $this->viewsToIgnore)) $this->onTheFlyDrop = true;
                 else $this->onTheFlyDrop = false;
             } 
@@ -972,8 +972,8 @@ EOT;
     
     function autoCloseContainers( $elementData, $docOIDlen) {
         // 2DO use depth if present
-        if ( $this->dataModel) $level = $this->dataModel->OIDlevel( $elementData[ 'oid']) - $docOIDlen;
-        else $level = LF_count( LF_stringToOid( $elementData[ 'oid']))/2 - $docOIDlen;
+        if ( $this->dataModel) $level = $this->dataModel->OIDlevel( val( $elementData, 'oid')) - $docOIDlen;
+        else $level = LF_count( LF_stringToOid( val( $elementData, 'oid')))/2 - $docOIDlen;
         // Automatically close levels when level is same or higher than previous
         $currentLevelType = ( LF_count( $this->typeByLevel)) ? $this->typeByLevel[ LF_count( $this->typeByLevel) - 1] : 0;
         if ( $level > 0 && $level <= LF_count( $this->typeByLevel))
@@ -997,7 +997,7 @@ EOT;
             
         }
         // Add new level for current element
-        array_push( $this->typeByLevel, $elementData[ 'stype']); 
+        array_push( $this->typeByLevel, val( $elementData, 'stype')); 
     }
     
     
@@ -1016,21 +1016,21 @@ EOT;
     */
     function loadSystemParameters( $elementData, $toEnv = false)
     {
-        $system = $elementData['_extra']['system'];
+        $system = val( $elementData, '_extra/system');
         if ( !$system) return;
         LF_debug( "Grabbing system parameters ".print_r($system, true), "UD", 8);
         // Store all system params to place in resources
-        if ( $elementData[ 'stype'] == UD_document || $elementData[ 'stype'] == UD_model) $this->system = $system;
+        if (  val( $elementData, 'stype') == UD_document ||  val( $elementData, 'stype') == UD_model) $this->system = $system;
         // Get default view to display
-        if (  $system['defaultPart']) { $this->defaultPart = $system['defaultPart'];}
+        if (  val( $system, 'defaultPart')) { $this->defaultPart = val( $system, 'defaultPart');}
         if ($this->displayPart == "default" && $this->defaultPart) {
             $this->displayPart = $this->defaultPart;
             LF_debug( "Display part set to {$this->displayPart}", "UD", 5);
         }
         // Get default view to display on mobile devices
-        if (  $system['defaultPartMobile'])
+        if (  val( $system, 'defaultPartMobile'))
         {
-            $this->appPart = $system['defaultPartMobile'];        
+            $this->appPart = val( $system, 'defaultPartMobile');        
             LF_debug( "Display defaut mobile part set to {$this->appPart}", "UD", 5);
         }
         // Get views to copy
@@ -1047,12 +1047,12 @@ EOT;
         elseif ( $program == "off")  $this->programming = false;
         // Get page height
         // 2DO should only apply to this part
-        if ( isset( $system['pageHeight']) ) {
-            if ( (int) $elementData[ 'stype'] == UD_view) {
-                $this->pager->partPageHeights[ $elementData[ '_title']] = $system['pageHeight'];
-            } else { $this->pager->docPageHeight = $system['pageHeight'];}
+        if ( val( $system, 'pageHeight') ) {
+            if ( (int)  val( $elementData, 'stype') == UD_view) {
+                $this->pager->partPageHeights[ $elementData[ '_title']] = val( $system, 'pageHeight');
+            } else { $this->pager->docPageHeight = val( $system, 'pageHeight');}
         }
-        if ( isset( $system['pageBreak']) ) $this->pager->autoPageBreak = $system['pageBreak'];
+        if ( val( $system, 'pageBreak') ) $this->pager->autoPageBreak = val( $system, 'pageBreak');
         // Get version for data formats and include code to adjust of required
         /* DEPRECTAED
         $dataVersion = LF_lov( $system, "dataVersion");         
@@ -1060,12 +1060,12 @@ EOT;
         */
         // Get Views parameter = control of View menu
         // 2DO seperate param for edit & display modes or only for edit mode       
-        /*if ( $this->mode != "edit" && isset( $system['views']) ) { $this->views = array_map( 'strtoupper', $system['views']);}*/
+        /*if ( $this->mode != "edit" && val( $system, 'views') ) { $this->views = array_map( 'strtoupper', val( $system, 'views'));}*/
         if ( isset( $system['views_if_'.$this->mode]) ) { 
             $this->pager->views = $this->views = array_map( 'mb_strtoupper', $system['views_if_'.$this->mode]);
         }
-        if ( isset( $system[ 'lang'])) $this->lang = $system[ 'lang'];
-        if ( isset( $system[ 'cacheable'])) $this->cacheModels = $system[ 'cacheable'];
+        if ( val( $system, 'lang')) $this->lang = val( $system, 'lang');
+        if ( val( $system, 'cacheable')) $this->cacheModels = val( $system, 'cacheable');
         // Transfert to ENViromental variables
         if ( $toEnv && !$this->dataModel)
         {
@@ -1145,7 +1145,7 @@ EOT;
         // Get writeAccess from OID's access parameter 
         $writeAccess = false;
         $access = 0;
-        $w = LF_stringToOidParams( $elementData['oid']);
+        $w = LF_stringToOidParams( val( $elementData, 'oid'));
         if ( $w) $access = (int) $w[0]['AL'];
         if ( ($access & OID_WRENABLE) && $elementData['stype'] >= 2) $writeAccess = true;
         // Store result in elementData
@@ -1163,7 +1163,7 @@ EOT;
         $elementData['_mode'] = $this->mode;
         $elementData[ '_docType'] = $this->docType;  
         $elementData['_userLang'] = $this->lang;  
-        $elementData['_level'] = $level; 
+        $elementData['_level'] = (int) ( LF_count( LF_stringToOid( val( $elementData, 'oid')))/2); //$level; 
         $elementData[ '_defaultPart'] = $this->displayPart;
     }
     

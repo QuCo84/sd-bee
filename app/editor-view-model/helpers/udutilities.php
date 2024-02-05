@@ -49,9 +49,9 @@ class UD_utilities
     * @return boolean True if document modified since initial loading
     */
     static function manageState( &$docElementData, $ud = null) {
-        $params = $docElementData['_extra']['system'];
-        $state = $params['state'];
-        $model = $docElementData['nstyle'];
+        $params = val( $docElementData, '_extra/system');
+        $state = val( $params, 'state');
+        $model = val( $docElementData, 'nstyle');
         if ( $model != "")
         {
             // Model has been chosen
@@ -64,7 +64,7 @@ class UD_utilities
                 $modelData = LF_fetchNode( $modelOID, "textra");
                 $modelParams = JSON_decode( $modelData[1]['textra'], true);
                 $modelInittime = 2;
-                if ( isset( $modelParams[ 'system']['inittime'])) { $modelInittime = $modelParams[ 'system']['inittime'];}
+                if ( val( $modelParams, 'system/inittime')) { $modelInittime = val( $modelParams, 'system/inittime');}
                 // 2DO Get model's params and test initime of model
                 if ( $modelInittime > 10) {
                     // Initialisation can be long so do as seperate process
@@ -73,10 +73,10 @@ class UD_utilities
                     $params['botlog'] = LF_env( "SD_botlog");
                     // $params['defaultPart'] = "botlog"; // Could be avoided, let JS handle
                     $docElementData['_extra']['system']  = $params;           
-                    $update = [["textra"], ["textra" => JSON_encode( $docElementData['_extra'])]];                
+                    $update = [["textra"], ["textra" => JSON_encode( val( $docElementData, '_extra'))]];                
                     LF_updateNode( $docElementData[ 'oid'], $update);                  
                     // Launch initialisation in seperate process
-                    $oid = LF_oidToString( LF_stringToOid( $docElementData[ 'oid']));
+                    $oid = LF_oidToString( LF_stringToOid( val( $docElementData, 'oid')));
                     $oid = LF_mergeShortOid( $oid, "");
                     // Get access token for current session
                     $accessToken = LF_createAccessToken( 0, 60*60, 1);
@@ -107,7 +107,7 @@ class UD_utilities
                 // Set state to initialised for next time
                 $params[ 'state'] = "initialised";
                 $docElementData['_extra']['system']  = $params;           
-                $update = [["textra"], ["textra" => JSON_encode( $docElementData['_extra'])]];                
+                $update = [["textra"], ["textra" => JSON_encode( val( $docElementData, '_extra'))]];                
                 LF_updateNode( $docElementData[ 'oid'], $update);                
             }
             elseif ( $state == "initialised") {
@@ -115,7 +115,7 @@ class UD_utilities
                 self::botlog( "__REMOVE_COMMANDS__");
                 // Detect model change
                 /* DISABLE 22/11/28 bug when copying a model
-                if( $params[ 'model'] && $params[ 'model'] != $model) {
+                if( val( $params, 'model') && $params[ 'model'] != $model) {
                     //echo "Model has changed";
                     // Copy chosen model into document (this will set state to modelLoaded)
                     self::copyModelIntoUD( $docElementData['nstyle'], $docElementData['oid'], $ud->dataModel);
@@ -185,7 +185,7 @@ class UD_utilities
         // Get model
         $modelNameAndOid = UD_utilities::getModelToLoad( $modelName, $dataModel);
         if ( !$modelNameAndOid) return false;  
-        $modelName = $modelNameAndOid[ 'name'];
+        $modelName = val( $modelNameAndOid, 'name');
         // Get model data
         $model = UD_utilities::getModelDataset( $modelNameAndOid[ 'oid'], $dataModel);
         // Initialise Id map and visbility 
@@ -210,10 +210,10 @@ class UD_utilities
         $targetChildren = LF_fetchNode( LF_mergeShortOid( $docRootOID, "UniversalDocElement--21")); // , "id nname stype tcontent"); 
         $existingViews = [];
         for ( $targetci=1; $targetci < LF_count( $targetChildren); $targetci++) {
-            $targetEl = $targetChildren[ $targetci];
-            if ( $targetEl[ 'stype'] == UD_view) {
+            $targetEl =  val( $targetChildren, $targetci);
+            if (  val( $targetEl, 'stype') == UD_view) {
                 UD_utilities::analyseContent( $targetEl);
-                $existingViews[] = mb_strtoupper( $targetEl[ '_title']);
+                $existingViews[] = mb_strtoupper( val( $targetEl, '_title'));
             }
         }       
         
@@ -226,17 +226,17 @@ class UD_utilities
         while(  !$model->eof())
         {
             $element = $model->next();
-            $type = $element[ 'stype'];
-            if ( $element[ 'nname'] == $modelName && $type == UD_model) {
+            $type = val( $element, 'stype');
+            if (  val( $element, 'nname') == $modelName && $type == UD_model) {
                 // Element is the model itself so grab system paramaters
                 UD_utilities::analyseContent( $element);
-                $system = $element['_extra']['system'];
+                $system = val( $element, '_extra/system');
                 // Copy designated values  & parts
-                if ( $system['copyParts']) $parts2copy = array_map( 'mb_strtoupper', $system['copyParts']);
+                if ( val( $system, 'copyParts')) $parts2copy = array_map( 'mb_strtoupper', val( $system, 'copyParts'));
                 LF_debug( "Parts to copy ".print_r( $parts2copy, true), "UD_utilities", 5);
                 if (LF_count( $parts2copy) == 0) $copyAllParts = true;  
                 elseif ( !in_array( 'MANAGE', $parts2copy)) $parts2copy[] = "MANAGE";
-                if ( $copyStyle) $targetElement[1]['nstyle'] = $element['nstyle'];
+                if ( $copyStyle) $targetElement[1]['nstyle'] = val( $element, 'nstyle');
             } elseif ( in_array( $type, [ UD_directory, UD_document])) {
                 // Model contains a container element, so we need to rename this
                 
@@ -247,13 +247,13 @@ class UD_utilities
             {
                 UD_utilities::analyseContent( $element);               
                 $copy = false;
-                $viewName = mb_strtoupper( ( $element['nlabel']) ? $element['nlabel'] : $element['_title']);
+                $viewName = mb_strtoupper( ( val( $element, 'nlabel')) ? $element['nlabel'] : val( $element, '_title'));
                 if ( ( $copyAllParts || in_array( $viewName, $parts2copy)) && !in_array( $viewName, $existingViews) ) {
                     $copy = true;  
                     // Set textra as 'fromModel' if not copyAllParts
                     if ( !$copyAllParts) {
                         $extra = [];
-                        if ( $element[ 'textra']) { $extra = JSON_decode( $element[ 'textra'], true);}
+                        if ( val( $element, 'textra')) { $extra = JSON_decode( $element[ 'textra'], true);}
                         $extra[ 'fromModel'] = true;
                         $element[ 'textra'] = JSON_encode( $extra);
                     }
@@ -327,7 +327,7 @@ class UD_utilities
 
             
             // Get elements source OID
-            $sourceOID = LF_stringToOid( $element['oid']);
+            $sourceOID = LF_stringToOid( val( $element, 'oid'));
             $srcOIDlen = LF_count( $sourceOID);
             $class_id = 21; // $sourceOID[0];
             // Ignore path to model
@@ -340,7 +340,7 @@ class UD_utilities
             {
               if ( isset( $idMap[ $sourceOID[ $i+1]]))
               {
-                  $targetOID[] = $sourceOID[ $i];
+                  $targetOID[] =  val( $sourceOID, $i);
                   $targetOID[] = $idMap[ $sourceOID[ $i + 1]];
               }    
               elseif ( $i < ( $srcOIDlen - 2))
@@ -359,15 +359,15 @@ class UD_utilities
             /* 2 improve Use a list of allowed env (define in constant)
             only if target is not model
             // Substitute ENV
-            $content = $element[ 'tcontent'];
+            $content = val( $element, 'tcontent');
             global $LF_env;
             $content = LF_substitute( $content, $LF_env);
             $element[ 'tcontent'] = $content;
             */
             // Manage textra paramaters
-            $elementTextra = ( $element[ 'textra']) ? JSON_decode( $element[ 'textra'], true) : [ 'system'=>[]];
+            $elementTextra = ( val( $element, 'textra')) ? JSON_decode( $element[ 'textra'], true) : [ 'system'=>[]];
             // Set ude_place attribute on short titles and paragraphs
-            $content = $element[ 'tcontent'];
+            $content = val( $element, 'tcontent');
             if ( 
                 $type >= UD_chapter && $type <= UD_subParagraph 
                 && strlen( $content) <= 40 && strpos( $content, "<") === false
@@ -376,7 +376,7 @@ class UD_utilities
                 $elementTextra[ 'system'][ 'ude_place'] = $content;
             } else {
                 // Use initialcontent class to indicate default value
-                $element[ 'nclass'] .= ( ($element[ 'nclass']) ? " ": "") . "initialcontent";
+                $element[ 'nclass'] .= ( (val( $element, 'nclass')) ? " ": "") . "initialcontent";
             }
             // Indicate from model
             $elementTextra[ 'system'][ 'fromModel'] = true;
@@ -396,7 +396,7 @@ class UD_utilities
             $sys = JSON_decode( $targetElement[1]['textra'], true);
             // State is now modelLoaded
             if ( $copySystem) $sys['system'] = $system;
-            elseif ( isset( $system['requiredValues']))
+            elseif ( val( $system, 'requiredValues'))
             {
                 foreach( $system['requiredValues'] as $key=>$value)
                    $sys['system'][$key] = $value;
@@ -414,18 +414,18 @@ class UD_utilities
             $lang = LF_env( 'lang');
             $currentName = LF_preDisplay( 't', $targetElement[ 1][ 'tcontent']);
             $appDefaultName = $system[ 'defaultName' . $lang];
-            if ( !$appDefaultName) $appDefaultName = $system[ 'defaultName'];            
+            if ( !$appDefaultName) $appDefaultName = val( $system, 'defaultName');            
             if ( !$appDefaultName) {
                 // Move defaults to constants
                 $defaultName = [
                     'FR'=>'<span class="title">Nouveau document</span> - <span class="subtitle">crée directement dans répertoire</span>',
                     'EN' =>'<span class="title">New document</span> - <span class="subtitle">created driectly in directory</span>'
                 ];
-                $appDefaultName = $defaultName[ $lang];
+                $appDefaultName =  val( $defaultName, $lang);
             }
             // subtitle
             $appDefaultSubtitle = $system[ 'defaultSubtitle' . $lang];
-            if ( !$appDefaultSubtitle) $appDefaultSubtitle = $system[ 'defaultSubtitle'];
+            if ( !$appDefaultSubtitle) $appDefaultSubtitle = val( $system, 'defaultSubtitle');
             if ( !$appDefaultSubtitle) $appDefaultSubtitle = "...";
             global $LF_env;
             if ( $appDefaultName) { // } && !in_array( $currentName, [ "", $defaultNameFR, $defaultNameEN])) {
@@ -486,7 +486,7 @@ class UD_utilities
             for ( $i=0; $i<LF_count( $modelNames); $i++)
             {
                 // Name of model to look for
-                $modelName = $modelNames[$i];
+                $modelName =  val( $modelNames, $i);
                 // Look in locally
                 // 2DO update nlabels of model & use nlabel search
                 $modelOid = "UniversalDocElement--21-0-21--UD|1-stype|EQ3|nname|*{$modelName}";
@@ -507,23 +507,23 @@ class UD_utilities
                     while ( !$dataset->eof())
                     {
                         $w = $dataset->next();
-                        $name = $w['nname'];
+                        $name = val( $w, 'nname');
                         // Grab full name of "LocalModels" directory
                         if ( stripos( $name, "_LocalModel")) $modelsDir = $name;
                         // Test for searched model
                         if ( stripos( ' '.$name, $modelSearch) !== false)
                         {
                             $modelName = $name;
-                            $modelDate = $w[ 'dmodified'];
+                            $modelDate = val( $w, 'dmodified');
                             if ( !$modelsDir)
                             {
                                 // If localModels directory not yet determined, grab from OID
                                 // Assume 1 level of directory
-                                $oidA = explode( '--', $w['oid']);
+                                $oidA = explode( '--', val( $w, 'oid'));
                                 $oidNames = explode( '-', $oidA[0]);
                                 $modelsDir = $oidNames[ 1];
                             } 
-                            // $modelOid = new StaticOID( "#O", $w[ 'oid']);                  
+                            // $modelOid = new StaticOID( "#O", val( $w, 'oid'));                  
                         }  
                         // If both LocalModels directory and model found then quit loop
                         if ( $modelName && $modelsDir) break;
@@ -569,8 +569,8 @@ class UD_utilities
     {
         /* TRIAL ##2207008
         $modelNameAndOid = UD_utilities::getModelToLoad( $modelName, $dataModel);
-        $modelName = $modelNameAndOid['name'];
-        $modelOid = $modelNameAndOid['oid'];
+        $modelName = val( $modelNameAndOid, 'name');
+        $modelOid = val( $modelNameAndOid, 'oid');
         */
         // Get model dataset
         // if $dataModel then new DataModel & fetchData
@@ -699,13 +699,13 @@ class UD_utilities
             if ( $name[0] == "Z") { $data[ $i][ 'nname'] = "A".substr( $name, 1);}
             // Keep records at target level            
             if ( $level == $targetLevel) {
-                $data2[] = $data[$i];
+                $data2[] =  val( $data, $i);
                 if ( $data[$i]['stype'] == UD_view && substr( $data[$i]['nname'], 0, 2) == "BE" /* && $dirOID*/) {
                     // Container listing view - get path to use for listing
                     $path = "UniversalDocElement--".implode( '-', LF_stringToOid($data[$i]['oid']))."-21";
                     $textra = JSON_decode( $data[$i]['textra'], true);
-                    if ( $textra[ 'system']['dirPath']) { 
-                        $path = $textra[ 'system']['dirPath'];
+                    if ( val( $textra, 'system/dirPath')) { 
+                        $path = val( $textra, 'system/dirPath');
                         if ( $path == "DOC") $path = "UniversalDocElement--".implode('-', LF_stringToOid(LF_env( 'oid')));
                     }
                     if ( !$driveModel) LF_env( 'UD_docOID', $path); else LF_env( 'UD_docOID', "");
@@ -725,7 +725,7 @@ class UD_utilities
                 */
             } elseif ( $keepChildren && $level > $targetLevel) { 
                 // Keep children                
-                $data2[] = $data[$i];
+                $data2[] =  val( $data, $i);
             }
         } // end of record loop
         $dataset = new Dataset();
@@ -741,7 +741,7 @@ class UD_utilities
                 $w = $dataset->lookup( self::$botlogCandidates[ $botlogi]);
                 if ( LF_count( $w) > 1) {
                     // Botlog found - initialise botlogName, OID and index
-                    self::$botlogName = self::$botlogCandidates[ $botlogi];
+                    self::$botlogName = self:: val( $botlogCandidates, $botlogi);
                     $botlogOID = "UniversalDocElement--".implode('-', LF_stringToOid( $w[1]['oid']));
                     LF_env( "SD_botlog", $botlogOID);
                     self::$botlogIndex = $w[1]['index'];          
@@ -758,7 +758,7 @@ class UD_utilities
                 $element = $dataset->next();
                 if ( !$element) continue;
                 // Analyse name
-                $name = $element[ 'nname'];
+                $name = val( $element, 'nname');
                 $type = $name[0];
                 $blockNo = base_convert( substr( $name, 3, 10), 32, 10);         
                 $partId = substr( $name, 0, 3);
@@ -803,7 +803,7 @@ class UD_utilities
             $element = $dataset->next();
             if ( !$element) { continue;}            
             // Analyse name
-            $name = $element[ 'nname'];
+            $name = val( $element, 'nname');
             $blockNo = base_convert( substr( $name, 3, 10), 32, 10);            
             $partId = substr( $name, 0, 3); // part = view
             $partNo = base_convert( substr( $name, 1, 2), 32, 10); 
@@ -819,9 +819,9 @@ class UD_utilities
             $blockNo = base_convert( $newBlockNo, 10, 32);
             $blockNo = substr( "0000000000".strToUpper( $blockNo), strlen( $blockNo)); 
             $newName = $partId.$blockNo.$userId;
-            if ( $newName != $element[ 'nname']) {
+            if ( $newName != val( $element, 'nname')) {
                 // Update element with new block no
-                $element[ 'oldName'] = $element[ 'nname'];
+                $element[ 'oldName'] = val( $element, 'nname');
                 $element[ 'nname'] = $partId.$blockNo.$userId;
                 $dataset->update( $element);
             }   
@@ -837,8 +837,8 @@ class UD_utilities
         $r = "";
         while ( !$dataset->eof()) {
             $element = $dataset->next();
-            if ( !$element || !isset( $element[ 'oldName'])) { continue;}
-            $oid = $element['oid'];
+            if ( !$element || !val( $element, 'oldName')) { continue;}
+            $oid = val( $element, 'oid');
             $data[1] = [ 'nname'=>$element[ 'nname']];
             $r .= "Renaming ".$element['oldName']." -> ".$data[1]['nname'];            
             if ( $saveCount > 0) { $r .= LF_updateNode( $oid,  $data);}
@@ -876,33 +876,36 @@ class UD_utilities
     */    
     static function analyseContent( &$elementData, &$captionIndexes=null, $lang = "FR")
     {
-        if ( $elementData[ '_analysis'] == "OK") return;
-        $content =  LF_preDisplay( 't', $elementData['tcontent']);
-        $type = $elementData['stype'];
+        if (  val( $elementData, '_analysis') == "OK") return;
+        $content =  LF_preDisplay( 't', val( $elementData, 'tcontent'));
+        $type = val( $elementData, 'stype');
         // Extract label from content if there is a caption span
         $typeName =  UD_getDbTypeInfo( $type, 'ud_type');
         $isContainer = UD_getDbTypeInfo( $type, 'isContainer');        
         if ( $typeName && !$isContainer) {
             // Composite element
-            // $typeName = self::$compositeElementTypeNames[ $typIndex]; // 2DO Multilingual caption defaults
+            // $typeName = self:: val( $compositeElementTypeNames, $typIndex); // 2DO Multilingual caption defaults
             // if ( !$typeName && $type >= UD_connector && $type <= UD_connector_end) { $typeName = "connector";}
             // Extract caption, content without caption and pre-process content into seperate fields of elementData
             if ( $content[0] == '{' && ( $json = JSON_decode( $content, true))) {
                 // Content is pure JSON
-                $elementData[ DATA_elementName] = $json[ 'meta'][ 'name'];
+                $elementData[ DATA_elementName] = val( $json, 'meta/name');
                 $elementData[ DATA_cleanContent] = str_replace( ["\n"], ['\n'], $content);
                 $elementData['_JSONcontent'] = $json;
                 if ( $json['meta']['type'] == "text") {
                     // Extract textContent from text objects
-                    $elementData['_textContent'] = $json[ 'data'][ 'value'];
+                    $elementData['_textContent'] = val( $json, 'data/value');
                 }
-                $elementName = $elementData[ 'nname'];
+                $elementName = val( $elementData, 'nname');
                 LF_debug( "Analysed composite element $elementName with JSON", "UD", 5);                 
             } else {
                 self::analyseContentOldFormat( $elementData, $captionIndexes, $lang, $content); 
             }
             // Increment text index for all elements derived from text
-            if ( $type >= UD_commands && $type <= UD_apiCalls) { $captionIndexes[ 'text']++;}
+            if ( $type >= UD_commands && $type <= UD_apiCalls) { 
+                if ( !isset($captionIndexes[ 'text'])) $captionIndexes[ 'text'] = 0;
+                $captionIndexes[ 'text']++;
+            }
             $elementData['_saveable'] = $content;
         } elseif ( $typeName && $isContainer) {    
             // Content of container elements (Directory, Document, Model, Part and Sub-part) is the container title or combines 
@@ -922,19 +925,19 @@ class UD_utilities
                 $elementData['_titleForProgram'] = HTML_stripTags( $spans[0]);
             } elseif ( strlen( $content) < 100) { 
                 $elementData['_title'] = substr( $content,0, 60);
-                $elementData['_titleForProgram'] = $elementData['_title'];
+                $elementData['_titleForProgram'] = val( $elementData, '_title');
             }
-            if ( !$elementData[ '_title'] && $elementData[ 'nlabel']) {
-                $elementData[ '_title'] = $elementData[ '_titleForProgram'] = LF_preDisplay( 'n', $elementData[ 'nlabel']);
+            if ( !val( $elementData, '_title') && val( $elementData, 'nlabel')) {
+                $elementData[ '_title'] = $elementData[ '_titleForProgram'] = LF_preDisplay( 'n', val( $elementData, 'nlabel'));
             }    
         } else { $typeName = "element";}
         // Increment index even if caption provided unless an auxillary element (ie text node for JS, JSON etc)
-        if ( !$elementData[ '_auxillary']) {
+        if ( !val( $elementData, '_auxillary')) {
             if ( !isset( $captionIndexes[$typeName])) $captionIndexes[$typeName] = 2;          
             else $captionIndexes[$typeName]++;
             // Handle the case of autoindexes with jumps
             $typePrefix = $typeName."_";
-            $elName = $elementData[ DATA_elementName];
+            $elName = val( $elementData, DATA_elementName);
             if ( strpos( $elName, $typePrefix) === 0) {
                 $typedIndex = (int) substr( $elName, strlen( $typePrefix));
                 if ( $typedIndex && $typedIndex > $captionIndexes[$typeName]) { 
@@ -945,9 +948,9 @@ class UD_utilities
         } 
         // Decode textra
         $elementData['_extra'] = [];
-        if ( $elementData['textra']) {
-            // $textra = str_replace( ["&quot;", '\\"', '\"'], ['"', '"', '"'], LF_preDisplay( 't', $elementData['textra']));
-            $textra = LF_preDisplay( 't', $elementData['textra']);
+        if ( val( $elementData, 'textra')) {
+            // $textra = str_replace( ["&quot;", '\\"', '\"'], ['"', '"', '"'], LF_preDisplay( 't', val( $elementData, 'textra')));
+            $textra = LF_preDisplay( 't', val( $elementData, 'textra'));
             $elementData['_extra'] = JSON_decode( $textra, true);
         }
         // Make as analysed
@@ -962,15 +965,15 @@ class UD_utilities
             OR
             pure JSON 
         */
-        $type = $elementData[ 'stype'];
+        $type = val( $elementData, 'stype');
         //$indexType = array_search( $type, self::$compositeElementTypes);
-        //$typeName = self::$compositeElementTypeNames[ $indexType];
+        //$typeName = self:: val( $compositeElementTypeNames, $indexType);
         $typeName =  UD_getDbTypeInfo( $type, 'ud_type');
         if ( !$typeName && $type >= UD_connector && $type <= UD_connector_end) { $typeName = "connector";}
         if ( strpos( $content, "caption") === false) {            
             // Assume content is "composite" but incomplete so initialise it
-            $elementData[ DATA_caption] = $caption = $typeName.' '.$captionIndexes[$typeName];
-            $elementData[ DATA_elementName] = $elementName = $typeName.'_'.$captionIndexes[$typeName];
+            $elementData[ DATA_caption] = $caption = $typeName.' '. val( $captionIndexes, $typeName);
+            $elementData[ DATA_elementName] = $elementName = $typeName.'_'. val( $captionIndexes, $typeName);
             $elementData[ DATA_cleanContent] = str_replace( ["<br>", "<br />", "\r", "&nbsp;"], ["\n", "\n", "", " "], $content);
             $content .= "<span class=\"caption\">$caption</span>";
             $content .= "<input type=\"button\" value=\"Save\" onclick=\"window.ud.ude.setChanged( document.getElementById( '".$elementName."editzone'));\" />";
@@ -980,15 +983,15 @@ class UD_utilities
             // Content is "composite" ; process content to fields in elementData 
             $captionSpan =  HTML_stripTags( HTML_getContentsByTag( $content, "span")[0]);
             $elementData[ DATA_caption] = $captionSpan;             
-            $elementData[ DATA_elementName] = str_replace([' ', "'", '-'], ['_', '_','_'], $elementData[DATA_caption]);
+            $elementData[ DATA_elementName] = str_replace([' ', "'", '-'], ['_', '_','_'], val( $elementData, DATA_caption));
             /*
-            $elementName = $elementData[ 'nname'];            
+            $elementName = val( $elementData, 'nname');            
             if ( $elementName) {
                 $elementData[ DATA_elementName] = $elementName;
                 $elementData[ DATA_caption] = str_replace( $captionSpan, "[{$elementName}]", "");   
             } else {
                 $elementData[ DATA_caption] = $captionSpan;             
-                $elementData[ DATA_elementName] = str_replace([' ', "'", '-'], ['_', '_','_'], $elementData[DATA_caption]);
+                $elementData[ DATA_elementName] = str_replace([' ', "'", '-'], ['_', '_','_'], val( $elementData, DATA_caption));
             }
             */
             // str_rplace <br> < content 
@@ -998,7 +1001,7 @@ class UD_utilities
            $elementData[ DATA_cleanContent] = str_replace( ["<br>", "<br />", "\r", "&nbsp;"], ["\n", "\n", "", " "], $mainContent);
             $elementData['_divContent'] = $divContent;
         } 
-        $cleanContent = $elementData[ DATA_cleanContent];
+        $cleanContent = val( $elementData, DATA_cleanContent);
         if ( $cleanContent[0] == '{' ) {
                 // Content is JSON
                 $cleanContent = str_replace( ["\n"], ['\n'], $cleanContent);
@@ -1007,7 +1010,7 @@ class UD_utilities
                 $elementData['_JSONcontent'] = $json;
                 if ( $json['meta']['type'] == "text") {
                     // Extract textContent from text objects
-                    $elementData['_textContent'] = $json[ 'data'][ 'value'];
+                    $elementData['_textContent'] = val( $json, 'data/value');
                 }
                 LF_debug( "Analysed composite element $elementName with JSON {$cleanContent}", "UD", 5);                  
         } elseif ( $cleanContent[0] != '<' && substr_count( $cleanContent, "\n") > 1) {
@@ -1016,7 +1019,7 @@ class UD_utilities
             // Force type according to 1st line
             if ( strtolower( $elementData['_textContent'][0]) == "server") { $elementData['stype'] = UD_commands;}
             elseif ( strtolower( $elementData['_textContent'][0]) == "css") { $elementData['stype'] = UD_css;}
-            $len = LF_count( $elementData['_textContent']);
+            $len = LF_count( val( $elementData, '_textContent'));
             LF_debug( "Analysed composite element $elementName of type $type with $len lines of text", "UD util", 5);
         } else {
             $elementData[ '_textContent'] = [];
@@ -1049,7 +1052,7 @@ class UD_utilities
         $type = UD_zone;
         $zone = "DOCNAMES"; // "{$block}000000080{$user}_Manage";
         UD_utilities::analyseContent( $elementData, $ud->captionIndexes);         
-        $system = $elementData[ '_extra']['system'];
+        $system = val( $elementData, '_extra/system');
         // Initialise a new element from doc's element
         // Handle no view or no zone
         if ( !self::$botlogIndex || self::$botlogName != 'BVU00000002200000M') {
@@ -1075,13 +1078,13 @@ class UD_utilities
             $ud->pager->managePages( $abstractElementData); 
         }       
         // Paragraph to edit Doc title and sub-title
-        $systemId  = explode( '_', $elementData[ 'nname'])[0];
+        $systemId  = explode( '_', val( $elementData, 'nname'))[0];
         $abstractElementData = $elementData;
         $textsId = "{$block}0000000810{$user}_texts";
         $abstractElementData['nname'] = $textsId;
         $abstractElementData['stype'] = UD_paragraph;
         $abstractElementData['nstyle'] = "manageTitle";
-        $abstractElementData['oid'] = $elementData[ 'oid'] ;
+        $abstractElementData['oid'] = val( $elementData, 'oid') ;
         $abstractElementData[data_ud_fields] = "nlabel tcontent" ; 
         $abstractElementData['textra'] = '{"height":24, "system":{ "name": "'.$systemId.'"}}';   
         $abstractElementData['_writeAccess'] = true; 
@@ -1138,7 +1141,7 @@ class UD_utilities
         $abstractElementData['_title'] = "";
         $abstractElementData['nstyle'] = "";        
         $abstractElementData['stype'] = UD_paragraph;
-        $oid = $elementData['oid'];        
+        $oid = val( $elementData, 'oid');        
         $oidA = LF_stringToOid( $oid);
         $oidLen = LF_count( $oidA);
         if ( LF_count( $oidA) <= 2) { $deleteOid = LF_mergeOid( [ LINKS_user, LF_env( 'user_id')], LF_oidToString( $oidA).'--'.OID_SPLIT."|1");}
@@ -1219,14 +1222,14 @@ class UD_utilities
             }    
         }
         $w = $dataset->next();
-        $modelUserOid = $w['oid'];        
+        $modelUserOid = val( $w, 'oid');        
         // Extract links provided in params
         // 2DO params add Account & Owner or SubAccount & user type (Account, SubAccount, User)
         // for service throttling or use links better !
         $homeDirs = "";
         if ( $params) {
-            $homeDirs = $params[ 'homeOID'];
-            $docNameForHomeDirs = $params[ 'docName'];
+            $homeDirs = val( $params, 'homeOID');
+            $docNameForHomeDirs = val( $params, 'docName');
             /*
             if ( $homeOID) {
                 // Link to node
@@ -1245,12 +1248,12 @@ class UD_utilities
         $docForHomeDirs = "";
         for ( $i=1; $i<LF_count( $elementsToCopy); $i++) {
             // Create new node or link (if not owns)
-            $element = $elementsToCopy[$i];
+            $element =  val( $elementsToCopy, $i);
             // Trace
             LF_debug( "Copying or linking {$elementsToCopy[$i]['nname']}({$elementsToCopy[$i]['id']}) to {$userOid}", "UD_utilities", 8);
-            if ( $element['tlabel'] == "owns") {
+            if (  val( $element, 'tlabel') == "owns") {
                 // Copy node
-                $nodeOid = LF_oidToString( LF_stringToOid( $element['oid']), "UD|".UserDepthToUserModels);
+                $nodeOid = LF_oidToString( LF_stringToOid( val( $element, 'oid')), "UD|".UserDepthToUserModels);
                 $nodeData = LF_fetchNode( $nodeOid);
                 $w = LF_stringToOid( $nodeOid);
                 $class_id = $w[ LF_count( $w) - 2];
@@ -1280,7 +1283,7 @@ class UD_utilities
                     // $modelDataset->sort( 'OIDLENGTH nname'); // Working but changed ordering stops creation of A4 for ex
                     $contentDataset->sort( 'nname');                            
                     // Get id to of doc to map
-                    $oldId = $element[ 'id'];
+                    $oldId = val( $element, 'id');
                     // Loop through each element mapping id's as we go
                     // 2DO Pretty much the same loop in copyModelIntoUD - ftc adjustOID or copyElement
                     $idMap = [ $oldId => $id];
@@ -1289,7 +1292,7 @@ class UD_utilities
                     $safe = 50;
                     while ( !$contentDataset->eof() /* && --$safe*/) {
                         $content = $contentDataset->next();
-                        $srcOID = LF_stringToOid( $content[ 'oid']);
+                        $srcOID = LF_stringToOid( val( $content, 'oid'));
                         $srcOIDlen = LF_count( $srcOID);                        
                         if ( !strpos( ' '.$content[ 'tlabel'],"owns")) {
                             if ( $srcOIDlen > 8) continue;
@@ -1300,11 +1303,11 @@ class UD_utilities
                             LF_debug( "Linking child {$rootTarget} {$target}", "UD_utilities", 8);       
                             continue;
                         }
-                        if ( $content[ 'id'] == $element[ 'id']) { 
+                        if (  val( $content, 'id') == val( $element, 'id')) { 
                             continue;
                         }
                         // Substitue user variables
-                        $type = (int) $content[ 'stype'];
+                        $type = (int) val( $content, 'stype');
                         if ( in_array( $type, [ UD_json, UD_table, UD_list])) {
                             $content[ 'tcontent'] = LF_substitute( $content[ 'tcontent'], $params);
                         }
@@ -1313,7 +1316,7 @@ class UD_utilities
                         $copy = true;
                         for ($oidi=LF_count( $rootTargetOID); $oidi < $srcOIDlen; $oidi += 2) {
                             if ( isset( $idMap[ $srcOID[ $oidi+1]])) {
-                                $targetOID[] = $srcOID[ $oidi];
+                                $targetOID[] =  val( $srcOID, $oidi);
                                 $targetOID[] = $idMap[ $srcOID[ $oidi + 1]];
                             } elseif ( $oidi < ( $srcOIDlen - 2)) {
                                 LF_debug( "Skipping {$content['nname']}({$content['id']})", "UD_utilities", 8);
@@ -1325,7 +1328,7 @@ class UD_utilities
                         // Create new node
                         $contentData = [ ["nname", "nlabel", "stype", "nstyle", "tcontent", "textra"], $content];
                         $target = "UniversalDocElement--".implode("-", $targetOID);
-                        if ( $copy && $content[ 'nname'] && $content[ 'stype']){ //don't filter empty elements && $content[ 'tcontent']) {
+                        if ( $copy && val( $content, 'nname') && val( $content, 'stype')){ //don't filter empty elements && val( $content, 'tcontent')) {
                             $targetId = $createNodeCallback( $target, $class_id, $contentData);
                             // $targetId = 800 + LF_count( $idMap);                        
                             //echo "writing $target $targetId\n";
@@ -1338,13 +1341,13 @@ class UD_utilities
                 }
                 LF_debug( "Copied {$class_id} to {$id}", "UD_utilities", 8);
                 // 2DO could use a system parameter instead of name
-                if ( $nodeData[ 'nlabel'] == $docNameForHomeDirs && $nodeData[ 'stype'] == UD_document) {
+                if (  val( $nodeData, 'nlabel') == $docNameForHomeDirs &&  val( $nodeData, 'stype') == UD_document) {
                     // BuildOID to access Home document
                     $docForHomeDirs = LF_mergeOid( $userOid, "UniversalDocElement--21-{$nodeOid}");
                 }
             } else {
                 // Link to node
-                $w = LF_stringToOid( $element['oid']);
+                $w = LF_stringToOid( val( $element, 'oid'));
                 $target = [ $w[ LF_count( $w) - 2], $w[ LF_count( $w) - 1]];
                 $target = LF_oidToString( $target);
                 LF_link( $userOid, $target, 1, "access");      
@@ -1390,7 +1393,7 @@ class UD_utilities
     static function getPublicPart( $data) {
         $publicPart = "";
         $params = self::getDocParams( $data);
-        if ( $params) $publicPart = $params[ 'system'][ 'public'];
+        if ( $params) $publicPart = val( $params, 'system/public');
         // if ( !$publicPart) { $publicPart = "public"; // 2DO Check exists}
         return $publicPart;
     } // UD_utilities::getPublicPart()
@@ -1505,14 +1508,14 @@ class UD_utilities
             'elementName' => $elementName
         ];
         $response = $services->_doRequest( $request);
-        $d = $response[ 'data'];
-        if ( $response[ 'success'] && !(strpos( $d, 'ERR:') === 0)) return JSON_decode($d, true);
+        $d = val( $response, 'data');
+        if ( val( $response, 'success') && !(strpos( $d, 'ERR:') === 0)) return JSON_decode($d, true);
         return "";
     }
 
 } // PHP class UD_utilities
 
-if ( isset( $argv[0]) && strpos( $argv[0], "udutilities.php") !== false)
+if ( isset( $argv) && strpos( $argv[0], "udutilities.php") !== false)
 {    
     // Launched with php.ini so run auto-test
     // Create test environment
