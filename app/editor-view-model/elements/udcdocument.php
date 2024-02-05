@@ -38,7 +38,7 @@ require_once( __DIR__."/udconnector.php");
         $r .= " ud_type=\"connector\"";
         if ( $this->JSON) {
             // 100% JSON format
-            $name = $this->JSON[ 'meta']['name'];
+            $name = val( $this->JSON, 'meta/name');
             $holder = $name."_object";
             $r .= "ud_mime=\"text/json\">";
             $content = JSON_encode( $this->JSON);
@@ -177,7 +177,7 @@ require_once( __DIR__."/udconnector.php");
 global $UD_justLoadedClass;
 $UD_justLoadedClass = "UDconnector_document";  
 
-if ( isset( $argv[0]) && strpos( $argv[0], "udcdocument.php") !== false)
+if ( isset( $argv) && strpos( $argv[0], "udcdocument.php") !== false)
 {    
     // Launched with php.ini so run auto-test
     echo "Syntaxe OK\n";

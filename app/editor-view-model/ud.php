@@ -186,9 +186,9 @@ class UniversalDoc {
     {
         // Set mode (edit, display, model)
         $this->mode = val( $context, 'mode');
-        if ( val( $context, 'modelShow')) $this->modelShow = val( $context, 'modelShow');
-        if ( val( $context, 'cacheModels')) $this->cacheModels = val( $context, 'cacheModels');
-        if ( val( $context, 'cssFile')) $this->cssFile = val( $context, 'cssFile');
+        $this->modelShow = val( $context, 'modelShow', false);
+        $this->cacheModels = val( $context, 'cacheModels', true);
+        $this->cssFile = val( $context, 'cssFile', true);
         // Set access to data 
         if ( $dataModel) {
             $this->dm = $this->dataModel = $dataModel;
@@ -260,6 +260,7 @@ class UniversalDoc {
         // Store styles for output in head and analyse for page heights
         if ( val( $w, 'style')) {
             $style = val( $w, 'style');
+            if ( !isset($this->style[$element->name])) $this->style[$element->name] = "";
             $this->style[$element->name] .= $style;  
             // Extract page height info for pager
             $this->pager->noteStyleWidthsAndHeights( $style);
@@ -367,6 +368,7 @@ class UniversalDoc {
         $this->loadedModels[] = "models/{$modelName}";        
         // Look for cached compiled model
         $this->cacheValid = false;
+        $cachedModel = "";
         if ( $this->cacheModels && $cacheable) {
             // See if cache available
             /* OS compat, may be replaced with cache inside doc

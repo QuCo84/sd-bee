@@ -30,9 +30,9 @@ class UDconnector extends UDelement
         // Get Parameter part
         $isJSON100 = false;
         if (  isset( $datarow[ '_JSONcontent'])) {
-            if ( isset( $datarow[ '_JSONcontent']['meta'])) {
+            if ( val( $datarow, '_JSONcontent/meta')) {
                 $this->JSON = $datarow[ '_JSONcontent'];
-                $this->caption = $this->JSON[ 'meta'][ 'name'];
+                $this->caption = val( $this->JSON, 'meta/name');
                 $this->JSONparameters = $this->JSON[ 'data'][ 'config'][ 'value'][ 'value'];
                 $isJSON100 = true;
             } else $this->JSONparameters = $datarow[ '_JSONcontent'];
@@ -64,7 +64,7 @@ class UDconnector extends UDelement
         if ( $this->subType) { $r .= " ud_subtype=\"{$this->subType}\"";}
         if ( $this->JSON) {
             // 100% JSON format
-            $name = $this->JSON[ 'meta']['name'];
+            $name = val( $this->JSON, 'meta/name');
             $holder = $name."_object";
             $r .= "ud_mime=\"text/json\">";           
             $r .= "<div id=\"{$holder}\" class=\"object connectorObject hidden\">$this->content".HTML_closeDiv;
@@ -162,7 +162,7 @@ class UDconnector_siteExtract extends UDconnector
     }
 } // PHP class UDconnector_siteExtract     
  
-if ( isset( $argv[0]) && strpos( $argv[0], "udconnector.php") !== false)
+if ( isset( $argv) && strpos( $argv[0], "udconnector.php") !== false)
 {    
     // Launched with php.ini so run auto-test
     echo "Syntaxe OK\n";

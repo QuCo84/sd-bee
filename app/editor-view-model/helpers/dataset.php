@@ -131,10 +131,10 @@ Class Dataset
      if (($this->index - $this->indexTop) >= $this->size) return null;
      // Return next data block using sorted index if available and checking matched
      $ind = ++$this->index;
-     if (count($this->sorted)) $ind = $this->sorted[$ind];
+     if (count($this->sorted)) $ind = val( $this->sorted, $ind);
      if (count($this->matched) && !in_array($ind, $this->matched)) return $this->next();
      $this->data[ $ind]['index'] = $ind;
-     return $this->data[$ind];
+     return val( $this->data, $ind);
    }
    // Return previous record
    function prev()
@@ -153,20 +153,20 @@ Class Dataset
        $this->indexTop -= $this->size; 
      }
      $index = --$this->index;
-     if (count($this->sorted)) $index = $this->sorted[$index];
+     if (count($this->sorted)) $index = val( $this->sorted, $index);
      if (count($this->matched) && !in_array($index, $this->matched)) return $this->prev();
      $this->data[ $ind]['index'] = $ind;     
-     return $this->data[$index];
+     return val( $this->data, $index);
    }
    
    // Return record at index
    function atIndex($index)
    {
      if ($index < 0 || $index >= $this->available) return null;
-     if (count($this->sorted)) $index = $this->sorted[$index];
+     if (count($this->sorted)) $index = val( $this->sorted, $index);
      if (count($this->matched) && !in_array($index, $this->matched)) return null;
      $this->data[ $index]['index'] = $index;     
-     return $this->data[$index];
+     return val( $this->data, $index);
    }  
    
    // Return records found with key generated during last sort
@@ -175,9 +175,9 @@ Class Dataset
      if (!$this->keyed) return null;
      $r = array();
      $r[] = $this->data0;
-     if (isset($this->keyed[$key])) foreach ($this->keyed[$key] as $index) {
+     if (isset(val( $this->keyed, $key))) foreach ($this->keyed[$key] as $index) {
      	$this->data[ $index]['index'] = $index; 
-     	$r[] = $this->data[$index];
+     	$r[] = val( $this->data, $index);
      } 
      return $r;
    }  
@@ -206,13 +206,13 @@ Class Dataset
        $w = $this->next();
        $v = "";
        if ( strpos( $field, 'OIDLENGTH') === 0) {
-          $oidlen = LF_count( LF_stringToOid( $w[ 'oid']))."";
+          $oidlen = LF_count( LF_stringToOid( val( $w, oid)))."";
           $v = substr( "000".$oidlen, strlen( $oidlen));
           $f2 = substr( $field, 10); //10 = strlen( 'OIDLENGTH ');
           if ( $w[ $f2]) $v .= $w[ $f2]; else $v = "";
           //$debug = true;
        } else {
-          $v = $w[ $field];
+          $v = val( $w, $field);
        }    
        if( $v) $sortIndex[$v][] = $this->index;
      }
@@ -244,7 +244,7 @@ Class Dataset
      while (($this->index - $this->indexTop) < $this->size)
      {
        $w = $this->next();
-       $labels = explode( '|', $w['tlabel']);
+       $labels = explode( '|', val( $w, tlabel));
        foreach ($labels as $label)
        {
          // Try with each label if multiple values
@@ -263,14 +263,12 @@ Class Dataset
    }
    
    // Update current record
-   function update($data)
-   {
-     $index = -1; 
-     if ( isset( $data['index'])) $index = $data['index'];
+   function update($data) {     
+     $index = val( $data, index, -1);
      if ( $index == -1) $index = $this->index;
      if ($index < $this->size)
      {
-        // if (count($this->sorted)) $sindex = $this->sorted[$index]; 
+        // if (count($this->sorted)) $sindex = val( $this->sorted, $index); 
         $this->data[$index] = $data;
         $this->needsUpdate[] = $index;
         //echo $data['oid']."updated $index $sindex";
@@ -295,7 +293,7 @@ Class Dataset
        array_unshift($r, $this->data0);
      }
      elseif ($index > 0 && $index < count($this->data))
-        $r = array( $this->data0, $this->data[ $index]); 
+        $r = array( $this->data0, val( $this->data, $index)); 
          
      return $r;
    }

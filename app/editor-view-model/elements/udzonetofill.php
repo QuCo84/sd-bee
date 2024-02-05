@@ -17,7 +17,7 @@
         $this->title = $datarow[ '_title'];
         $lines = explode( "\n", $datarow[ 'tcontent']);
         $content = "";
-        for ( $i=0; $i < LF_count( $lines); $i++) $content .= trim( str_replace( [ "&quo"."te;"], [ "'"], $lines[ $i]));
+        for ( $i=0; $i < LF_count( $lines); $i++) $content .= trim( str_replace( [ "&quo"."te;"], [ "'"], val( $lines, $i)));
         $this->content = $content;
         // $this->content = str_replace( [ "\n", "&quo"."te"], [ "", "'"], $datarow[ 'tcontent']);
     } // UDnonEditable construct

@@ -52,7 +52,7 @@ class UDC_facebook extends UDconnector {
         $r = $js = "";
         // Update data cache if needed
         $update = false;
-        $cache = $this->JSON[ 'data'][ 'cache'];
+        $cache = val( $this->JSON, 'data/cache');
         if ( $this->ready) {
             if ( ( $connectLink = $this->checkToken())) {
                 // LOGIN REQUIRED
@@ -113,7 +113,7 @@ class UDC_facebook extends UDconnector {
         // Process
         $change = false;
         for ( $rowi=0; $rowi < LF_count( $data); $rowi++) {
-            $row = $data[ $rowi];
+            $row = val( $data, $rowi);
             if ( $row[ 'action'] == "create") {
                 // New Post
                 echo "NEW POST";
@@ -195,7 +195,7 @@ class UDC_facebook extends UDconnector {
         ];
         $rep = $this->sendRequest( $req);
         if ( isset( $rep[ 'error']) )  { 
-            $this->error = $rep[ 'error']['message'];
+            $this->error = val( $rep, 'error/message');
         } else {
             // Build table data from list of posts
             $w = $rep[ 'data'];
@@ -233,20 +233,20 @@ class UDC_facebook extends UDconnector {
             ];
             $rep = $this->sendRequest( $req);
             var_dump( $rep);
-            if ( isset( $rep[ 'error'])) $this->error = $rep[ 'error'][ 'message']; else $r = $rep[ 'id'];
+            if ( isset( $rep[ 'error'])) $this->error = val( $rep, 'error/message'); else $r = $rep[ 'id'];
         }
         return $r;
     } // UDC_facebook->FacebookPost()
     
     function getPageAccessToken( $pageId) {
-        $token = $this->pageAccesTokens[ $pageId];
+        $token = val( $this->pageAccesTokens, $pageId);
         if ( !$token) {
             $req = [
                 CURLOPT_URL => "https://graph.facebook.com/{$pageId}?fields=access_token&access_token={$this->userToken}",
                 CURLOPT_HEADER => 0,
             ];
             $rep = $this->sendRequest( $req);
-            if ( isset( $rep[ 'error']) ) $this->error = $rep[ 'error'][ 'message'];
+            if ( isset( $rep[ 'error']) ) $this->error = val( $rep, 'error/message');
             else $token = $this->pageAccesTokens[ $pageId] = $rep[ 'access_token'];
         }
         return $token;
@@ -306,7 +306,7 @@ function FacebookLoginCallback( $params) {
 global $UD_justLoadedClass;
 $UD_justLoadedClass = "UDC_facebook";   
  
-if ( isset( $argv[0]) && strpos( $argv[0], "udcfacebook.php") !== false)
+if ( isset( $argv) && strpos( $argv[0], "udcfacebook.php") !== false)
 {    
     // Launched with php.ini so run auto-test
     echo "Syntaxe OK\n";

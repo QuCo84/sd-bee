@@ -5,7 +5,7 @@ function LF_lov( &$set, $key, $val=null)
 {
     if ( array_key_exists( $key, $set))
     {
-        if (!$val) return $set[$key];
+        if (!$val) return val( $set, $key);
         else $set[ $key] = $val;
         return $set;
     }    
@@ -66,8 +66,7 @@ function LF_define( $parameter, $value) {
 	global $SITE_PARAMETERS;
 	if ( !isset( $USER_PARAMETERS)) { $USER_PARAMETERS = [];}
 	if ( !isset( $SITE_PARAMETERS))	{ $SITE_PARAMETERS = []; }
-    if ( isset( $USER_PARAMETERS[ $parameter])) $value = $USER_PARAMETERS[ $parameter];
-	elseif ( isset( $USER_PARAMETERS[ $parameter])) $value = $USER_PARAMETERS[ $parameter];
+    $value = val( $USER_PARAMETERS, $parameter, val( $USER_PARAMETERS, $parameter));
     define ( $parameter, $value);
 } // LF_define()
 ?>

@@ -73,12 +73,12 @@ function UD_getExTagAndClassInfo( $exTagOrClass, $param = "") {
         if ( isset( $UD_changedResources[ $exTagOrClass][ $param]))
             return $UD_changedResources[ $exTagOrClass][ $param];
         else
-            return $UD_exTagAndClassInfo[ $exTagOrClass][ $param];
+            return val( $UD_exTagAndClassInfo, "$exTagOrClass/$param");
     } else {
         if ( isset( $UD_changedResources[ $exTagOrClass]))
             return $UD_changedResources[ $exTagOrClass];
         else
-            return $UD_exTagAndClassInfo[ $exTagOrClass];
+            return val( $UD_exTagAndClassInfo, $exTagOrClass);
     }
 } // UD_getExTagAndClassInfo()
 
@@ -239,6 +239,7 @@ function UD_autoFillResourcePath( &$path) {
         $refresh = [];
         foreach ( $ress as $key => $value) {
             if ( $key == 'resource' && $value == 'styles') continue;
+            if ( $key === 'source') continue;
             // 2DO substitute lastKeyParts on empty parts
             if ( $key == 'include') {
                 // INCLUDE instruction -- include 1 or more files
@@ -334,7 +335,7 @@ function UD_autoFillResourcePath( &$path) {
                 if ( is_array( $value)) $sass = implode( "\n", $value)."\n";
                 else $sass ="{$value}\n";
                 $css = UD_convertSASStoCSS( $sass, $path);
-                $cleanCSS = UD_loadCSS( $css);
+                $cleanCSS = UD_loadCSS( $css, val( $ress, 'source'));
                 $style .= $cleanCSS;
             } elseif ( strpos( " program style-block-id template-id description ", $key.' ')) {    
                 // Ignore these keys used for SFC/VUE files
@@ -566,7 +567,7 @@ function UD_autoFillResourcePath( &$path) {
         return $resources;
     }   
 
-    function UD_loadCSS( $resource) {
+    function UD_loadCSS( $resource, $filename="css") {
         // Process CSS Resource
         $css = UD_processPseudoCSSattributes( $resource);
         // Create helper UD_style element to save page heights
@@ -676,11 +677,12 @@ function UD_autoFillResourcePath( &$path) {
     *    
     */
     function UD_processPseudoCSSattributes( $css) {
+        global $UD_parameters;
         // Build array of CSS selectors and their positions
         $selectors = [];
         $safe = 50;
         $p1 = 0;
-        $storeLabelsByView = $UD_parameters[ 'register'][ 'store-labels-by-view'];
+        $storeLabelsByView = val( $UD_parameters, 'register/store-labels-by-view');
         while ( ( $p1 = strpos( $css, '{', $p1)) && $safe--) {
             // Add to CSS blocs with character position as key            
             $p2 = strrpos( substr( $css, 0, $p1-2), ' ');

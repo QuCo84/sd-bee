@@ -55,7 +55,7 @@ class UD_connector_googleSheet extends UD_googleConnector {
         $r = $js = "";
         // Update data cache if needed
         $update = false;
-        $cache = $this->JSON[ 'data'][ 'cache'];
+        $cache = val( $this->JSON, 'data/cache');
         if ( (!$cache || is_string( $cache[ 'value'])) && $this->ready/*|| LF_date( $cache[ 'expires']) < LF_date()*/) {
             $attr = [ 'name'=>$this->elementName, 'cssClass'=>"dataset", 'source'=>"GoogleSheetAPI", 'expires'=>""];
             try {
@@ -109,10 +109,10 @@ class UD_connector_googleSheet extends UD_googleConnector {
         $cols = $rows[0];
         $table = [ $cols];
         for( $rowi = 1; $rowi < LF_count( $rows); $rowi++) {
-            $row = $rows[ $rowi];
+            $row = val( $rows, $rowi);
             $rowOut = [];
             for( $celli = 0; $celli < LF_count( $row); $celli++) {
-                $rowOut[ $cols[ $celli]] = $row[ $celli];
+                $rowOut[ $cols[ $celli]] = val( $row, $celli);
             }
             $table[] = $rowOut;
         }
@@ -124,7 +124,7 @@ class UD_connector_googleSheet extends UD_googleConnector {
 global $UD_justLoadedClass;
 $UD_justLoadedClass = "UD_connector_googleSheet";   
  
-if ( isset( $argv[0]) && strpos( $argv[0], "udcgooglesheet.php") !== false)
+if ( isset( $argv) && strpos( $argv[0], "udcgooglesheet.php") !== false)
 {    
     // Launched with php.ini so run auto-test
     echo "Syntaxe OK\n";

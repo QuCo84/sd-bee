@@ -237,7 +237,7 @@ class UDconnector_googleCalendar extends UD_googleConnector
 global $UD_justLoadedClass;
 $UD_justLoadedClass = "UDconnector_googleCalendar";   
  
-if ( isset( $argv[0]) && strpos( $argv[0], "udcgooglecalendar.php") !== false)
+if ( isset( $argv) && strpos( $argv[0], "udcgooglecalendar.php") !== false)
 {    
     // Launched with php.ini so run auto-test
     echo "Syntaxe OK\n";

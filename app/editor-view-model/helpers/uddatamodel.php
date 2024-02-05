@@ -288,7 +288,7 @@
     {
         return LF_env( $key, $value);               
        /*if ( $value) $_SESSION[ $key] = $value;
-        else return $_SESSION[ $key];*/
+        else return val( $_SESSION, $key);*/
     } // DataModel->env()    
     
    /**
@@ -558,7 +558,7 @@ if ( !defined( 'TEST_ENVIRONMENT')) define ( 'TEST_ENVIRONMENT', false);
         // Load parameters stored in config
         $env = $CONFIG[ 'App-parameters'];
         // Update version with no stored in version.txt
-        $version = file_get_contents( __DIR__."/config/version.txt");
+        $version = file_get_contents( __DIR__."/../config/version.txt");
         $env[ 'UD_version'] = '-v-'.str_replace( '.', '-', substr( $version, strrpos( $version, ' '))); // -5
         // User-specifc parameters
         if ( $USER) {
@@ -575,7 +575,7 @@ if ( !defined( 'TEST_ENVIRONMENT')) define ( 'TEST_ENVIRONMENT', false);
     }
     if ( $key == 'UD_icons') $key = 'WEBDESK_images';
     if ( $value) $env[ $key] = $value;
-    elseif ( isset( $env[ $key])) return $env[ $key];
+    elseif ( val( $env, $key)) return val( $env, $key);
     else {
         $lang = ( val(  $USER, 'lang')) ? $USER[ 'lang'] : val( $env, 'lang');
         if ( isset( $env[ $key.'_'.$lang])) return $env[ $key.'_'.$lang];
@@ -663,20 +663,22 @@ function LF_fileServer() {
             array_shift( $uriParts); // remove first path
             $dir = implode( '/', $uriParts);
             $fileContents = $PUBLIC->read( $dir, $filename);
-        } else {
+        }
+        if ( !$fileContents || stripos( $fileContents, 'ERR') === 0) {
             // Fallback on sdbee
-            $path = 'https://www.sd-bee.com/'.implode( '/', $uriParts);
+            $path = 'https://www.sd-bee.com/upload/'.implode( '/', $uriParts).'/'.$filename;
+            $fileContents = @file_get_contents( $path);
         }
     } else {
         // Available locally    
-        array_shift( $uriParts); // smartdoc or app or upload
+        if ( $filename != "requireconfig.js") array_shift( $uriParts); // smartdoc or app or upload
         $path = implode( '/', $uriParts);               
     }
     return LF_sendFile( $path, $ext, $fileContents);
 }
 
 function LF_sendFile( $path, $ext, $fileContents = "") { 
-    if ( strpos( $path, "http") === false) $path = __DIR__.'/../../../'.str_replace( [ '-v-0-2-7', '-v-0-2'], [ '', ''], $path);
+    if ( strpos( $path, "http") === false) $path = __DIR__.'/../../../'.$path;
     if ( $fileContents || file_exists( $path)) {        
          // File read
         if ( !$fileContents) $fileContents = @file_get_contents( $path);
@@ -802,7 +804,7 @@ Class LinksAPI {
     );
     $swap_no = hexdec(val( $w, 12))&3;
     for ($i=0; $i<12;$i+=3) {
-      $r .= $swap[$swap_no][hexdec($w[$i])*4 + (int) (hexdec($w[$i+1])/4) ];
+      $r .= $swap[$swap_no][hexdec(val( $w, $i))*4 + (int) (hexdec($w[$i+1])/4) ];
       $r .= $swap[$swap_no][(hexdec($w[$i+1])&12)*4 + hexdec($w[$i+2])&3];
     }
     $r .= $swap[0][ min( hexdec(val( $w, 12)), 15) *4+$nominatif*2];

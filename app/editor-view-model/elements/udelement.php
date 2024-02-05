@@ -361,8 +361,8 @@ class UDelement {
         if ( $legacyIndex !== false && val( UD_appAttributes, $legacyIndex)) {
             $compliantAttrName = UD_appAttributes[ $legacyIndex];
         }
-        if ( $compliantAttrName && val( $extras, $compliantAttrName)) $value = $extras[ $compliantAttrName];
-        if ( !$value && val( $extras, $attrName)) $value = $extras[ $attrName];
+        if ( $compliantAttrName && val( $extras, $compliantAttrName)) $value = val( $extras, $compliantAttrName);
+        if ( !$value && val( $extras, $attrName)) $value = val( $extras, $attrName);
         return $value;        
     }
 
@@ -484,7 +484,7 @@ class UDelement {
     function getValuesAsArray( $fields=['oid', 'nname', 'stype','nstyle','_title']) {
         $r = [];
         for ( $i=0; $i < LF_count( $fields); $i++) {
-            $field = $fields[ $i];
+            $field = val( $fields, $i);
             $value = "";
             switch ( $field) {
                 case 'oid': $value = $this->oid; break;
@@ -535,7 +535,7 @@ class UDelement {
     
 } // PHP class UDelement
 
-if ( val( $argv, 0) && strpos( $argv[0], "udelement.php") !== false) {    
+if ( isset( $argv) && strpos( $argv[0], "udelement.php") !== false) {    
     // Launched with php.ini so run auto-test
     echo "Syntaxe udelement.php OK\n";
     include_once __DIR__.'/../tests/testenv.php';

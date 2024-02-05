@@ -32,7 +32,7 @@ function UD_bindAnElement( $source, $target, $fieldMap = [ 'tcontent'=>'tvalues'
 function UD_processBindedElementWrite() {
     global $input_oid, $INPUT_DATA, $INPUT_RESULT;
     $binded = LF_env( 'UD_binded');
-    if ( isset( $binded[ $input_oid])) { $bind = $binded[ $input_oid];}
+    if ( val( $binded, $input_oid)) { $bind = val( $binded, $input_oid);}
     if ( !$bind) return false;    
     // Use binded OID
     $input_oid = $bind[ 'oid'];
@@ -42,7 +42,7 @@ function UD_processBindedElementWrite() {
     $INPUT_DATA = [[], []];
     foreach ( $fieldMap as $source => $target) {
         $INPUT_DATA[0][] = $target;
-        $value = $data[ $source];
+        $value = val( $data, $source);
         if ( isset( $bind[ 'jsonPath'][ $source])) { 
             $jsonPath = $bind[ 'jsonPath'][ $source];
             $json = JSON_decode( $value, true);
@@ -59,7 +59,7 @@ function UD_processBindedElementWrite() {
     return true;
 }
 // Auto-test
-if ( isset( $argv[0]) && strpos( $argv[0], "udbind.php") !== false) {
+if ( isset( $argv) && strpos( $argv[0], "udbind.php") !== false) {
     // CLI launched for tests
     echo "Syntax OK\n";
     echo "Setup test environment\n";    

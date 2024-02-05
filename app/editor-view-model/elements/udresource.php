@@ -21,9 +21,9 @@ class UDresource extends UDelement
         parent::__construct( $datarow, $view, $zone);
         $this->JSONcontent = $datarow[ '_JSONcontent'];
         // Analyse resource here so page width & heights can be set before rendering
-        $resources = $this->JSONcontent[ 'data'][ 'value'];
+        $resources = val( $this->JSONcontent, 'data/value');
         $resource = $resources[ 'resource'];
-        // $w = UD_processResourceJSON( $this->JSONcontent[ 'data'][ 'value']);
+        // $w = UD_processResourceJSON( val( $this->JSONcontent, 'data/value'));
         if ( $resource == "styles") {
             // JSON encoded UD-extended style sheet
             $w = UD_processResourceSet( $resources, $this);
@@ -34,7 +34,7 @@ class UDresource extends UDelement
         } else {
             /* 2DO mergeArray for PHP
             // 2DO Direct update of tag & class info with UD_setResource
-            $content = JSON_encode( $this->JSONcontent[ 'data'][ 'value']);
+            $content = JSON_encode( val( $this->JSONcontent, 'data/value'));
             $resource = "UD_tagAndClassInfo";
             foreach( )            
             UD_setResource( $resource, )
@@ -60,12 +60,12 @@ class UDresource extends UDelement
         $style = $this->css;
         if ( $this->includeContent) {
             // Include resource data so it can be used to update resources client-side               
-            $content = JSON_encode( $this->JSONcontent[ 'data'][ 'value']);
+            $content = JSON_encode( val( $this->JSONcontent, 'data/value'));
             $r = "<div id=\"{$this->label}{$this->valueSuffix}\" class=\"hidden\">{$content}</div>"; 
         }
         /*
         $resource = $this->JSONcontent[ 'data'][ 'value'][ 'resource'];
-        // $w = UD_processResourceJSON( $this->JSONcontent[ 'data'][ 'value']);
+        // $w = UD_processResourceJSON( val( $this->JSONcontent, 'data/value'));
         if ( $resource == "styles") {
             // JSON encoded UD-extended style sheet
             $w = UD_processResourceSet( $this->JSONcontent[ 'data'][ 'value'], $this);
@@ -75,7 +75,7 @@ class UDresource extends UDelement
             // 2DO Direct update of tag & class info with UD_setResource
             if ( $this->mode != "edit") {
                 // Include resource data so it can be used to update resources client-side               
-                $content = JSON_encode( $this->JSONcontent[ 'data'][ 'value']);
+                $content = JSON_encode( val( $this->JSONcontent, 'data/value'));
                 $r = "<div id=\"{$this->label}_object\">{$content}</div>"; 
             }
             $ress = 'UD_tagAndClassInfo';

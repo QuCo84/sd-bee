@@ -88,7 +88,7 @@ EOT;
         if ( LF_env( 'ftpPath') && LF_env( 'currentDirName')) {
             $ftpPath = "upload/".LF_env( 'ftpPath')."/".LF_env( 'currentDirName')."/";
             $scr = <<<EOT
-\$filename = \$_FILES[ 'ffile'][ 'name'];
+\$filename = \val( $_FILES, 'ffile/name');
 \$ftpPath = "$ftpPath";
 FILE_uploadTemp( 'ffile', \$filename, \$ftpPath);
 \$input_oid = "";
@@ -103,7 +103,7 @@ EOT;
                 $scr = <<<EOT
 \$ftpPath = "$ftpPath";
 // \$filename = FILE_uploadTemp( 'ffile', \$filename, \$ftpPath);
-\$tempFilename = \$_FILES[ 'ffile'][ 'tmp_name'];
+\$tempFilename = \val( $_FILES, 'ffile/tmp_name');
 // Create clipboard entry
 \$input_oid = "$clipboardOid";
 \$name = date( 'Ymd')."_image";
@@ -121,7 +121,7 @@ EOT;
 $UD_justLoadedClass = "UDconnector_dropZone";   
 
 // Auto-test
-if ( isset( $argv[0]) && strpos( $argv[0], "udcdropzone.php") !== false)
+if ( isset( $argv) && strpos( $argv[0], "udcdropzone.php") !== false)
 {
     // CLI launched for tests
     echo "Syntax OK\n";

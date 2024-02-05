@@ -101,7 +101,7 @@ if ( !class_exists( 'UDelement')) require_once( __DIR__."/../../tests/testenv.ph
         $token = "";
         $lastCharIsUpper = false;
         for ( $chari=0; $chari < strlen( $str); $chari++) {
-            $char = $str[ $chari];
+            $char = val( $str, $chari);
             $charIsUpper = ( strtoupper( $char) == $char);
             // New token of case change or seperators
             if ( ($charIsUpper && !$lastCharIsUpper) || strpos($sep, $char) !== false ) {

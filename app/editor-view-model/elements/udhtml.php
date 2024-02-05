@@ -69,7 +69,7 @@ if ( !class_exists( 'UDelement')) require_once( __DIR__."/../../tests/testenv.ph
             $activeZoneName = val( $json, 'meta/zone');
             $lines = $json[ 'data'][ 'edit'][ 'value'][ 'value'];
             for ( $li=0; $li < LF_count( $lines); $li++) { 
-                $line = $lines[ $li];
+                $line = val( $lines, $li);
                 $line = str_replace( 
                     ['&quot;', '<', '>'], 
                     [ '\"', '&lt;', '&gt;'], 
@@ -92,7 +92,7 @@ if ( !class_exists( 'UDelement')) require_once( __DIR__."/../../tests/testenv.ph
                         // Add lines
                         $includeLines = explode( "\n", $includeContent);
                         $newLines = [];
-                        for ( $nli=0; $nli < $li; $nli++) { $newLines[] = $lines[ $nli];}
+                        for ( $nli=0; $nli < $li; $nli++) { $newLines[] = val( $lines, $nli);}
                         $newLines[] = "&lt;!-- {$filename} --&gt;";
                         for ( $nli=0; $nli < LF_count( $includeLines); $nli++) { 
                             $newLines[] = str_replace(  
@@ -101,7 +101,7 @@ if ( !class_exists( 'UDelement')) require_once( __DIR__."/../../tests/testenv.ph
                                 $includeLines[ $nli]
                             );
                         }                        
-                        for ( $nli = $li+1; $nli < LF_count( $lines); $nli++) { $newLines[] = $lines[$nli];}
+                        for ( $nli = $li+1; $nli < LF_count( $lines); $nli++) { $newLines[] = val( $lines, $nli);}
                         // Replace line with INCLUDED comment
                         $line = "&lt;!-- {$fileName} --&gt;";
                         // Skip include lines

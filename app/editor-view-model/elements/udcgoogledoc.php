@@ -45,7 +45,7 @@ class UD_connector_googleDoc extends UD_googleConnector {
         $r = $js = "";
         // Update data cache if needed
         $update = false;
-        $cache = $this->JSON[ 'data'][ 'cache'];
+        $cache = val( $this->JSON, 'data/cache');
         if ( !$cache && $this->ready /*|| LF_date( $cache[ 'expires']) < LF_date()*/) {
             $attr = [ 'name'=>$this->elementName, 'cssClass'=>"dataset", 'source'=>"GoogleDocAPI", 'expires'=>""];
             try {
@@ -91,18 +91,18 @@ class UD_connector_googleDoc extends UD_googleConnector {
         // Reminder : https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
         // sheetId = 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms
         $doc = $service->documents->get($docId);
-        $body = $doc[ 'modelData'][ 'body'];
+        $body = val( $doc, 'modelData/body');
         $content = $body[ 'content'];
         $table = [[ "iindex", "stype", "tcontent"]];      
         for( $eli = 0; $eli < LF_count( $content); $eli++) {
-            $el = $content[ $eli];
+            $el = val( $content, $eli);
             $text = "";
             if ( isset( $el[ 'paragraph'])) {
                 $type = UD_paragraph;
-                $subElements = $el[ 'paragraph'][ 'elements'];
+                $subElements = val( $el, 'paragraph/elements');
                 for ( $subeli = 0; $subeli < LF_count( $subElements); $subeli++) {
-                    $subEl = $subElements[ $subeli];
-                    $text .= $subEl[ 'textRun'][ 'content'];
+                    $subEl = val( $subElements, $subeli);
+                    $text .= val( $subEl, 'textRun/content');
                 }
             } elseif ( isset( $rowOut[ 'SectionBreak'])) {
             } elseif ( isset( $rowOut[ 'Table'])) {
@@ -128,7 +128,7 @@ class UD_connector_googleDoc extends UD_googleConnector {
 global $UD_justLoadedClass;
 $UD_justLoadedClass = "UD_connector_googleDoc";   
  
-if ( isset( $argv[0]) && strpos( $argv[0], "udcgoogledoc.php") !== false)
+if ( isset( $argv) && strpos( $argv[0], "udcgoogledoc.php") !== false)
 {    
     // Launched with php.ini so run auto-test
     echo "Syntaxe OK\n";

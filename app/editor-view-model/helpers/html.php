@@ -66,7 +66,7 @@ function HTML_stripStyle( $html, $keepStyles=array(), $matchToClass=null)
     $newStyle="";
     for ($i=0; $i< LF_count($styles); $i++)
     {
-       $style = trim( $styles[$i]);
+       $style = trim( val( $styles, $i));
        $style = explode( ':', $style);
        if ( $keepStyles && in_array( $style[0], $keepStyles)) $newStyle .=$style[0].':'.$style[1];       
     }
@@ -241,7 +241,7 @@ function L_contentsByTag( $html, $wantedTag)
      //echo "Searching $wantedTag in html with ".LF_count( $tagDelimited)."tags<br>";
      for ( $i=0; $i < LF_count( $tagDelimited); $i++)
      {
-     	$tag = $tagDelimited[ $i];
+     	$tag = val( $tagDelimited, $i);
      	if ( $tag == "") continue;
      	$tagp = strpos( $tag, '>');
      	if ( $tagp == -1) continue;
@@ -348,7 +348,7 @@ function HTML_getContentsByQuerySelect( $html, $query)
    $nbQueryTokens = LF_count( $queryTokens);
    for ($i=0; $i<$nbQueryTokens;$i++)
    {
-      $queryToken = $queryTokens[$i];
+      $queryToken = val( $queryTokens, $i);
       switch ($queryToken[0])
       {
           case '#':

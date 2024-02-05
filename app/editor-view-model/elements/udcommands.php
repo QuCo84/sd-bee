@@ -121,7 +121,7 @@ class UDcommands extends UDelement {
                     }    
                 }
             }    
-            //$line = trim( str_replace( "/!", "", str_replace( "!/", "", $this->textContent[$i])));            
+            //$line = trim( str_replace( "/!", "", str_replace( "!/", "", val( $this->textContent, $i))));            
             if (strtolower($line) == 'server' || $line == "")
             {
                 // Ignore this line
@@ -147,7 +147,7 @@ class UDcommands extends UDelement {
             $args = explode(',', substr( $programLine, $open+1, strpos( $programLine, ')', $open) - $open)); 
             for ( $argi=0; $argi < LF_count( $args); $argi++) {
                 if ( $args[ $argi][0] == '"' || $args[ $argi][0] == "'") 
-                    $args[ $argi] = substr( $args[ $argi], 1, strlen( $args[ $argi]) -2);
+                    $args[ $argi] = substr( $args[ $argi], 1, strlen( val( $args, $argi)) -2);
             }
             */
             if ( method_exists( $this, $fct)) {
@@ -298,7 +298,7 @@ class UDcommands extends UDelement {
                     for ( $wi = 3; $wi < LF_count( $w); $wi++) 
                     {
                         $sourceURL .= $w[$wi]."/";
-                        $w2 = explode( '|', $w[$wi]);
+                        $w2 = explode( '|', val( $w, $wi));
                         LF_env( $w2[0], $w2[1]);
                     }
                 }
@@ -429,7 +429,7 @@ class UDcommands extends UDelement {
                 {
                     for ( $wi = 3; $wi < LF_count( $w); $wi++) 
                     {
-                        $w2 = explode( '|', $w[$wi]);
+                        $w2 = explode( '|', val( $w, $wi));
                         LF_env( $w2[0], $w2[1]);
                     }
                 }
@@ -454,7 +454,7 @@ class UDcommands extends UDelement {
             $data = JSON_decode( $r, true);
         }
     }   
-    // elseif (is_string( $data)) $data = $this->data[ $data]; //2DO clarify pre-registerd data
+    // elseif (is_string( $data)) $data = val( $this->data, $data); //2DO clarify pre-registerd data
     elseif ( is_string( $data)) $data = JSON_decode( $data, true);
 
      if (LF_count( $data)) 
@@ -472,7 +472,7 @@ class UDcommands extends UDelement {
      if ( !$columns) $columns = $providedCols;
      elseif (is_string($columns)) $columns = explode( ',', $columns);  // 2DO LF_explode
      // Trim and swap . for - to ease value grabbing
-     // for ($i=0; $i<LF_count( $columns); $i++) $columns[$i] = trim( str_replace('.', '-', $columns[$i]));
+     // for ($i=0; $i<LF_count( $columns); $i++) $columns[$i] = trim( str_replace('.', '-', val( $columns, $i)));
      // 2DO for each column extract width if provided ex Column (20%)
      
      // Initialise other header rows
@@ -505,14 +505,14 @@ class UDcommands extends UDelement {
      for ($j=0; $j<LF_count( $columns); $j++) 
      {
         $valueType = $columns[$j][0];
-        $valueLabel = trim( str_replace('.', '', $columns[$j]));
+        $valueLabel = trim( str_replace('.', '', val( $columns, $j)));
         if (!$jsFilled) $valueLabel = substr( $valueLabel, 1);        
         if ( $columns[$j][0] != '_') $tableHTML .= "<th _type=\"$valueType\">".LinksAPI::startTerm.$valueLabel.LinksAPI::endTerm."</th>";
         //if ( $columns[$j][0] != '_') $tableHTML .= "<th>".$valueLabel."</th>";
         /*
-        elseif ( $columns[$j] == "_onclick") $onclickFormula = $this->compile( $row[$j]);
-        elseif ( $columns[$j] == "_rowcount") $rowCountFormula = $this->compile( $row[$j]);       
-        elseif ( $columns[$j] == "_datasrc") $dataSource =  $row[$j];*/       
+        elseif ( $columns[$j] == "_onclick") $onclickFormula = $this->compile( val( $row, $j));
+        elseif ( $columns[$j] == "_rowcount") $rowCountFormula = $this->compile( val( $row, $j));       
+        elseif ( $columns[$j] == "_datasrc") $dataSource =  val( $row, $j);*/       
      }   
      $tableHTML .= "</tr>";
      
@@ -529,11 +529,11 @@ class UDcommands extends UDelement {
          for ($j=0; $j < LF_count( $columns); $j++) 
          {
             if ( $columns[$j] == "_rowid") 
-                $tableHTML .= " ude_rowidformula=\"".$this->compile( $row[$j])."\"";
+                $tableHTML .= " ude_rowidformula=\"".$this->compile( val( $row, $j))."\"";
             elseif ( $columns[$j] == "_onclick") 
-                $tableHTML .= " ude_onclickformula=\"".$this->compile( $row[$j])."\"";
+                $tableHTML .= " ude_onclickformula=\"".$this->compile( val( $row, $j))."\"";
             elseif ( $columns[$j] == "_rowcount") 
-                $tableHTML .= " rowCount=\"".$this->compile( $row[$j])."\"";
+                $tableHTML .= " rowCount=\"".$this->compile( val( $row, $j))."\"";
             elseif ( $columns[$j] == "_datasrc")       
                 $tableHTML .= " ude_datasrc=\"".$row[$j]."\"";
          }
@@ -543,7 +543,7 @@ class UDcommands extends UDelement {
          for ($j=0; $j < LF_count( $columns); $j++) 
            //if ( $columns[$j][0] != '_' && $key == "rowModel") 
            if ($columns[$j][0] != '_')
-             if ($row[$j][0] == "=") $tableHTML .= "<td UDE_formula=\"".$this->compile( $row[$j])."\"> </td>";
+             if ($row[$j][0] == "=") $tableHTML .= "<td UDE_formula=\"".$this->compile( val( $row, $j))."\"> </td>";
              else $tableHTML .= "<td>".$row[$j]."</td>";
 
         
@@ -576,7 +576,7 @@ class UDcommands extends UDelement {
          if ($row[$j][0] == "=")
          {
            // Cell contains formula
-           $cell_formula = $this->compile( $row[$j]);
+           $cell_formula = $this->compile( val( $row, $j));
            $rowHTML .= "<td UDE_formula=\"$cell_formula\">$value</td>";
          }
          else
@@ -588,7 +588,7 @@ class UDcommands extends UDelement {
              // $value = LF_preDisplay( $row[$j], $data[$i][$row[$j]]);
              // Not really required . could leave this to js updateTable
              // 2DO use same function as TH or saved value
-             $idrow = $id."_".($i+1)."_".trim( str_replace('.', '', $columns[$j]));
+             $idrow = $id."_".($i+1)."_".trim( str_replace('.', '', val( $columns, $j)));
              if ( $columns[$j] == "id")
              {
                $oid = $data[$i]['oid'];
@@ -614,7 +614,7 @@ class UDcommands extends UDelement {
            else 
            {
              // Data to be found in document
-             $cell_formula =  $this->compile( $row[$j]);
+             $cell_formula =  $this->compile( val( $row, $j));
              $rowHTML =  "<td UDE_formula=\"$cell_formula\">Formula</td>";
            }  
          }  
@@ -666,7 +666,7 @@ class UDcommands extends UDelement {
         // Build name lookup from OID
         $diroid = "UniversalDocElement-";
         for ( $idi = 1; $idi < LF_count( $ids); $idi += 2) {
-            $diroid .= "-21-".$ids[ $idi];
+            $diroid .= "-21-".val( $ids, $idi);
             $dirdata = LF_fetchNode( $diroid, "id tcontent");
             $dircontent = $dirdata[1][ 'tcontent'];
             $lang_index = 0;
@@ -689,19 +689,19 @@ class UDcommands extends UDelement {
       $idPath = $ids[0];
       for ($i=1; $i < count( $ids); $i += 2)
       {
-        $name = $names[$i];
-        $dbid = $ids[$i];
+        $name = val( $names, $i);
+        $dbid = val( $ids, $i);
         $path .= "-".$name."-".$names[0];
         $idPath .= "-".$ids[$i]."-".$ids[0];
         $onclick = "window.ud.udajax.updateZone( '{$names[0]}--$idPath/AJAX_modelShow/', 'document')"; // --CD|5
         // $onclick =  "LFJ_ajaxZone('{$names[0]}--$idPath--CD|5/AJAX_modelShow/', 'document');";
         $r .= '>';
         $r .= '<a href="javascript:" onclick="'.$onclick.'" style="$cssClass'.'_link">';
-        if ( !isset( $elementNames[$dbid])) {
+        if ( !val( $elementNames, $dbid)) {
             // Build name lookup from OID
             $diroid = "UniversalDocElement-";
             for ( $idi = 1; $idi < LF_count( $ids); $idi += 2) {
-                $diroid .= "-21-".$ids[ $idi];
+                $diroid .= "-21-".val( $ids, $idi);
                 if ( $ids[ $idi] == $dbid) break;
             }
             // Fetch element
@@ -721,7 +721,7 @@ class UDcommands extends UDelement {
             }
             $elementNames[ $dbid] = $name;           
         }
-        $r .= $elementNames[$dbid];
+        $r .= val( $elementNames, $dbid);
         $r .= '</a>';
         
       }
@@ -737,8 +737,8 @@ class UDcommands extends UDelement {
         $imageMap = [ 'Repertoire' => "AddDir", 'Page' => "AddDoc", 'Modèle' => "AddModel"];      
         $name = str_replace( [ '&nbsp;', '&amp;nbsp;'],[ '', ''], $name);
         $imageName = $name;
-        if ( isset( $imageMap[ $imageName])) $imageName = $imageMap[ $imageName];
-        $image = ( isset( $images[ $imageName])) ?  $images[ $imageName] : $images[ "Generic tool icon"];
+        if ( val( $imageMap, $imageName)) $imageName = val( $imageMap, $imageName);
+        $image = ( val( $images, $imageName)) ?  $images[ $imageName] : $images[ "Generic tool icon"];
         $image = str_replace( '/upload/', '/tmp/W64H64_', $image);
         $name = LINKSAPI::startTerm.$name.LINKSAPI::endTerm;
         $js .= "ud.addTool('{$divs['selector']}', '$name', '$image', '$call', '$help');";
@@ -995,7 +995,7 @@ EOT;
  
  } // PHP class UDcommands
  
- if ( isset( $argv[0]) && strpos( $argv[0], "udcommands.php") !== false)
+ if ( isset( $argv) && strpos( $argv[0], "udcommands.php") !== false)
 {
     // CLI launched for tests
     echo "Syntax udcommands.php OK\n";

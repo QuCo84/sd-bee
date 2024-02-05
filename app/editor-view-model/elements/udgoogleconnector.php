@@ -110,7 +110,7 @@ class UD_googleConnector extends UDConnector {
 global $UD_justLoadedClass;
 $UD_justLoadedClass = "UD_googleConnector";   
  
-if ( isset( $argv[0]) && strpos( $argv[0], "udgoogleconnector.php") !== false)
+if ( isset( $argv) && strpos( $argv[0], "udgoogleconnector.php") !== false)
 {    
     // Launched with php.ini so run auto-test
     echo "Syntaxe OK\n";

@@ -112,8 +112,8 @@ class UDtext extends UDelement
        $r .= "<tbody>";
        for ($line=0; $line < LF_count($lines); $line++)
        {
-            // $text  = str_replace( '&nbsp;', ' ', $lines[$line]); 
-            $text = $lines[$line];
+            // $text  = str_replace( '&nbsp;', ' ', val( $lines, $line)); 
+            $text = val( $lines, $line);
             $text  = str_replace( ['&amp;nbsp;', ' '],['&nbsp;', '&nbsp;'], $text);   // Temp solution    
             $r .=  "<tr>";
             $r .=     "<td contenteditable=\"false\" ude_formula=\"row()\" class=\"rowNo\">{$line}</td>";

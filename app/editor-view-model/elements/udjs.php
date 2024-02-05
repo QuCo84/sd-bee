@@ -31,7 +31,7 @@ class UDjs extends UDelement
        $js = "";
        for ( $i=1; $i < LF_count( $this->textContent); $i++)
        {
-            $line = $this->textContent[ $i];
+            $line = val( $this->textContent, $i);
             if ($line == DummyText) $line = "";
             if ( $line)
             {
