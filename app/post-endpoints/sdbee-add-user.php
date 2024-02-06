@@ -85,7 +85,7 @@ function SDBEE_addUser_addDoc( $name, $record, $userName, $parent="") {
     global $ACCESS;
     $isDoc = val( $record, 'isDoc');
     $data = val( $record, 'data');    
-    $children = ( isset( val( $record, 'contents'))) ? $record[ 'contents'] : [];
+    $children = ( val( $record, 'contents')) ? $record[ 'contents'] : [];
     var_dump( $children);
     // Create this doc
     if ( $parent) {

@@ -94,9 +94,8 @@ class SDBEE_doc {
             $this->params = JSON_decode( $this->info[ 'params'], true);   
             $this->state = val( $this->info, 'state');
             $this->progress = val( $this->info, 'progress');
-            if ( !$this->state && isset( val( $this->params, 'state'))) $this->state = val( $this->params, 'state');
-            //if ( isset( val( $this->params, 'progress'))) $this->progress = val( $this->params, 'progress');
-            if ( isset( val( $this->info, 'deadline'))) $this->deadline = val( $this->info, 'deadline');
+            if ( !$this->state && val( $this->params, 'state')) $this->state = val( $this->params, 'state');
+            if ( val( $this->info, 'deadline')) $this->deadline = val( $this->info, 'deadline');
         }
         // Fetch document
         $this->fetch();                      
@@ -201,9 +200,9 @@ class SDBEE_doc {
         if ( $this->params)  $this->top[ 'textra']['system'] = $this->params;
         else {
             $this->params = $this->top[ 'textra'][ 'system'];
-            if ( isset( val( $this->params, 'state'))) $this->state = val( $this->params, 'state');
-            if ( isset( val( $this->params, 'progress'))) $this->progress = val( $this->params, 'progress');
-            if ( isset( val( $this->params, 'deadline'))) $this->deadline = val( $this->params, 'deadline');
+            if ( val( $this->params, 'state')) $this->state = val( $this->params, 'state');
+            if ( val( $this->params, 'progress')) $this->progress = val( $this->params, 'progress');
+            if ( val( $this->params, 'deadline')) $this->deadline = val( $this->params, 'deadline');
         }
         $this->content[ $this->topName] = $this->top;
         $this->index = Array_keys( $this->content);
@@ -437,17 +436,17 @@ class SDBEE_doc {
         if ( $element[ 'stype'] == UD_document || $element[ 'stype'] == UD_model) {
             // Top element is modified
             $this->top = $element;
-            if ( isset( val( $data, 'nstyle'))) {
+            if ( val( $data, 'nstyle')) {
                 // Change of model
                 $this->model = val( $element, 'nstyle');
                 echo "model set as {$this->model}";
                 //$this->initialiseFromModel(); // Or we could detect new at loading
             }
-            if ( isset( val( $data, 'textra')) && isset($element[ 'textra'][ 'system'])) {
+            if ( val( $data, 'textra/system')) {
                 // Parameters changed
                 $this->params = $element[ 'textra'][ 'system'];
-                if ( isset( val( $this->params, 'state'))) $this->state = val( $this->params, 'state');
-                if ( isset( val( $this->params, 'progress')))  $this->updateProgress( val( $this->params, 'progress'));
+                if ( val( $this->params, 'state')) $this->state = val( $this->params, 'state');
+                if ( val( $this->params, 'progress'))  $this->updateProgress( val( $this->params, 'progress'));
             }   
             $this->modifiedInfo = true;        
         }
@@ -555,7 +554,7 @@ class SDBEE_doc {
         $element = val( $this->content, $elementId);
         if ( !$element) return JSON_encode( ['result' =>'KO', 'msg' => "No element {$elementId} in {$this->name}"]);
         // Delete element
-        unset( val( $this->content, $elementId));
+        unset( $this->content[ $elementId]);
         // Store modification
         $this->modifications[] = [ 'action'=>'delete', 'elementId'=>$elementId];
         return $this->_jsonResponse( $element);
@@ -700,10 +699,10 @@ class SDBEE_doc {
                 if ( strpos( $el[ 'nname'], "BVU") === 0) $copy = true; else $copy = false;
             }
             if ( $copy) {
-                $name =val( $el, 'nname');
-                unset( val( $el, 'nname'));
-                unset( val( $el, 'id'));
-                unset( val( $el, 'oid'));
+                $name = val( $el, 'nname');
+                unset( $el[ 'nname']);
+                unset( $el[ 'id']);
+                unset( $el[ 'oid']);
                 $content[ $name] = $el;
             }
         }
@@ -772,9 +771,9 @@ class SDBEE_doc {
 
                 }
                 */
-                unset( val( $el, 'nname'));
-                unset( val( $el, 'id'));
-                unset( val( $el, 'oid'));                
+                unset( $el[ 'nname']);
+                unset( $el[ 'id']);
+                unset( $el[ 'oid']);                
                 $params[ 'system'][ 'fromModel'] = true;
                 // $params = ( val( $el, 'tparams')) ? JSON_decode( $el[ 'tparams'], true) : ;
                 $content = val( $el, 'tcontent');
@@ -797,7 +796,7 @@ class SDBEE_doc {
         // Update status
         $this->state = "initialised";
         $this->progress = 0;
-        $this->deadline = time() + ( ( isset( val( $this->params, 'duration'))) ? $this->params[ 'duration'] * 86400 : 7 * 86400);
+        $this->deadline = time() + ( ( val( $this->params, 'duration')) ? $this->params[ 'duration'] * 86400 : 7 * 86400);
         $this->modifiedInfo = true;
         // Reset to top
         $this->next = 0;

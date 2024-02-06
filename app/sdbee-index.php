@@ -91,7 +91,7 @@ $request = SDBEE_getRequest();
 if ( count( $request)) {
     // Request has data
     $post = $request;       
-    if ( isset(  val( $request, 'logout'))) {
+    if ( val( $request, 'logout')) {
         // Clear session & member cookies
         if ( $ACCESS) $ACCESS->logout();
         $USER = null;
@@ -106,9 +106,9 @@ if ( count( $request)) {
         */
         session_write_close();
         exit();
-    } elseif ( isset( val( $request, 'post'))) {
+    } elseif ( val( $request, 'post')) {
         var_dump( $request); die();
-    } elseif ( isset(  val( $request, 'test'))) {
+    } elseif ( val( $request, 'test')) {
         // TEST option
         $test = val( $request, 'test');
         if ( $test == "obj") {
@@ -175,7 +175,7 @@ if ( count( $request)) {
             exit();
         }
         echo "no test $test configurated";
-    } elseif ( isset( val( $request, 'act')) && $request[ 'act'] != "ignore") {
+    } elseif ( val( $request, 'act') && $request[ 'act'] != "ignore") {
         // Operational request
         $act = val( $request, 'act'); 
         if ( $act == 'fetch') {
@@ -196,10 +196,10 @@ if ( count( $request)) {
         } else {
             echo "No such action";
         }
-    } elseif ( isset( val( $request, 'nServiceRequest'))) {
+    } elseif ( val( $request, 'nServiceRequest')) {
         // Service call
         include ( "post-endpoints/sdbee-service-gateway.php");
-    } elseif ( isset( val( $request, 'form'))) {
+    } elseif ( val( $request, 'form')) {
         // FORM data
         $form = val( $request, 'form'); 
         if ( $form == "INPUT_UDE_FETCH") {           
@@ -215,13 +215,13 @@ if ( count( $request)) {
             include ( "post-endpoints/sdbee-add-delete-clip.php");
         }
         // 2DO Fetch element    
-    } elseif ( isset( val( $request, 'task'))) {
+    } elseif ( val( $request, 'task')) {
         // Display a task        
         $taskName = val( $request, 'task');
         LF_debug( "Displaying {$taskName}", 'index', 8);
         $doc = new SDBEE_doc( $taskName);
         $doc->sendToClient();
-    } elseif( isset( val( $request, 'model'))) {
+    } elseif( val( $request, 'model')) {
         // Display a model
     } 
 } else {

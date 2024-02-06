@@ -20,8 +20,8 @@
 function SDBEE_endpoint_collection( $collectionName, $action) {
     global $ACCESS, $DM;
     if ( !$ACCESS) return SDBEE_endpoint_collection_test();
-    $thumbDocClass = ( isset( val( $_REQUEST, 'dcl'))) ? (int) $_REQUEST[ 'dcl'] : 0;
-    $displayBreadcrumbs = ( isset( val( $_REQUEST, 'bc'))) ? (bool) $_REQUEST[ 'bc'] : true;
+    $thumbDocClass = ( val( $_REQUEST, 'dcl')) ? (int) $_REQUEST[ 'dcl'] : 0;
+    $displayBreadcrumbs = ( val( $_REQUEST, 'bc')) ? (bool) $_REQUEST[ 'bc'] : true;
     $link = "$$$.updateZone('USER--21/AJAX_listContainers/updateOid|off/', 'BE00000000000000M_dirListing');";
     $pathWithLinks = [ 'Top' => $link];
     $view = "'BE00000000000000M_dirListing'";

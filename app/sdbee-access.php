@@ -120,7 +120,7 @@ class SDBEE_access {
         */
         if ( !$name) {
             // Use current session or reconnect
-            if ( isset( val( $_SESSION, 'user_id'))) $this->userId = val( $_SESSION, 'user_id');
+            if ( val( $_SESSION, 'user_id')) $this->userId = val( $_SESSION, 'user_id');
             else {
                 $token = val( $_COOKIE, 'member'); 
                 if ( $token) {
@@ -193,7 +193,7 @@ class SDBEE_access {
     function logout() {
         // Delete existing member cookies
         $this->_query( "DELETE FROM Members WHERE userId=:userId;",[ ':userId'=>$this->userId]);
-        unset( val( $_SESSION, 'user_id'));
+        unset( $_SESSION[ 'user_id']);
     }
 
     /**
@@ -251,7 +251,7 @@ class SDBEE_access {
                 $userInfo[ 'top-dir'] = $storage[ 'top-dir'];
                 if ( !val( $userInfo, 'prefix')) $userInfo[ 'prefix'] = val( $storage, 'prefix');
             } /*else throw new Exception( "Configuration Error : no storage {$userInfo[ 'doc-storage']}");*/
-            unset( val( $userInfo, 'password'));
+            unset( $userInfo[ 'password']);
         }
     }
 
@@ -336,7 +336,7 @@ class SDBEE_access {
             $contents[] = $content;
         }
         $collInfo = $this->getCollectionInfo( $name);
-        if ( !$collInfo || !isset( val( $collInfo, 'id'))) return [];
+        if ( !$collInfo || !val( $collInfo, 'id')) return [];
         $collId = val( $collInfo, 'id');
         $sql = "SELECT * FROM CollectionLinks WHERE collectionId=:collectionId;";
         $links = $this->_query( $sql, [ ':collectionId' => $collId]);
@@ -827,9 +827,9 @@ names = [fields[1] for fields in desc]
             $linkId = val( $link, 'targetId');
             if ( is_string( val( $link, 'access'))) $link[ 'access'] = (int) val( $link, 'access');
             if ( is_NaN( $link[ 'access'] || !val( $link, 'access'))) $link[ 'access'] = $access;
-            else val( $link, 'access') &= $access;
+            else $link[ 'access'] &= $access;
             $link[ 'path'] = $path;
-            if ( isset( val( $link, 'isUser')) && val( $link, 'isUser')) {
+            if ( val( $link, 'isUser')) {
                 // It's a user
                 $this->cache[ 'U'.$linkId] = $link;
                 // Check for links from this user

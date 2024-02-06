@@ -130,7 +130,7 @@ use GuzzleHttp\HandlerStack;
             elseif ( $protocol == 'soil') $response = SDBEE_service_endpoint_token( $gateway, $functionPath, $serviceAccount, $serviceRequest);
             elseif ( $protocol == 'bearer') $response = SDBEE_service_endpoint_bearer( $gateway, $functionPath, $serviceAccount, $serviceRequest);
             else $response =  [ "success"=>false, "message"=>"Unknown protocol", "data" => ""];        
-            if ( val( $response, 'success') && $throttleId &&  isset( val( $response, 'creditsConsumed'))) {
+            if ( val( $response, 'success') && $throttleId &&  val( $response, 'creditsConsumed')) {
                 // Update service log
                 $throttle->consume( $throttleId, $response[ 'creditsConsumed'], val( $response, 'creditsComment'));
             }            

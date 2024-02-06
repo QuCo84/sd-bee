@@ -25,7 +25,7 @@
     $elementId = $w[ count( $w) - 1];
     $depth = (int) count( $w)/2 - 1;
     $doc = new SDBEE_doc( $taskName);
-    if ( isset( val( $request, 'iaccess')) && $request[ 'iaccess']== "0" && $depth == 0) {
+    if ( val( $request, 'iaccess') == "0" && $depth == 0) {
         // Delete or recycle document
         include( 'sdbee-delete-doc.php');
         exit();

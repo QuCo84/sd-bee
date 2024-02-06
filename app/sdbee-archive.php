@@ -72,9 +72,9 @@ class SDBEE_archive extends SDBEE_doc {
             $this->params = JSON_decode( $this->info[ 'params'], true);   
             $this->state = val( $this->info, 'state');
             $this->progress = val( $this->info, 'progress');
-            if ( !$this->state && isset( val( $this->params, 'state'))) $this->state = val( $this->params, 'state');
+            if ( !$this->state && val( $this->params, 'state')) $this->state = val( $this->params, 'state');
             //if ( isset( val( $this->params, 'progress'))) $this->progress = val( $this->params, 'progress');
-            if ( isset( val( $this->info, 'deadline'))) $this->deadline = val( $this->info, 'deadline');
+            if ( val( $this->info, 'deadline')) $this->deadline = val( $this->info, 'deadline');
            
         } 
     }
