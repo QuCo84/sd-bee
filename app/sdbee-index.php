@@ -56,7 +56,7 @@ try {
     $USER = $USER_CONFIG; // Until we change USER everywhere. doc, storage & access to begin with
     //if ( !$USER || $USER == -1)
     LF_debug( "Logged in as user no {$USER[ 'id']}", 'index', 8);
-    // if ( !$USER[ 'prefix']) $USER = SDBEE_loadUser();
+    // if ( !val( $USER, 'prefix')) $USER = SDBEE_loadUser();
 } catch ( PDOException $ex) {
     if ( $TEST) echo "A PDO Error occured in main! ".$ex->getMessage()."<br>\n";
     // Fall back to cabled test user data for now
@@ -91,7 +91,7 @@ $request = SDBEE_getRequest();
 if ( count( $request)) {
     // Request has data
     $post = $request;       
-    if ( isset(  $request[ 'logout'])) {
+    if ( isset(  val( $request, 'logout'))) {
         // Clear session & member cookies
         if ( $ACCESS) $ACCESS->logout();
         $USER = null;
@@ -106,11 +106,11 @@ if ( count( $request)) {
         */
         session_write_close();
         exit();
-    } elseif ( isset( $request[ 'post'])) {
+    } elseif ( isset( val( $request, 'post'))) {
         var_dump( $request); die();
-    } elseif ( isset(  $request[ 'test'])) {
+    } elseif ( isset(  val( $request, 'test'))) {
         // TEST option
-        $test = $request[ 'test'];
+        $test = val( $request, 'test');
         if ( $test == "obj") {
             try {
                 echo "test OBJ<br>";
@@ -175,12 +175,12 @@ if ( count( $request)) {
             exit();
         }
         echo "no test $test configurated";
-    } elseif ( isset( $request[ 'act']) && $request[ 'act'] != "ignore") {
+    } elseif ( isset( val( $request, 'act')) && $request[ 'act'] != "ignore") {
         // Operational request
-        $act = $request[ 'act']; 
+        $act = val( $request, 'act'); 
         if ( $act == 'fetch') {
-            $doc = new SDBEE_doc( $request[ 'task']);
-            echo $doc->readElement( $request[ 'element']);
+            $doc = new SDBEE_doc( val( $request, 'task'));
+            echo $doc->readElement( val( $request, 'element'));
             // include ( "get-endpoints/sdbee-fetch-element.php");
         } elseif ( $act == "changes") {           
             include ( "get-endpoints/sdbee-changes.php");
@@ -196,12 +196,12 @@ if ( count( $request)) {
         } else {
             echo "No such action";
         }
-    } elseif ( isset( $request[ 'nServiceRequest'])) {
+    } elseif ( isset( val( $request, 'nServiceRequest'))) {
         // Service call
         include ( "post-endpoints/sdbee-service-gateway.php");
-    } elseif ( isset( $request[ 'form'])) {
+    } elseif ( isset( val( $request, 'form'))) {
         // FORM data
-        $form = $request[ 'form']; 
+        $form = val( $request, 'form'); 
         if ( $form == "INPUT_UDE_FETCH") {           
             include ( "post-endpoints/sdbee-modify-element.php");
         } elseif ( $form == "INPUT_addApage" || $form == "INPUT_ajouterUnePage") {
@@ -215,13 +215,13 @@ if ( count( $request)) {
             include ( "post-endpoints/sdbee-add-delete-clip.php");
         }
         // 2DO Fetch element    
-    } elseif ( isset( $request[ 'task'])) {
+    } elseif ( isset( val( $request, 'task'))) {
         // Display a task        
-        $taskName = $request[ 'task'];
+        $taskName = val( $request, 'task');
         LF_debug( "Displaying {$taskName}", 'index', 8);
         $doc = new SDBEE_doc( $taskName);
         $doc->sendToClient();
-    } elseif( isset( $request[ 'model'])) {
+    } elseif( isset( val( $request, 'model'))) {
         // Display a model
     } 
 } else {
@@ -243,7 +243,7 @@ session_write_close();
 function SDBEE_getRequest() {    
     $request = [];    
     // Examine URI for backward compatibilty with SOILink version
-    $uriParts = explode( '/', $_SERVER[ 'REQUEST_URI']);
+    $uriParts = explode( '/', val( $_SERVER, 'REQUEST_URI'));
     //if ( LF_count( $uriParts) > 2) {var_dump( $uriParts);}
     if ( $uriParts[0] == "" && $uriParts[2] == "") array_shift( $uriParts); // && $uriParts[2] == ""
     $oid = $uriParts[2];
@@ -268,8 +268,8 @@ function SDBEE_getRequest() {
         */
     ];
     // Map 
-    if ( isset( $actionMap[ $action])) {
-        $map = $actionMap[ $action];
+    if ( val(  $actionMap, $action)) {
+        $map = val( $actionMap, $action);
         foreach( $map as $key=>$value) {
             $request[ $key] = $value;
         }
@@ -281,7 +281,7 @@ function SDBEE_getRequest() {
         // v, m,d ?
     );
     foreach( $requestKeys as $key) {
-        if ( isset( $_REQUEST[ $key])) $request[ $key] = $_REQUEST[ $key];
+        if ( val(  $_REQUEST, $key)) $request[ $key] = val( $_REQUEST, $key);
     }
     return $request;
 }
@@ -296,9 +296,9 @@ function SDBEE_testUser() {
     ];
     global $CONFIG;
     $storage = $CONFIG[ 'private-storage'];
-    $usr[ 'storageService'] =  $storage[ 'storageService'];  
-    $usr[ 'keyFile'] = $storage[ 'keyFile'];
-    $usr[ 'source'] = $storage[ 'bucket'];
+    $usr[ 'storageService'] =  val( $storage, 'storageService');  
+    $usr[ 'keyFile'] = val( $storage, 'keyFile');
+    $usr[ 'source'] = val( $storage, 'bucket');
     $usr[ 'top-dir'] = $storage[ 'top-dir'];
     return $usr;
 }

@@ -55,7 +55,7 @@ class SDBEE_archive extends SDBEE_doc {
             // Read 1 task doc from archive
             // Find doc
             // 2DO Use start & end index to extract task
-            if ( !isset( $data[ $name])) die( "{$name} not in {$archiveName}");
+            if ( !val(  $data, $name)) die( "{$name} not in {$archiveName}");
             // Build JSON
             $this->doc = $data[ $this->name]; 
             LF_debug( "Read archived {$name} from {$this->dir} {$this->archiveName}", 'doc', 8);
@@ -65,16 +65,16 @@ class SDBEE_archive extends SDBEE_doc {
             */
 
             // Transfer info to visible attributes
-            $this->label = $this->info[ 'label'];
-            $this->type = $this->info[ 'type'];
-            $this->model = $this->info[ 'model'];
-            $this->description = $this->info[ 'description'];
+            $this->label = val( $this->info, 'label');
+            $this->type = val( $this->info, 'type');
+            $this->model = val( $this->info, 'model');
+            $this->description = val( $this->info, 'description');
             $this->params = JSON_decode( $this->info[ 'params'], true);   
-            $this->state = $this->info[ 'state'];
-            $this->progress = $this->info[ 'progress'];
-            if ( !$this->state && isset( $this->params[ 'state'])) $this->state = $this->params[ 'state'];
-            //if ( isset( $this->params[ 'progress'])) $this->progress = $this->params[ 'progress'];
-            if ( isset( $this->info[ 'deadline'])) $this->deadline = $this->info[ 'deadline'];
+            $this->state = val( $this->info, 'state');
+            $this->progress = val( $this->info, 'progress');
+            if ( !$this->state && isset( val( $this->params, 'state'))) $this->state = val( $this->params, 'state');
+            //if ( isset( val( $this->params, 'progress'))) $this->progress = val( $this->params, 'progress');
+            if ( isset( val( $this->info, 'deadline'))) $this->deadline = val( $this->info, 'deadline');
            
         } 
     }
@@ -87,7 +87,7 @@ class SDBEE_archive extends SDBEE_doc {
     }
 }
 
-if ( isset( $argv[0]) && strpos( $argv[0], "sdbee-aarchive.php") !== false) {
+if ( isset( $argv) && strpos( $argv[0], "sdbee-aarchive.php") !== false) {
     // CLI launched for tests
     session_start();
     echo "Syntax sdbee-archive.php OK\n";

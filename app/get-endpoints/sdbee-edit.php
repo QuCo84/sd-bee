@@ -18,9 +18,9 @@
  */
 function SDBEE_endpoint_edit( $request) {
         // Display a task
-        $taskName = $request[ 'task'];
+        $taskName = val( $request, 'task');
         /*
-        if ( $request[ 'archive']) {
+        if ( val( $request, 'archive')) {
                 include_once "sdbee_archive.php";
                 $archive = new SDBEE_archive( $request[ 'archive'], $taskName);  
                 $doc = $archive->open( $name),

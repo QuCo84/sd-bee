@@ -20,7 +20,7 @@
 function SDBEE_endpoint_deleteDoc( $request) {
     global $ACCESS, $STORAGE, $USER;
     // Get task
-    $oid = $request[ 'input_oid'];
+    $oid = val( $request, 'input_oid');
     $oidA = explode( '-', explode( '--', $oid)[0]);
     $task = $oidA[ count( $oidA) - 1];
     // Get info on doc
@@ -28,8 +28,8 @@ function SDBEE_endpoint_deleteDoc( $request) {
     if ( !$taskInfo) {
         echo "Cannot find task $task";
     }
-    $access = $taskInfo[ 'access'];
-    $id = $taskInfo[ 'id'];
+    $access = val( $taskInfo, 'access');
+    $id = val( $taskInfo, 'id');
     $dirInfo = $ACCESS->getDirectoryInfo( $task, $id);
     if ( !$dirInfo) {
         // Attached to user

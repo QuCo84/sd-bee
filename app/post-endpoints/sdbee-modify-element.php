@@ -19,13 +19,13 @@
 
  function SDBEE_modifyElement( $request) {
     global $USER, $DATA, $STORAGE;
-    $oid = $request[ 'input_oid'];
+    $oid = val( $request, 'input_oid');
     $w = explode( '-', explode( '--', $oid)[0]);
     $taskName = $w[ 1];
     $elementId = $w[ count( $w) - 1];
     $depth = (int) count( $w)/2 - 1;
     $doc = new SDBEE_doc( $taskName);
-    if ( isset( $request[ 'iaccess']) && $request[ 'iaccess']== "0" && $depth == 0) {
+    if ( isset( val( $request, 'iaccess')) && $request[ 'iaccess']== "0" && $depth == 0) {
         // Delete or recycle document
         include( 'sdbee-delete-doc.php');
         exit();

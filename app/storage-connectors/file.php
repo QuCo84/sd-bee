@@ -34,7 +34,7 @@ class FileStorage extends SDBEE_storage {
     function __construct( $userData) {
         //$this->topDir = $userData[ 'top-dir'];
         $this->topDir = ( strpos( $userData[ 'top-dir'], 'http') === 0) ? $userData[ 'top-dir'] : __DIR__."/../../".$userData[ 'top-dir'];
-        $this->prefix = $userData[ 'prefix'];
+        $this->prefix = val( $userData, 'prefix');
     }
 
     function exists( $dir, $filename) {

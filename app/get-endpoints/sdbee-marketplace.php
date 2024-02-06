@@ -34,13 +34,13 @@ function SDBEE_endpoint_marketplace( $request, $output=false) {
     /* // Local models
     $userModelsInfo =  $ACCESS->getCollectionContents( 'Models');
     for ( $modeli=0; $modeli < count( $userModelsInfo); $modeli++) {
-        $modelInfo = $userModels[ $modeli];
-        $modelName = $modelInfo[ 'name'];
+        $modelInfo = val( $userModels, $modeli);
+        $modelName = val( $modelInfo, 'name');
         $model = new SDBEE_doc( $modelName);        
         if ( false && $model) {
             // Grab the description and image from the model itself
             $descrEl = $model->readElement( 'BUU0000010000');
-            $descr = $descrEl[ 'tcontent'];
+            $descr = val( $descrEl, 'tcontent');
             $imgEl = $model->readElement( 'BUU0000010000');
             $image = "";
         }
@@ -50,8 +50,8 @@ function SDBEE_endpoint_marketplace( $request, $output=false) {
             'image' => ($image) ? $image : $defaultTemplateImage,
             'click1' => "$$$.setModel('{$model->name}');",
         ];
-        if ( $model->params[ 'replaceInMarket']) {
-            $ignore[] = $model->params[ 'replaceInMarket'];            
+        if ( val( $model->params, 'replaceInMarket')) {
+            $ignore[] = val( $model->params, 'replaceInMarket');            
         }
         $thumbnail = LF_substitute( $thumbnailTemplate, $data);
         $r .= $thumbnail;
@@ -59,7 +59,7 @@ function SDBEE_endpoint_marketplace( $request, $output=false) {
     }*/
     // PUblic models
     for ( $modeli=0; $modeli < count( $publicModels); $modeli++) {
-        $modelName = $publicModels[ $modeli];
+        $modelName = val( $publicModels, $modeli);
         if ( in_array( $modelName, $ignore)) continue;
         if ( !$PUBLIC->exists( "models", $modelName)) {
             echo "model not found $modelName"; 

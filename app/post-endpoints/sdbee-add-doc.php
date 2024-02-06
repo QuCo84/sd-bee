@@ -26,7 +26,7 @@ function SDBEE_endpoint_addDoc( $request) {
         // Create new entry in access database
         // With empty model, marketplace will automatically be inserted when doc is opened
         $doc = [ 'label'=>"Nouvelle tache", 'type'=>$type, 'model'=>"", 'description'=>"", 'params'=>"", 'prefix'=> "", 'state'=>"", 'progress'=>0];
-        if ( !$dir) $dir = $USER[ 'home'];
+        if ( !$dir) $dir = val( $USER, 'home');
         if ( $dir) {
             $id = $ACCESS->addDocToCollection( $name, $dir, $doc, $access=7);       
             echo "coll $id {$ACCESS->lastError}\n";

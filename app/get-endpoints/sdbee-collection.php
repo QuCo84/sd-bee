@@ -20,8 +20,8 @@
 function SDBEE_endpoint_collection( $collectionName, $action) {
     global $ACCESS, $DM;
     if ( !$ACCESS) return SDBEE_endpoint_collection_test();
-    $thumbDocClass = ( isset( $_REQUEST[ 'dcl'])) ? (int) $_REQUEST[ 'dcl'] : 0;
-    $displayBreadcrumbs = ( isset( $_REQUEST[ 'bc'])) ? (bool) $_REQUEST[ 'bc'] : true;
+    $thumbDocClass = ( isset( val( $_REQUEST, 'dcl'))) ? (int) $_REQUEST[ 'dcl'] : 0;
+    $displayBreadcrumbs = ( isset( val( $_REQUEST, 'bc'))) ? (bool) $_REQUEST[ 'bc'] : true;
     $link = "$$$.updateZone('USER--21/AJAX_listContainers/updateOid|off/', 'BE00000000000000M_dirListing');";
     $pathWithLinks = [ 'Top' => $link];
     $view = "'BE00000000000000M_dirListing'";
@@ -35,16 +35,16 @@ function SDBEE_endpoint_collection( $collectionName, $action) {
     } else {
         // Display a collection
         $info = $ACCESS->getCollectionInfo( $collectionName);        
-        if ( !$info[ 'access'] && RD) {
+        if ( !val( $info, 'access') && RD) {
             // Error page
         } elseif ( $action == "list") {
             // Build path with links for breadcrumbs
-            if ( $info[ 'path']) $path = explode( '/', $info[ 'path'] . '/' . $collectionName);
+            if ( val( $info, 'path')) $path = explode( '/', $info[ 'path'] . '/' . $collectionName);
             else $path = [ $collectionName];            
             for ($pathi=0; $pathi < LF_count( $path); $pathi++) { 
-                $nodeName = $path[ $pathi];    
+                $nodeName = val( $path, $pathi);    
                 $nodeInfo =  $ACCESS->getCollectionInfo( $collectionName);
-                $nodeLabel = $nodeInfo[ 'label'];            
+                $nodeLabel = val( $nodeInfo, 'label');            
                 $link = "$$$.updateZone('_FILE_UniversalDocElement-{$collectionName}--21-{$info[ 'id']}";
                 $link .= "/AJAX_listContainers/updateOid|off/', {$view});";
                 $pathWithLinks[ $nodeLabel] = $link;                
@@ -60,7 +60,7 @@ function SDBEE_endpoint_collection( $collectionName, $action) {
             $DM->flush( 'ajax');
         } else {
             // Display collection listing model NOT OK
-            $model = $info[ 'model'];
+            $model = val( $info, 'model');
             if ( !$model) $model = "Basic";
             //$doc = new SDBEE_doc(  'Models'', $name)
             SDBEE_showTask( $model, $info);
@@ -68,7 +68,7 @@ function SDBEE_endpoint_collection( $collectionName, $action) {
     }
 }
 global $request;
-SDBEE_endpoint_collection( $request[ 'collection'],$request[ 'act']);
+SDBEE_endpoint_collection( $request[ 'collection'],val( $request, 'act'));
 
 function SDBEE_endpoint_collection_test() {
     global $DM;

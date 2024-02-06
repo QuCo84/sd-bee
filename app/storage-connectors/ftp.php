@@ -34,9 +34,9 @@ class FTPStorage extends SDBEE_storage {
     private $domain;
 
     function __construct( $userData) {
-        $this->domain = $userData[ 'domain'];
+        $this->domain = val( $userData, 'domain');
         $this->topDir = ( strpos( $userData[ 'top-dir'], 'http') === 0) ? $userData[ 'top-dir'] : __DIR__."/../../".$userData[ 'top-dir'];
-        $this->prefix = $userData[ 'prefix'];
+        $this->prefix = val( $userData, 'prefix');
         // 2DO load domain data
     }
 

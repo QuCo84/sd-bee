@@ -42,30 +42,30 @@ use GuzzleHttp\HandlerStack;
     // Parameters
     $freeServices = [ 'doc'];
     // Get request and service
-    $reqRaw = $request['nServiceRequest'];  // 2DO comment 2 lines
+    $reqRaw = val( $request, 'nServiceRequest');  // 2DO comment 2 lines
     $serviceRequest = JSON_decode( urldecode( $reqRaw), true);
-    $serviceName = $serviceRequest['service'];
+    $serviceName = val( $serviceRequest, 'service');
     if ( in_array( $serviceName, $freeServices)) {
-        if ( !isset($map[ $serviceName])) return SDBEE_endpoint_service_error(  "Bad configuration for $serviceName");
-        $serviceInfo = explode( ' ', $map[ $serviceName]);
+        if ( !val( $map, $serviceName)) return SDBEE_endpoint_service_error(  "Bad configuration for $serviceName");
+        $serviceInfo = explode( ' ', val( $map, $serviceName));
         $protocol = $serviceInfo[0];
         $gateway = $serviceInfo[ 1];
         $functionPath = $serviceInfo[ 2];
         $serviceAccount = $serviceInfo[ 3];
     } else {
         // Not a free service so check access
-        $process = $serviceRequest['process']; 
+        $process = val( $serviceRequest, 'process'); 
         if ( SDBEE_MP_isMarketplace( $process)) {
             // Check if grants available via Markeplace
             $mpRequest = $serviceRequest;
             $mpRequest[ 'action'] = 'check-grant';
             $mpResponse = SDBEE_marketplace( $mpRequest);
-            if ( $mpResponse[ 'success'] && $mpResponse[ 'response']) {
-                $mpData = $mpResponse[ 'data'];
+            if ( val( $mpResponse, 'success') && val( $mpResponse, 'response')) {
+                $mpData = val( $mpResponse, 'data');
                 $protocol ='soil';
-                $gateway = $mpData[ 'baseURL'];
-                $functionPath = $mpData[ 'fctPath'];
-                $serviceAccount = $mpData[ 'account'];
+                $gateway = val( $mpData, 'baseURL');
+                $functionPath = val( $mpData, 'fctPath');
+                $serviceAccount = val( $mpData, 'account');
                 if ( $serviceAccount == 'USER') {
                     global $CONFIG;
                     $serviceAccount = $CONFIG[ 'marketplace-account-token'];
@@ -73,7 +73,7 @@ use GuzzleHttp\HandlerStack;
             }
         } else {
             // Check with local service throttle
-            if ( !isset( $map[ $serviceName])) return [ "result"=>"KO", "msg"=>"No service $serviceName"];    
+            if ( !val(  $map, $serviceName)) return [ "result"=>"KO", "msg"=>"No service $serviceName"];    
             // Throttle control
             $throttle = new UD_serviceThrottle();
             $throttleId = $throttle->isAvailable( $serviceName);
@@ -93,7 +93,7 @@ use GuzzleHttp\HandlerStack;
                 return $jsonResponse;
             }
             // Use the service map
-            $serviceInfo = explode( ' ', $map[ $serviceName]);
+            $serviceInfo = explode( ' ', val( $map, $serviceName));
             $protocol = $serviceInfo[0];
             $gateway = $serviceInfo[ 1];
             $functionPath = $serviceInfo[ 2];
@@ -112,7 +112,7 @@ use GuzzleHttp\HandlerStack;
     } else {
         // Transmit request to a gateway for external services
         // Get parameters from map entry protocol gateway/ functionName accountOrToken
-        $serviceInfo = explode( ' ', $map[ $serviceName]);
+        $serviceInfo = explode( ' ', val( $map, $serviceName));
         $protocol = $serviceInfo[0];
         $gateway = $serviceInfo[ 1];
         $functionPath = $serviceInfo[ 2];
@@ -130,9 +130,9 @@ use GuzzleHttp\HandlerStack;
             elseif ( $protocol == 'soil') $response = SDBEE_service_endpoint_token( $gateway, $functionPath, $serviceAccount, $serviceRequest);
             elseif ( $protocol == 'bearer') $response = SDBEE_service_endpoint_bearer( $gateway, $functionPath, $serviceAccount, $serviceRequest);
             else $response =  [ "success"=>false, "message"=>"Unknown protocol", "data" => ""];        
-            if ( $response[ 'success'] && $throttleId &&  isset( $response[ 'creditsConsumed'])) {
+            if ( val( $response, 'success') && $throttleId &&  isset( val( $response, 'creditsConsumed'))) {
                 // Update service log
-                $throttle->consume( $throttleId, $response[ 'creditsConsumed'], $response[ 'creditsComment']);
+                $throttle->consume( $throttleId, $response[ 'creditsConsumed'], val( $response, 'creditsComment'));
             }            
             return $response;
         }
@@ -210,11 +210,11 @@ function SDBEE_service_endpoint_getServiceMap() {
     // Build map with JSON files from app/local-services and .config/external-services
     $dirs = [ __DIR__.'/../local-services', __DIR__.'/../../.config/external-services'];
     for ( $diri=0; $diri < count( $dirs); $diri++) {
-        $dir = $dirs[ $diri];
+        $dir = val( $dirs, $diri);
         if ( !file_exists( $dir)) continue;
         $files = scandir( $dir);
         for ( $filei=0; $filei < count( $files); $filei++) {
-            $file =$files[ $filei];
+            $file =val( $files, $filei);
             if ( !strpos( $file, ".json")) continue;
             // Open each JSON file
             $fileContents = @file_get_contents( $dir.'/'.$file);

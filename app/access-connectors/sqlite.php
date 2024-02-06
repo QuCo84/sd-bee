@@ -31,7 +31,7 @@ class SDBEE_access_sqlite {
     );
        
     function __construct( $params) {
-        $source = $params[ 'database']; 
+        $source = val( $params, 'database'); 
         $this->source = $source;
         $sourceParts = explode( ':', $source);       
         $media = $sourceParts[0];
@@ -42,7 +42,7 @@ class SDBEE_access_sqlite {
             // Use local sqlite DB
             try {
                 global $CONFIG;
-                $filespace = $params[ 'storage']; //$CONFIG[ $params[ 'use-storage']];
+                $filespace = val( $params, 'storage'); //$CONFIG[ $params[ 'use-storage']];
                 //if ( $filespace) $path = $filespace[ 'top-dir'].$filespace[ 'prefix'].'_'.$filename;
                 if ( $filespace) $path = str_replace( [ 'C:', 'D:'], [ '', ''], __DIR__)."/../../".$filespace[ 'top-dir'].$filespace[ 'prefix'].'_'.$filename;
                 $dsn = 'sqlite:'.$path;         
@@ -53,7 +53,7 @@ class SDBEE_access_sqlite {
             }
         } elseif ( $media == "gs") {
             // DB is stored as file accessible via storage parameters
-            $bucket = SDBEE_getStorage( $params[ 'storage']);
+            $bucket = SDBEE_getStorage( val( $params, 'storage'));
             $this->bucket = $bucket;
             $this->rewrite = true;           
             // Copy base to tmp and open 

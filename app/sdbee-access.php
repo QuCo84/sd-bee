@@ -29,7 +29,7 @@
  *    if ( !$doc) return "doc not found";
  *    $newDoc = [
  *    ];
- *    $home = $access->getCollectionInfo( $user[ 'home']);
+ *    $home = $access->getCollectionInfo( val( $user, 'home'));
  *    if ( !$home) return "No home";
  *    $access->addDoc( "AUTO", 'collectionId'=>$home[ 'id'], ['label'=>"My label for doc"]);
  * 
@@ -109,8 +109,8 @@ class SDBEE_access {
     function login( $nameKey, $passwordKey, $input=[]) {
         if ( !$input) $input = $_REQUEST;
         $name = $password = "";
-        if ( isset( $input[ $nameKey]))  $name = $input[ $nameKey];
-        if ( isset( $input[ $passwordKey]))  $password = $input[ $passwordKey];
+        if ( val(  $input, $nameKey))  $name = val( $input, $nameKey);
+        if ( val(  $input, $passwordKey))  $password = val( $input, $passwordKey);
         /* Autologin
         if ( !$name) {
             // Tmp code
@@ -120,9 +120,9 @@ class SDBEE_access {
         */
         if ( !$name) {
             // Use current session or reconnect
-            if ( isset( $_SESSION[ 'user_id'])) $this->userId = $_SESSION[ 'user_id'];
+            if ( isset( val( $_SESSION, 'user_id'))) $this->userId = val( $_SESSION, 'user_id');
             else {
-                $token = $_COOKIE[ 'member']; 
+                $token = val( $_COOKIE, 'member'); 
                 if ( $token) {
                     // "member" cookie found (remember me)
                     $members = $this->_query( "SELECT * FROM Members WHERE token=:token;", [ ':token'=>$token]); 
@@ -131,7 +131,7 @@ class SDBEE_access {
                         $member = $members[0];
                         if ( $member[ 'validDate'] >= time()) {
                             // Valid cookie
-                            $this->userId = $member[ 'userId'];
+                            $this->userId = val( $member, 'userId');
                             $_SESSION[ 'user_id'] = $this->userId;
                             if ($TEST) echo "Logged as {$this->userId} using cookie member<br>";
                         } else {
@@ -151,8 +151,8 @@ class SDBEE_access {
         if ( !$this->lastError && count( $candidates) == 1) {
             // User found .. check password
             $candidate = $candidates[0];
-            if ( password_verify( $password, $candidate[ 'password']) || $password == $candidate[ 'password']) {
-                $this->userId = $candidate[ 'rowid'];
+            if ( password_verify( $password, val( $candidate, 'password')) || $password == val( $candidate, 'password')) {
+                $this->userId = val( $candidate, 'rowid');
                 $_SESSION[ 'user_id'] = $this->userId;
                 // Delete existing member cookies
                 $this->_query( "DELETE FROM Members WHERE userId=:userId;",[ 'userId:'=>$this->userId]);
@@ -193,7 +193,7 @@ class SDBEE_access {
     function logout() {
         // Delete existing member cookies
         $this->_query( "DELETE FROM Members WHERE userId=:userId;",[ ':userId'=>$this->userId]);
-        unset( $_SESSION[ 'user_id']);
+        unset( val( $_SESSION, 'user_id'));
     }
 
     /**
@@ -211,7 +211,7 @@ class SDBEE_access {
         if ( !$name) {
             // Current User
             $userId = $this->userId;
-            if ( !$userId || $userId != $_SESSION[ 'user_id']) return [];
+            if ( !$userId || $userId != val( $_SESSION, 'user_id')) return [];
             $sql = "SELECT rowid, * FROM Users WHERE rowid=:id;";
             $data = [ ':id' => $userId]; 
             $candidates = $this->_query( $sql, $data);
@@ -228,7 +228,7 @@ class SDBEE_access {
             $candidates = $this->_query( $sql, $data);
             if ( !count( $candidates)) return [];
             $userInfo = $candidates[ 0];
-            $userId = $userInfo[ 'rowid'];
+            $userId = val( $userInfo, 'rowid');
             // Add access or destroy info if none
             $access =  $this->_getAccess( 'U'.$userId, $userInfo);
             if ( $access) $this->_adjustUserInfo( $userInfo);
@@ -243,15 +243,15 @@ class SDBEE_access {
             global $CONFIG;
             $storage = $CONFIG[ $userInfo[ 'doc-storage']];
             if ( $storage) {      
-                $userInfo[ 'storageService'] =  $storage[ 'storageService'];  
-                $userInfo[ 'keyFile'] = $storage[ 'keyFile'];
-                $userInfo[ 'source'] = $storage[ 'bucket'];
+                $userInfo[ 'storageService'] =  val( $storage, 'storageService');  
+                $userInfo[ 'keyFile'] = val( $storage, 'keyFile');
+                $userInfo[ 'source'] = val( $storage, 'bucket');
                 /*if ( $storage[ 'storageService'] != "file" || strpos( $storage[ 'top-dir'], 'http') === 0) $userInfo[ 'top-dir'] = $storage[ 'top-dir'];
                 else $userInfo[ 'top-dir'] = "";*/
                 $userInfo[ 'top-dir'] = $storage[ 'top-dir'];
-                if ( !$userInfo[ 'prefix']) $userInfo[ 'prefix'] = $storage[ 'prefix'];
+                if ( !val( $userInfo, 'prefix')) $userInfo[ 'prefix'] = val( $storage, 'prefix');
             } /*else throw new Exception( "Configuration Error : no storage {$userInfo[ 'doc-storage']}");*/
-            unset( $userInfo[ 'password']);
+            unset( val( $userInfo, 'password'));
         }
     }
 
@@ -274,7 +274,7 @@ class SDBEE_access {
             return [];          
         }
         $docInfo = $candidates[ 0];
-        $docId = $docInfo[ 'rowid'];
+        $docId = val( $docInfo, 'rowid');
         $this->_getAccess( 'D'.$docId, $docInfo);
         return $docInfo;
     }
@@ -296,7 +296,7 @@ class SDBEE_access {
     function getDirectoryInfo( $docName, $docId = 0) {
         if ( !$docId) {
             $docInfo = $this->getDocInfo( $docName);
-            $docId = $docInfo[ 'id'];
+            $docId = val( $docInfo, 'id');
         }
         $data = [ ':targetId'=>$docId, ':isDoc'=>true];
         $where = "targetId=:targetId AND isDoc=:isDoc";
@@ -336,15 +336,15 @@ class SDBEE_access {
             $contents[] = $content;
         }
         $collInfo = $this->getCollectionInfo( $name);
-        if ( !$collInfo || !isset( $collInfo[ 'id'])) return [];
-        $collId = $collInfo[ 'id'];
+        if ( !$collInfo || !isset( val( $collInfo, 'id'))) return [];
+        $collId = val( $collInfo, 'id');
         $sql = "SELECT * FROM CollectionLinks WHERE collectionId=:collectionId;";
         $links = $this->_query( $sql, [ ':collectionId' => $collId]);
         $view = "'BE00000000000000M_dirListing'"; // 2DO $$$.dom.getView()
         // Add each link's target to contents array
         for ( $conti=0; $conti < count( $links); $conti++) {
-            $link = $links[ $conti];
-            $targetId = $link[ 'targetId'];
+            $link = val( $links, $conti);
+            $targetId = val( $link, 'targetId');
             $targetName = $this->_getDocNameById( $targetId);
             $info = $this->getDocInfo( $targetName); 
             // Align params and build content fields
@@ -354,7 +354,7 @@ class SDBEE_access {
             if ( isset( $useMap)) {
                 // Map fields
                 $content = [];
-                foreach ( $map as $field=>$src) $content[ $field] = $info[ $src];
+                foreach ( $map as $field=>$src) $content[ $field] = val( $info, $src);
                 if ( $info[ 'type'] == 1) {
                     $content[ '_link'] = "_FILE_UniversalDocElement-{$targetName}--21-{$targetId}}/AJAX_listContainers/updateOid|off/";
                 } else $content[ '_link'] = "?task={$targetName}"; // !!!important force link used in dir listing
@@ -384,14 +384,14 @@ class SDBEE_access {
         $links = $this->_query( $sql, [ ':userId' => $this->userId]);
         // Add each link's target to contents array
         for ( $conti=0; $conti < count( $links); $conti++) {
-            $link = $links[ $conti];
-            $targetId = $link[ 'targetId'];
+            $link = val( $links, $conti);
+            $targetId = val( $link, 'targetId');
             $targetName = $this->_getDocNameById( $targetId);
             $info = $this->getDocInfo( $targetName);           
             if ( isset( $useMap)) {
                 // Map fields
                 $content = [];
-                foreach ( $map as $field=>$src) $content[ $field] = $info[ $src];
+                foreach ( $map as $field=>$src) $content[ $field] = val( $info, $src);
                 if ( $info[ 'type'] == 1) {
                     $content[ '_link'] = "_FILE_UniversalDocElement-{$targetName}--21-{$targetId}}/AJAX_listContainers/updateOid|off/";
                 } else $content[ '_link'] = "?task={$targetName}"; // !!!important force link used in dir listi
@@ -474,7 +474,7 @@ class SDBEE_access {
         // Get collection id
         $collection = $this->getCollectionInfo( $collectionName);
         if ( !$collection) return $this->_error( "Cannot add document $name to unknown collection $collectionName");
-        $collectionId = $collection[ 'id'];
+        $collectionId = val( $collection, 'id');
         if ( $data) {
             $data[ 'name'] = $name;
             $data[ 'created'] = $data[ 'modified'] = time();
@@ -482,7 +482,7 @@ class SDBEE_access {
             $r = $this->_insert( 'Docs', $data, 'name label type model description params prefix created modified state progress deadline');
             $isDoc = ( $data[ 'type'] == UD_directory) ? 0 : 1;
         } else {
-            $r = $existing[ 'id'];
+            $r = val( $existing, 'id');
             $isDoc = ( $existing[ 'type'] == UD_directory) ? 0 : 1;
         }
         // Link to doc to collection
@@ -502,7 +502,7 @@ class SDBEE_access {
         // Get collection id
         $user = $this->getUserInfo( $userName);
         if ( !$user) return $this->_error( "Cannot add document $name to unknown user $userName");
-        $userId = $user[ 'id'];
+        $userId = val( $user, 'id');
         $data[ 'name'] = $name;
         $data[ 'created'] = $data[ 'modified'] = time();
         $data[ 'deadline'] = time() + 7*24*60*60;     
@@ -545,7 +545,7 @@ class SDBEE_access {
             $this->_query( "DELETE FROM {$table} WHERE rowid=:key;", [ ':key'=>$target[ 'id']]);
         }
         $this->cache = [];
-        return $target[ 'id'];
+        return val( $target, 'id');
     }
 
     function removeFromUser( $targetName, $isUser=false, $isDoc = true) {
@@ -566,7 +566,7 @@ class SDBEE_access {
             $this->_query( "DELETE FROM {$table} WHERE rowid=:key;", [ ':key'=>$target[ 'id']]);
         }
         $this->cache = [];
-        return $target[ 'id'];
+        return val( $target, 'id');
     }
 
     function archive( $list, $collectionName) {
@@ -588,16 +588,16 @@ class SDBEE_access {
         $archiveStorage->write( "archive", $archiveFilename, $archiveData);
         // Update access database
         $docInfo = $this->getdocInfo( $list[0][ 'nname']);
-        $existingName = $docInfo[ 'name'];
+        $existingName = val( $docInfo, 'name');
         $docInfo[ 'name'] = 'Y'.substr( $existingName, 1);
         $docInfo[ 'isDoc'] = 0;
         $ACCESS->updateDocInfo( $docInfo[ 'name'], $docInfo);
         $STORAGE->delete( "", $existingName);
         for ( $listi=1; $archi < count( $list); $list++) { // Trial
-            $el = $list[ $listi];
+            $el = val( $list, $listi);
             if ( $el[ 'stype'] == UD_document) {
                 // Delete doc
-                $targetName = $el[ 'nname'];
+                $targetName = val( $el, 'nname');
                 $ACCESS->removeFromCollection( $targetName, $collectionName, true);
                 $STORAGE->delete( "", $targetName);
             }
@@ -731,8 +731,8 @@ CREATE TABLE 'ServiceLog' (
         // ORDER IS IMPORTANT
         // Build colmun name and value lists
         foreach( $keyOrder as $key) {  
-            if ( isset( $data[ $key]) || isset( $data[ ":{$key}"])) {    
-                $val = ( isset( $data[ $key])) ? $data[ $key] : $data[ ":{$key}"];
+            if ( val(  $data, $key) || isset( $data[ ":{$key}"])) {    
+                $val = ( val(  $data, $key)) ? $data[ $key] : $data[ ":{$key}"];
                 $key = str_replace( '-', '_', $key);
                 //if ( !$val) continue;
                 // Pre-process value
@@ -790,12 +790,12 @@ names = [fields[1] for fields in desc]
         // Fill lookups (docs & collections) if not already done
         if ( !$this->cache) $this->_getAccessTables();
         $access = 0;
-        if ( isset( $this->cache[ $id])) {
+        if ( val(  $this->cache, $id)) {
             $access = $this->cache[ $id][ 'access'];
             $path =  $this->cache[ $id][ 'path'];
         }
-        //elseif ( isset( $this->collections[ $id])) $access = $this->collections[ $id][ 'access'];
-        //elseif ( isset( $this->users[ $id])) $access = $this->users[ $id][ 'access'];
+        //elseif ( val(  $this->collections, $id)) $access = $this->collections[ $id][ 'access'];
+        //elseif ( val(  $this->users, $id)) $access = $this->users[ $id][ 'access'];
         if ( $info) {
             if ( $access) {
                 $info[ 'access'] = $access;
@@ -823,24 +823,24 @@ names = [fields[1] for fields in desc]
         } 
         // Loop through links
         for ( $linki=0; $linki < count( $links); $linki++) {
-            $link = $links[ $linki];
-            $linkId = $link[ 'targetId'];
-            if ( is_string( $link[ 'access'])) $link[ 'access'] = (int) $link[ 'access'];
-            if ( is_NaN( $link[ 'access'] || !$link[ 'access'])) $link[ 'access'] = $access;
-            else $link[ 'access'] &= $access;
+            $link = val( $links, $linki);
+            $linkId = val( $link, 'targetId');
+            if ( is_string( val( $link, 'access'))) $link[ 'access'] = (int) val( $link, 'access');
+            if ( is_NaN( $link[ 'access'] || !val( $link, 'access'))) $link[ 'access'] = $access;
+            else val( $link, 'access') &= $access;
             $link[ 'path'] = $path;
-            if ( isset( $link[ 'isUser']) && $link[ 'isUser']) {
+            if ( isset( val( $link, 'isUser')) && val( $link, 'isUser')) {
                 // It's a user
                 $this->cache[ 'U'.$linkId] = $link;
                 // Check for links from this user
                 $sql = "SELECT * FROM UserLinks WHERE userId=:userId;";
                 $nextLinks = $this->_query( $sql, [ ':userId' => $linkId]);
-                if ( $nextLinks) $this->_getAccessTables( $nextLinks, $access & $link[ 'access'], $path.$this->_getUserNameById( $link[ 'targetId']));
+                if ( $nextLinks) $this->_getAccessTables( $nextLinks, $access & $link[ 'access'], $path.$this->_getUserNameById( val( $link, 'targetId')));
             } else {
                 // It's a doc (or a collection)
                 $this->cache[ 'D'.$linkId] = $link;
                 // Get info
-                $name = $this->_getDocNameById( $link[ 'targetId']);
+                $name = $this->_getDocNameById( val( $link, 'targetId'));
                 $pathr = $path . '/' . $name;
                 // Check for links from this collection
                 $sql = "SELECT * FROM CollectionLinks WHERE collectionId=:collectionId;";
@@ -865,7 +865,7 @@ names = [fields[1] for fields in desc]
      * @param array $params Array with type:sqlite|mysql|file and source 
      */
     function _connectToAccessDatabase( $params) {
-        $type = $params[ 'type'];
+        $type = val( $params, 'type');
         switch ( $type) {
             case "file" : 
                 // Use a JSON file
@@ -877,7 +877,7 @@ names = [fields[1] for fields in desc]
                 if ( isset( $params[ 'use-storage'])) {
                     $useStorage = $params[ 'use-storage'];
                     global $CONFIG;
-                    $params[ 'storage'] = $CONFIG[ $useStorage];
+                    $params[ 'storage'] = val( $CONFIG, $useStorage);
                 }
                 $this->helper = new $accessClass( $params);
                 break;
@@ -957,7 +957,7 @@ names = [fields[1] for fields in desc]
 }
 
 // Auto-test
-if ( isset( $argv[0]) && strpos( $argv[0], "sdbee-access.php") !== false) {
+if ( isset( $argv) && strpos( $argv[0], "sdbee-access.php") !== false) {
     // CLI launched for tests
     session_start();
     echo "Syntax sdbee-access.php OK\n";

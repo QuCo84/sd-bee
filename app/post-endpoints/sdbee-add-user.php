@@ -19,10 +19,10 @@
 
 function SDBEE_form_addUser( $request) {
     global $ACCESS;   
-    $username = $request[ 'nname'];
-    $password = $request[ 'tpasswd'];
-    $domain = $request[ '_tdomain'];
-    $type = $request[ '_stype'];
+    $username = val( $request, 'nname');
+    $password = val( $request, 'tpasswd');
+    $domain = val( $request, '_tdomain');
+    $type = val( $request, '_stype');
     // Get unique doc id
     $docName = UD_utilities::getContainerName();
     // Get list of dirs and docs to create
@@ -83,9 +83,9 @@ function getDocList( $docName, $usr32) {
 
 function SDBEE_addUser_addDoc( $name, $record, $userName, $parent="") {
     global $ACCESS;
-    $isDoc = $record[ 'isDoc'];
-    $data = $record[ 'data'];    
-    $children = ( isset( $record[ 'contents'])) ? $record[ 'contents'] : [];
+    $isDoc = val( $record, 'isDoc');
+    $data = val( $record, 'data');    
+    $children = ( isset( val( $record, 'contents'))) ? $record[ 'contents'] : [];
     var_dump( $children);
     // Create this doc
     if ( $parent) {

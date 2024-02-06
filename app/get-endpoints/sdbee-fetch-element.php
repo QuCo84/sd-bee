@@ -19,5 +19,5 @@
  */
 
 global $request;
-$doc = new SDBEE_doc( $request[ 'task']);
-echo $doc->readElement( $request[ 'element']);
+$doc = new SDBEE_doc( val( $request, 'task'));
+echo $doc->readElement( val( $request, 'element'));

@@ -37,16 +37,16 @@ class UDS_doc extends UD_service {
     function call( $data)
     {
         global $DM, $STORAGE;        
-        $action = $data['action'];
+        $action = val( $data, 'action');
         $r = "";
         if ( $DM && $STORAGE) {
             // OS version
             switch ( $action) {
                 case "getMostRecentByName" : {
-                    $model = $data[ 'model'];
-                    $dir = $data[ 'dir'];
-                    $elName = $data[ 'elementName'];
-                    $max_dcreated = $data[ 'dcreated'];
+                    $model = val( $data, 'model');
+                    $dir = val( $data, 'dir');
+                    $elName = val( $data, 'elementName');
+                    $max_dcreated = val( $data, 'dcreated');
                     // Get candidate docs
                     $candidates = [];
                     // Get collection name
@@ -57,7 +57,7 @@ class UDS_doc extends UD_service {
                     else $docs = $ACCESS->getUserContents();
                     // Keep if same model                   
                     for ( $doci=0; $doci < LF_count( $docs); $doci++) {
-                        $doc = $docs[ $doci];
+                        $doc = val( $docs, $doci);
                         if ( $doc[ 'nmodel'] == $model) {
                             // Open docs for dates and add to doc record
                             // Add to candidates list
@@ -68,11 +68,11 @@ class UDS_doc extends UD_service {
                     $mostRecentOID = "";
                     $dcreated = 0;
                     for ( $candi=1; $candi < LF_count( $candidates); $candi++) {
-                        $candidate = $candidates[ $candi];                    
-                        if ( $candidate[ 'id'] != $data[ 'exclude'] && $candidate[ 'dcreated'] > $dcreated) {
+                        $candidate = val( $candidates, $candi);                    
+                        if ( $candidate[ 'id'] != val( $data, 'exclude') && $candidate[ 'dcreated'] > $dcreated) {
                             if ( $max_dcreated && $candidate[ 'dcreated'] >= $max_dcreated) continue;
-                            $dcreated = $candidate[ 'dcreated'];
-                            $mostRecentOID = $candidate[ 'oid'];
+                            $dcreated = val( $candidate, 'dcreated');
+                            $mostRecentOID = val( $candidate, 'oid');
                         }
                     }
                     if ( $mostRecentOID) {
@@ -80,10 +80,10 @@ class UDS_doc extends UD_service {
                     }
                 break;}         
                 case "getNamedContent" : {
-                    $dir = $data[ 'dir'];
-                    $docName = $data[ 'docName'];
-                    $elementName = $data[ 'elementName'];
-                    $targetElementName = $data[ 'targetElementName'];
+                    $dir = val( $data, 'dir');
+                    $docName = val( $data, 'docName');
+                    $elementName = val( $data, 'elementName');
+                    $targetElementName = val( $data, 'targetElementName');
                     $doc = new SDBEE_doc( $docName, $dir);
                     if ( !$doc) {
                         $this->lastResponse = "ERR: no file $docName";                        
@@ -101,15 +101,15 @@ class UDS_doc extends UD_service {
                     $r = true;
                 break;}
                 case "getInfo" : {
-                    $dirOID = $data[ 'dir'];
-                    $docName = $data[ 'doc'];
+                    $dirOID = val( $data, 'dir');
+                    $docName = val( $data, 'doc');
                     if ( !$dirOID) {
                         // Compute dir OID from dirPath                
-                        $dirPath = explode( '/', $data[ 'dirPath']);                    
-                        $elementName = $data[ 'elementName'];
+                        $dirPath = explode( '/', val( $data, 'dirPath'));                    
+                        $elementName = val( $data, 'elementName');
                         $dirOID = "UniversalDocumentElement--21";
                         for ( $diri=0; $diri < LF_count( $dirPath); $diri++) {
-                            $dirOID = $this->getDocumentOIDbyName( $dirOID, $dirPath[ $diri]);
+                            $dirOID = $this->getDocumentOIDbyName( $dirOID, val( $dirPath, $diri));
                         }
                     }
                     $docOID = $this->getDocumentOIDbyName( $dirOID, $docName);
@@ -120,10 +120,10 @@ class UDS_doc extends UD_service {
                     $r = [ 'info'=>"", 'params'=> $extra['system']];
                 } break;
                 case "create" : {
-                    $model = $data[ 'model'];
-                    $dir = $data[ 'dir'];
-                    $docName = $data[ 'docName'];
-                    $max_dcreated = $data[ 'dcreated'];
+                    $model = val( $data, 'model');
+                    $dir = val( $data, 'dir');
+                    $docName = val( $data, 'docName');
+                    $max_dcreated = val( $data, 'dcreated');
                     $dcreated = 0;
                     $searchOid = $dir."-21--NO|OIDLENGTH|nname|*{$docName}"; //tyle|{$model}"; 
                     $candidates = $this->fetchData( $searchOid, "id nname dmodified dcreated");
@@ -164,10 +164,10 @@ class UDS_doc extends UD_service {
         }
         switch ( $action) {
             case "getMostRecentByName" : {
-                $model = $data[ 'model'];
-                $dir = $data[ 'dir'];
-                $elName = $data[ 'elementName'];
-                $max_dcreated = $data[ 'dcreated'];
+                $model = val( $data, 'model');
+                $dir = val( $data, 'dir');
+                $elName = val( $data, 'elementName');
+                $max_dcreated = val( $data, 'dcreated');
                 // Get candidate docs
                 $candidates = [];
                 global $DM, $ACCESS;
@@ -181,7 +181,7 @@ class UDS_doc extends UD_service {
                     else $docs = $ACCESS->getUserContents();
                     // Keep if same model                   
                     for ( $doci=0; $doci < LF_count( $docs); $doci++) {
-                        $doc = $docs[ $doci];
+                        $doc = val( $docs, $doci);
                         if ( $doc[ 'nmodel'] == $model) {
                             // Open docs for dates and add to doc record
                             // Add to candidates list
@@ -198,11 +198,11 @@ class UDS_doc extends UD_service {
                 $mostRecentOID = "";
                 $dcreated = 0;
                 for ( $candi=1; $candi < LF_count( $candidates); $candi++) {
-                    $candidate = $candidates[ $candi];                    
-                    if ( $candidate[ 'id'] != $data[ 'exclude'] && $candidate[ 'dcreated'] > $dcreated) {
+                    $candidate = val( $candidates, $candi);                    
+                    if ( $candidate[ 'id'] != val( $data, 'exclude') && $candidate[ 'dcreated'] > $dcreated) {
                         if ( $max_dcreated && $candidate[ 'dcreated'] >= $max_dcreated) continue;
-                        $dcreated = $candidate[ 'dcreated'];
-                        $mostRecentOID = $candidate[ 'oid'];
+                        $dcreated = val( $candidate, 'dcreated');
+                        $mostRecentOID = val( $candidate, 'oid');
                     }
                 }
                 if ( $mostRecentOID) {
@@ -224,26 +224,26 @@ class UDS_doc extends UD_service {
                 API.serviceRequest( "doc", params);
             */           
             case "getNamedContent" : {
-                $dirOID = $data[ 'dir'];
-                $docName = $data[ 'docName'];
-                $docOID = $data[ 'docOID'];
-                $elementName = $data[ 'elementName'];
-                $targetElementName = $data[ 'targetElementName'];
+                $dirOID = val( $data, 'dir');
+                $docName = val( $data, 'docName');
+                $docOID = val( $data, 'docOID');
+                $elementName = val( $data, 'elementName');
+                $targetElementName = val( $data, 'targetElementName');
                 if ( !$docOID) $docOID = $this->getDocumentOIDbyName( $dirOID, $docName);
                 if ( !$docOID) { $r = "ERR: no file $docName in $dirOID"; break;}
                 $r = $this->getNamedContents( $docOID, $elementName);
                 if ( $targetElementName) $r = str_replace( $elementName, $targetElementName, $r);                 
             break;}
             case "getInfo" : {
-                $dirOID = $data[ 'dir'];
-                $docName = $data[ 'doc'];
+                $dirOID = val( $data, 'dir');
+                $docName = val( $data, 'doc');
                 if ( !$dirOID) {
                     // Compute dir OID from dirPath                
-                    $dirPath = explode( '/', $data[ 'dirPath']);                    
-                    $elementName = $data[ 'elementName'];
+                    $dirPath = explode( '/', val( $data, 'dirPath'));                    
+                    $elementName = val( $data, 'elementName');
                     $dirOID = "UniversalDocumentElement--21";
                     for ( $diri=0; $diri < LF_count( $dirPath); $diri++) {
-                        $dirOID = $this->getDocumentOIDbyName( $dirOID, $dirPath[ $diri]);
+                        $dirOID = $this->getDocumentOIDbyName( $dirOID, val( $dirPath, $diri));
                     }
                 }
                 $docOID = $this->getDocumentOIDbyName( $dirOID, $docName);
@@ -254,10 +254,10 @@ class UDS_doc extends UD_service {
                 $r = [ 'info'=>"", 'params'=> $extra['system']];
             } break;
             case "create" : {
-                $model = $data[ 'model'];
-                $dir = $data[ 'dir'];
-                $docName = $data[ 'docName'];
-                $max_dcreated = $data[ 'dcreated'];
+                $model = val( $data, 'model');
+                $dir = val( $data, 'dir');
+                $docName = val( $data, 'docName');
+                $max_dcreated = val( $data, 'dcreated');
                 $dcreated = 0;
                 $searchOid = $dir."-21--NO|OIDLENGTH|nname|*{$docName}"; //tyle|{$model}"; 
                 $candidates = $this->fetchData( $searchOid, "id nname dmodified dcreated");
@@ -355,7 +355,7 @@ class UDS_doc extends UD_service {
 
 
 // Auto-test
-if ( isset( $argv[0]) && strpos( $argv[0], "uddocservice.php") !== false)
+if ( isset( $argv) && strpos( $argv[0], "uddocservice.php") !== false)
 {
     function nextTest() {
         global $TEST_NO, $LF, $LFF;

@@ -197,9 +197,9 @@ class UD_services {
         if ( $tag && $response) {
             $this->cache[ $tag] = $response;
             FILE_write( 'tmp', $cacheFile, -1, JSON_encode( $response));
-        } elseif ( $tag && isset( $this->cache[ $tag])) {
+        } elseif ( $tag && val(  $this->cache, $tag)) {
             // DO check a validity date
-            FILE_write( 'tmp', $cacheFile, -1, JSON_encode( $this->cache[ $tag]));
+            FILE_write( 'tmp', $cacheFile, -1, JSON_encode( val( $this->cache, $tag)));
             return  val( $this->cache, $tag);
         } else {
             // Get Data from cache file            
@@ -297,7 +297,7 @@ class UD_services {
                     }
                 }
                 $provider = strToLower( val( $serviceRequest, 'provider'));
-                if ( $provider && isset( $params[ $provider])) $serviceRequest[ $provider] =  val( $params, $provider);
+                if ( $provider && val(  $params, $provider)) $serviceRequest[ $provider] =  val( $params, $provider);
                 /* might need a fail-safe
                 if ( !$provider && !val( $serviceRequest, '__all')) {
                     foreach( $params as $key=>$value) $serviceRequest[ $key] = $value;
@@ -345,7 +345,7 @@ class UD_services {
                             || isset( $params[ $serviceRequest[ $provider]])
                         )                      
                     ) {                        
-                        if ( !isset( $serviceRequest[ $provider]) ||  val( $serviceRequest, 'provider') == 'default') {
+                        if ( !val(  $serviceRequest, $provider) ||  val( $serviceRequest, 'provider') == 'default') {
                             // Use default provider
                             $serviceRequest[ 'provider'] = $defaultProvider;
                         }

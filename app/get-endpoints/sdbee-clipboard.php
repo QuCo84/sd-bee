@@ -98,11 +98,11 @@ function L_getClipHTML( $clip, $saved)
 {
    // Adjust text
    $html = "";
-   $text = str_replace( "&quo"."te;", "'", $clip['content']); //LF_preDisplay( 't', $clip['ttext']);
+   $text = str_replace( "&quo"."te;", "'", val( $clip, 'content')); //LF_preDisplay( 't', val( $clip, 'ttext'));
    $text = LF_substitute( $text, [ 'gimage'=>"/".$clip['gimage']]);
    //$text = trim($text);
    // Adjust name
-   $name = $clip['name'];
+   $name = val( $clip, 'name');
    // Get clip type from name
    $nameParts = explode( '_', $name);
    $type = "";

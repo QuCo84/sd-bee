@@ -21,8 +21,8 @@ include_once __DIR__."/../editor-view-model/helpers/html.php";
 
 function SDBEE_endpoint_addOrDeleteClip( $request) {
     global $ACCESS, $DM;
-    $name = $request[ 'nname'];
-    $content = urldecode( $request['ttext']);
+    $name = val( $request, 'nname');
+    $content = urldecode( val( $request, 'ttext'));
     if ( $content) {
         // Add clip
         $type = "text";
@@ -34,7 +34,7 @@ function SDBEE_endpoint_addOrDeleteClip( $request) {
         return $ACCESS->addClip( $name, $type, $content);
     } else {
         // Empty content = delete clip
-        $oid = $request[ 'input_oid'];
+        $oid = val( $request, 'input_oid');
         $ids = explode('-', explode( '--', $oid));
         $id = $ids[ count( $ids) - 1];        
         return $ACCESS->deleteClip( 'id');

@@ -175,7 +175,7 @@ Class Dataset
      if (!$this->keyed) return null;
      $r = array();
      $r[] = $this->data0;
-     if (isset(val( $this->keyed, $key))) foreach ($this->keyed[$key] as $index) {
+     if ( val( $this->keyed, $key)) foreach ($this->keyed[$key] as $index) {
      	$this->data[ $index]['index'] = $index; 
      	$r[] = val( $this->data, $index);
      } 

@@ -33,10 +33,10 @@ class GoogleCloudStorage extends SDBEE_storage {
 
 
     function __construct( $userData) {
-        $this->keyFile = $userData[ 'keyFile'];
-        $this->bucket = ($userData[ 'source']) ? $userData[ 'source'] : $userData[ 'bucket'];
+        $this->keyFile = val( $userData, 'keyFile');
+        $this->bucket = (val( $userData, 'source')) ? $userData[ 'source'] : val( $userData, 'bucket');
         $this->home = $userData[ 'top-dir'];
-        $this->prefix = $userData[ 'prefix'];
+        $this->prefix = val( $userData, 'prefix');
         $this->storage = new StorageClient([ 'keyFilePath' => $this->keyFile]);
         $this->storage->registerStreamWrapper();
     }
@@ -99,14 +99,14 @@ class GoogleCloudStorage extends SDBEE_storage {
         $object = $bucket->object( $full);
         if ( $TEST && !$object) { echo "$full not found in {$this->bucket}<br>\n"; return "NOT FOUND";}
         $info = $object->info();
-        return $info[ 'generation'];
+        return val( $info, 'generation');
     }
 
     function write( $dir, $filename, $data) {
         global $TEST;
         if ( !$this->storage) return false;
         // Check generation hasn't changed
-        $gen = ( isset( $this->generations[ $filename])) ? $this->generations[ $filename] : "";
+        $gen = ( val(  $this->generations, $filename)) ? $this->generations[ $filename] : "";
         if ( $gen) {
             // Object exists in storage
             if ( $this->generations[ $filename] != $this->_getGeneration ( $dir, $filename)) {

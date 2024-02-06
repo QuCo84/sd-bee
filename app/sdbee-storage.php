@@ -36,9 +36,9 @@ abstract class SDBEE_storage {
 
 $STORAGE_CLASSES = [];
 function SDBEE_getStorage( $params) {
-    $storageService = $params[ 'storageService'];
+    $storageService = val( $params, 'storageService');
     global $JUST_CREATED_CLASS, $STORAGE_CLASSES;
-    if ( isset( $STORAGE_CLASSES[ $storageService])) $storageClass = $STORAGE_CLASSES[ $storageService];
+    if ( val(  $STORAGE_CLASSES, $storageService)) $storageClass = val( $STORAGE_CLASSES, $storageService);
     elseif ( $storageService) {
         include_once( __DIR__."/storage-connectors/{$storageService}.php");
         $storageClass = $JUST_CREATED_CLASS;
@@ -57,8 +57,8 @@ function SDBEE_getResourceFile( $category, $filename) {
     if ( $resources) {
         if ( !strpos( $service, ':')) {
             // A name is used, get info from CONFIG
-            $params = $CONFIG[ $resources];
-            $service = $params[ 'storageService']; 
+            $params = val( $CONFIG, $resources);
+            $service = val( $params, 'storageService'); 
         } else {
             // Syntax used with <service>:<parameter string>
             $parts = explode( ':', $privateResources);

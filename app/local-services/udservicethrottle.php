@@ -430,8 +430,8 @@ class UD_serviceThrottle {
             // SOILinks version (still used by sd-bee.com and central marketplace)
             $entry[ 'nname'] = val( $entry, 'name');
             $entry[ 'iuser'] = val( $entry, 'userId');
-            unset( $entry[ 'name']);
-            unset( $entry[ 'userId']);
+            unset( val( $entry, 'name'));
+            unset( val( $entry, 'userId'));
             $logData = [[ 'nname', 'iuser', 'nevent', 'iresult', 'tdetails'], $entry];
             $logTopData = LF_fetchNode( "LogEntry--22--nname|{$logId}");
             if ( LF_count( $logTopData) > 1) $logTopId = $logTopData[1][ 'id']; 

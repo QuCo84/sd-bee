@@ -22,7 +22,7 @@ function SDBEE_marketplace( $request) {
     $r = JSON_decode( $response, true);
     return $r;
     /*
-    if ( $r[ 'success']) {
+    if ( val( $r, 'success')) {
         return true;
     }
     return false;

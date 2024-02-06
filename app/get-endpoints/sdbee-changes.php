@@ -26,7 +26,7 @@ function SDBEE_endpoint_changes( $task) {
     while ( !$doc->eof())  {
         $element = $doc->next();
         if ( $element[ 'modified'] > $lastTime) {
-            $name = $element[ 'name'];
+            $name = val( $element, 'name');
             $changed[ $element[ 'name']] = [ 
                 'oid' => $element[ 'oid'],
                 'ticks' =>$_REQUEST[ 'ticks'],
@@ -35,7 +35,7 @@ function SDBEE_endpoint_changes( $task) {
                 'debug' => ""
             ];
             // Add parent and keep track of parents
-            $level = $element[ 'level'];
+            $level = val( $element, 'level');
             if ( $level > 2) $changedElements[ $name]['parent'] =  $parents[ $level-1];
             else $parents[ $level] = $name;
         }
@@ -44,4 +44,4 @@ function SDBEE_endpoint_changes( $task) {
 }
 
 global $request;
-SDBEE_endpoint_changes( $request[ 'collection'], $request[ 'act']);
+SDBEE_endpoint_changes( $request[ 'collection'], val( $request, 'act'));
