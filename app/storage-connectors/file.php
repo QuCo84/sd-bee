@@ -46,7 +46,7 @@ class FileStorage extends SDBEE_storage {
         $contents = "";
         if ( $this->exists( $dir, $filename)) {
             try {
-                $contents = file_get_contents( $this->_getURL( $dir, $filename));
+                $contents = @file_get_contents( $this->_getURL( $dir, $filename));
             }
             catch( \Exception $e) { $contents = "";}
         }
