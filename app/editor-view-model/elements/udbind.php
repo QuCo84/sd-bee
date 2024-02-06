@@ -32,7 +32,7 @@ function UD_bindAnElement( $source, $target, $fieldMap = [ 'tcontent'=>'tvalues'
 function UD_processBindedElementWrite() {
     global $input_oid, $INPUT_DATA, $INPUT_RESULT;
     $binded = LF_env( 'UD_binded');
-    if ( val( $binded, $input_oid)) { $bind = val( $binded, $input_oid);}
+    if ( isset( $binded[ $input_oid])) { $bind =  val( $binded, $input_oid);}
     if ( !$bind) return false;    
     // Use binded OID
     $input_oid = val( $bind, 'oid');
@@ -42,8 +42,8 @@ function UD_processBindedElementWrite() {
     $INPUT_DATA = [[], []];
     foreach ( $fieldMap as $source => $target) {
         $INPUT_DATA[0][] = $target;
-        $value = val( $data, $source);
-        if ( val( $bind, 'jsonPath')[ $source])) { 
+        $value =  val( $data, $source);
+        if ( isset( $bind[ 'jsonPath'][ $source])) { 
             $jsonPath = $bind[ 'jsonPath'][ $source];
             $json = JSON_decode( $value, true);
             $jsonPath = explode( '/', $jsonPath);            
