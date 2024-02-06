@@ -29,7 +29,7 @@ class UDconnector extends UDelement
         $this->caption = val( $datarow, '_caption');
         // Get Parameter part
         $isJSON100 = false;
-        if (  val( $datarow, '_JSONcontent'))) {
+        if (  val( $datarow, '_JSONcontent')) {
             if ( val( $datarow, '_JSONcontent/meta')) {
                 $this->JSON = val( $datarow, '_JSONcontent');
                 $this->caption = val( $this->JSON, 'meta/name');
@@ -43,7 +43,7 @@ class UDconnector extends UDelement
             if ( $isJSON100) $this->JSON[ 'data'][ 'config'][ 'value'][ 'value'] = $this->JSONparameters;
         }
         // Get Data part
-        if ( val( $datarow, '_divContent')[1])) {
+        if ( isset( $datarow[ '_divContent'][1])) {
             // Data present
             $this->JSONdata = JSON_decode( $datarow[ '_divContent'][1], true);
         }
@@ -68,10 +68,10 @@ class UDconnector extends UDelement
             $holder = $name."_object";
             $r .= "ud_mime=\"text/json\">";           
             $r .= "<div id=\"{$holder}\" class=\"object connectorObject hidden\">$this->content".HTML_closeDiv;
-            if ( $this->html) {
+            /*if ( $this->html) {
                 $r .= "<div id=\"{$name}editZone\" class=\"editZone\" ude_bind=\"{$holder}\">{$this->html}</div>"; 
                 $js .= "API.updateTable( '{$name}');\n";
-            }
+            }*/
         } else { 
             // Caption in SPAN
             $r .= "ud_mime=\"text/mixed\">";           
@@ -151,7 +151,7 @@ class UDconnector_siteExtract extends UDconnector
         ];
         $this->defaultParameters = $defaultParameters;
         parent::__construct( $datarow);
-        if ( $this->JSONparameters['site'] != "http..."  && $this->JSONparameters['ready'] == "yes") {
+        if ( $this->JSONparameters['site'] != "http..."  &&  val( $this->JSONparameters, 'ready') == "yes") {
             $this->initCommand = "localService( 'siteextract', '{$this->oid}', '', '{\"page\":\"home\", \"params\":\"parameters\"}');";  
         }
         $this->requireModules( [ 

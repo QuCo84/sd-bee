@@ -30,7 +30,7 @@ class UD_connector_googleDoc extends UD_googleConnector {
         $this->rangeStr = val( $params, 'range');
         
         // Get Data part
-        if ( val( $datarow, '_divContent')[1]))
+        if ( isset( $datarow[ '_divContent'][1]))
         {
             // Data present
             $this->JSONdata = JSON_decode( $datarow[ '_divContent'][1], true);
@@ -95,19 +95,19 @@ class UD_connector_googleDoc extends UD_googleConnector {
         $content = val( $body, 'content');
         $table = [[ "iindex", "stype", "tcontent"]];      
         for( $eli = 0; $eli < LF_count( $content); $eli++) {
-            $el = val( $content, $eli);
+            $el = $content[ $eli];
             $text = "";
-            if ( val( $el, 'paragraph'))) {
+            if ( val( $el, 'paragraph')) {
                 $type = UD_paragraph;
                 $subElements = val( $el, 'paragraph/elements');
                 for ( $subeli = 0; $subeli < LF_count( $subElements); $subeli++) {
-                    $subEl = val( $subElements, $subeli);
+                    $subEl = $subElements[ $subeli];
                     $text .= val( $subEl, 'textRun/content');
                 }
-            } elseif ( val( $rowOut, 'SectionBreak'))) {
-            } elseif ( val( $rowOut, 'Table'))) {
-            } elseif ( val( $rowOut, 'TableOfContents'))) {
-            } elseif ( val( $rowOut, 'paragraph'))) {
+            } elseif ( val( $rowOut, 'SectionBreak')) {
+            } elseif ( val( $rowOut, 'Table')) {
+            } elseif ( val( $rowOut, 'TableOfContents')) {
+            } elseif ( val( $rowOut, 'paragraph')) {
             }
             // Remove line breaks
             $text = str_replace( [ '<br>', "\n"], ['', ''], $text);

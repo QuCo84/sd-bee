@@ -31,7 +31,7 @@ class UDconnector_googleCalendar extends UD_googleConnector
         $this->caption = val( $datarow, '_caption');
         $this->subType = "googleCalendar";
         // Get Parameter part
-        if (  val( $datarow, '_JSONcontent')) && val( $datarow, '_JSONcontent'))
+        if (  val( $datarow, '_JSONcontent') && val( $datarow, '_JSONcontent'))
         {
             // Existing parameters
             $this->JSONparameters = val( $datarow, '_JSONcontent');
@@ -56,7 +56,7 @@ class UDconnector_googleCalendar extends UD_googleConnector
         $this->endDate = val( $params, 'endDate');
         
         // Get Data part
-        if ( val( $datarow, '_divContent')[1]))
+        if ( isset( $datarow[ '_divContent'][1]))
         {
             // Data present
             $this->JSONdata = JSON_decode( $datarow[ '_divContent'][1], true);

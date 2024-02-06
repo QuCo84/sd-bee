@@ -7,7 +7,7 @@
  *
  *
  */
- class UDdirectory extends UDelement {
+ class UDarchive extends UDelement {
     public static $thumbTemplate = "";
     public  $title;
     private $subTitle;
@@ -25,12 +25,12 @@
         if ( $this->type == UD_archiveThumb) {
             // Element is a directory thumbnail
             $this->displayThumbnail = true;
-            if ( val( $datarow, '_onclick'))) $this->onclick = val( $datarow, '_onclick');
-            if ( val( $datarow, '_link'))) $this->link = val( $datarow, '_link');
-            if ( val( $datarow, '_image'))) $this->image = val( $datarow, '_image');
+            $this->onclick = val( $datarow, '_onclick', '');
+            $this->link = val( $datarow, '_link', '');
+            $this->image = val( $datarow, '_image', '');
             $tidyOID = 'UniversalDocElement--'.implode('-', LF_stringToOid( val( $elementData, 'oid')));
             $defaultLink = "{$tidyOID}/AJAX_showArchive/";
-            $this->link = ( val( $datarow, '_link'))) ? $datarow[ '_link'] : $defaultLink;
+            $this->link = ( val( $datarow, '_link')) ? $datarow[ '_link'] : $defaultLink;
         } elseif ( $this->ud) {
             if ( !$this->ud->title) {
                 // First directory or document element provides parent's title

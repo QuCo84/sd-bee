@@ -31,7 +31,7 @@ class UDC_facebook extends UDconnector {
         $this->tokenFile = "facebooktoken".LF_env( 'user_id').".txt"; 
         // Check params are initialised
         $this->params = $this->JSON[ 'data'][ 'config'][ 'value'][ 'value'];
-        if ( !val( $this->params, 'pageId'))) {
+        if ( !val( $this->params, 'pageId')) {
             // Content not default so initialiseElement
             $this->params = [
                "ready" => "no",
@@ -109,18 +109,18 @@ class UDC_facebook extends UDconnector {
         // Find data
         $data = [];
         $dataTable = $this->JSON[ 'data'][ 'cache'][ 'value'];
-        if ( $dataTable[ 'tag'] == "jsontable") $data = val( $dataTable, 'value');
+        if (  val( $dataTable, 'tag') == "jsontable") $data = val( $dataTable, 'value');
         // Process
         $change = false;
         for ( $rowi=0; $rowi < LF_count( $data); $rowi++) {
-            $row = val( $data, $rowi);
-            if ( $row[ 'action'] == "create") {
+            $row = $data[ $rowi];
+            if (  val( $row, 'action') == "create") {
                 // New Post
                 echo "NEW POST";
                 $postId = $this->FacebookPost( $pageId, $row[ 'tmessage'], $row[ 'gimage'], val( $row, 'nlink'));
                 $row[ 'id'] = $postId;
                 $changed = true;
-            } elseif ( $row[ 'action'] == "delete") {
+            } elseif (  val( $row, 'action') == "delete") {
                 // Delete a Post
                 // 2DO delete
                 $changed = true;
@@ -194,7 +194,7 @@ class UDC_facebook extends UDconnector {
             CURLOPT_HEADER => 0,
         ];
         $rep = $this->sendRequest( $req);
-        if ( val( $rep, 'error')) )  { 
+        if ( val( $rep, 'error') )  { 
             $this->error = val( $rep, 'error/message');
         } else {
             // Build table data from list of posts
@@ -233,20 +233,20 @@ class UDC_facebook extends UDconnector {
             ];
             $rep = $this->sendRequest( $req);
             var_dump( $rep);
-            if ( val( $rep, 'error'))) $this->error = val( $rep, 'error/message'); else $r = val( $rep, 'id');
+            if ( val( $rep, 'error')) $this->error = val( $rep, 'error/message'); else $r = val( $rep, 'id');
         }
         return $r;
     } // UDC_facebook->FacebookPost()
     
     function getPageAccessToken( $pageId) {
-        $token = val( $this->pageAccesTokens, $pageId);
+        $token = $this->pageAccesTokens[ $pageId];
         if ( !$token) {
             $req = [
                 CURLOPT_URL => "https://graph.facebook.com/{$pageId}?fields=access_token&access_token={$this->userToken}",
                 CURLOPT_HEADER => 0,
             ];
             $rep = $this->sendRequest( $req);
-            if ( val( $rep, 'error')) ) $this->error = val( $rep, 'error/message');
+            if ( val( $rep, 'error') ) $this->error = val( $rep, 'error/message');
             else $token = $this->pageAccesTokens[ $pageId] = val( $rep, 'access_token');
         }
         return $token;

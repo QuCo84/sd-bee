@@ -20,8 +20,8 @@ class UDconnector_dropZone extends UDconnector
     {
         parent::__construct( $datarow);
         // 2DO read parameters : user filter or ip filter
-        if ( val( $this->JSONparameters, 'userFilter'))) $this->userFilter = explode( ',', val( $this->JSONparameters, 'userFilter'));
-        if ( val( $this->JSONparameters, 'dirFilter'))) $this->dirFilter = explode( ',', val( $this->JSONparameters, 'dirFilter'));
+        if ( val( $this->JSONparameters, 'userFilter')) $this->userFilter = explode( ',', val( $this->JSONparameters, 'userFilter'));
+        if ( val( $this->JSONparameters, 'dirFilter')) $this->dirFilter = explode( ',', val( $this->JSONparameters, 'dirFilter'));
         $this->ipFilter = val( $this->JSONparameters, 'ipFilter');
         $this->dropMsg = val( $this->JSONparameters, 'dropMsg');
     }

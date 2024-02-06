@@ -25,7 +25,7 @@ class UD_connector_googleSheet extends UD_googleConnector {
         $this->subType = "googleSheet";
         // Extract some of the connector's parameters
         $params = $this->JSONparameters;
-        if ( !val( $params, 'sheetId'))) {
+        if ( !val( $params, 'sheetId')) {
             // Content not default so initialiseElement
             $params = [
                "ready" => "no",
@@ -40,7 +40,7 @@ class UD_connector_googleSheet extends UD_googleConnector {
         $this->sheetId = val( $params, 'sheetId');
         $this->rangeStr = val( $params, 'range');        
         // Get Data part
-        if ( val( $datarow, '_divContent')[1]))
+        if ( isset( $datarow[ '_divContent'][1]))
         {
             // Data present
             $this->JSONdata = JSON_decode( $datarow[ '_divContent'][1], true);
@@ -109,10 +109,10 @@ class UD_connector_googleSheet extends UD_googleConnector {
         $cols = $rows[0];
         $table = [ $cols];
         for( $rowi = 1; $rowi < LF_count( $rows); $rowi++) {
-            $row = val( $rows, $rowi);
+            $row = $rows[ $rowi];
             $rowOut = [];
             for( $celli = 0; $celli < LF_count( $row); $celli++) {
-                $rowOut[ $cols[ $celli]] = val( $row, $celli);
+                $rowOut[ $cols[ $celli]] = $row[ $celli];
             }
             $table[] = $rowOut;
         }

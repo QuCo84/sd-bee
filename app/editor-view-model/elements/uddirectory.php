@@ -28,22 +28,22 @@
         $system = val( $this->extra, 'system');
         $this->setStatusAndInfo();
         /*
-        if ( val( $system, 'progress'))) {
+        if ( val( $system, 'progress')) {
             $this->info = "Tâche complétée à {$system[ 'progress']}%";
         } else $this->info = "Modifié le {$this->modified}";
         */
         if ( $this->type == UD_dirThumb) {
             // Element is a directory thumbnail
             $this->displayThumbnail = true;
-            if ( val( $datarow, '_onclick'))) $this->onclick = val( $datarow, '_onclick');
-            if ( val( $datarow, '_link'))) $this->link = val( $datarow, '_link');
-            if ( val( $datarow, '_image'))) $this->image = val( $datarow, '_image');
+            $this->onclick = val( $datarow, '_onclick', '');
+            $this->link = val( $datarow, '_link', '');
+            $this->image = val( $datarow, '_image', '');
             if ( !$this->link) {
                /*
                 * Display a thumbnail to a user's directory named with the dirName extra parameter
                 * 
                 */
-                if ( $system && val( $system, 'dirName'))) {
+                if ( $system && val( $system, 'dirName')) {
                     // Look for 2nd level directory (2DO Improve = follow a path to multiple levels)
                     $dirName = val( $system, 'dirName');                    
                     $userId = val( $system, 'userId');

@@ -30,9 +30,9 @@ class UDdocument extends UDelement
         $model = $this->style;
         if ( $this->type == UD_docThumb || $this->type == UD_modelThumb) {
             $this->displayThumbnail = true;
-            if ( val( $datarow, '_onclick'))) $this->onclick = val( $datarow, '_onclick');
-            if ( val( $datarow, '_link'))) $this->link = val( $datarow, '_link');
-            if ( val( $datarow, '_image'))) $this->image = val( $datarow, '_image');
+            $this->onclick = val( $datarow, '_onclick', '');
+            $this->link = val( $datarow, '_link', '');
+            $this->image = val( $datarow, '_image', '');
             return;            
         } 
         /* handled by SDBEE_ doc in OS/cloud version

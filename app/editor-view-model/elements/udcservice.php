@@ -30,7 +30,7 @@
         $this->defaultParameters = $defaultParameters;
         parent::__construct( $datarow);
         $params = $this->JSONparameters;
-        if ( $params && $params[ 'ready'] == "yes" ) {
+        if ( $params &&  val( $params, 'ready') == "yes" ) {
             $env = [];
             foreach( $params[ $env] as $key=>$value) { if ( $value != "...") { $env[ $key] = $value;}}        
             $env_json = JSON_encode( $env);
