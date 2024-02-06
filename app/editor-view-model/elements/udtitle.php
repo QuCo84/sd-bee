@@ -10,8 +10,8 @@ class UDtitle extends UDelement
    function __construct( $datarow)
    {
        parent::__construct( $datarow);
-       $this->title =  $datarow['_title'];
-       $this->subTitle = $datarow['_subTitle'];
+       $this->title =  val( $datarow, '_title');
+       $this->subTitle = val( $datarow, '_subTitle');
        if ( $this->pager) $this->pager->manageOutline( "Add", $datarow);        
    } // UDtitle construct
    

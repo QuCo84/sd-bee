@@ -44,11 +44,11 @@ class UDcommands extends UDelement {
         if ( !$datarow) return; // empty instance to be filled with load data if no data 
         // Transfert data form datarow to instance
         parent::__construct( $datarow);
-        $this->caption = $datarow['_caption'];
-        $this->elementName = $datarow['_elementName'];
-        $this->content =  $datarow['_cleancontent']; 
-        $this->saveable = $datarow['_saveable'];
-        $this->textContent = $datarow['_textContent'];
+        $this->caption = val( $datarow, '_caption');
+        $this->elementName = val( $datarow, '_elementName');
+        $this->content =  val( $datarow, '_cleancontent'); 
+        $this->saveable = val( $datarow, '_saveable');
+        $this->textContent = val( $datarow, '_textContent');
         LF_debug( LF_count( $this->textContent)." command lines loaded", "UDcommands", 5);
         // Prepare variable values for substitution in command lines
         $this->variables = array('oid'=>LF_env('oid'), 'oidData'=>LF_env('oidData'));  
@@ -169,14 +169,14 @@ class UDcommands extends UDelement {
                     return;
                 }
                 // 2DO add id based on ::index to servercommand   and ud_type
-                if ( $r['content'])
+                if ( val( $r, 'content'))
                 {
                     $content .= "<div ";
-                    if ( $r[ 'attributes']) $content .= $r['attributes'];
+                    if ( val( $r, 'attributes')) $content .= val( $r, 'attributes');
                     else $content .= "class=\"servercommand\" ude_edit=\"none\" contenteditable=\"false\"";
                     $content .= ">".$r['content']."</div>";
                 }
-                $hidden  .= $r['hidden'];
+                $hidden  .= val( $r, 'hidden');
                 $program .= $r['program']."\n";          
             }
             else
@@ -559,7 +559,7 @@ class UDcommands extends UDelement {
      $formula_js = "";
      
      // Row loop
-     if( $headerRows['rowModel']) $row = $headerRows['rowModel'];
+     if( val( $headerRows, 'rowModel')) $row = val( $headerRows, 'rowModel');
      else $row = $columns;
      
      for ($i=0; $i<LF_count($data); $i++) {
@@ -774,7 +774,7 @@ class UDcommands extends UDelement {
    function FinsertLogin( $mode="login") {
    /*
       // Not signed in, check if identity data was submitted
-      if ($_REQUEST['tusername'])
+      if (val( $_REQUEST, 'tusername'))
       {
         // Sign-in data provided but still anonymous means failed login
         $LF->onload("alert('".LINKSAPI::startTerm."ERR_login_1".LINKSAPI::endTerm."');");
@@ -813,8 +813,8 @@ class UDcommands extends UDelement {
     $forgottenTest = LinksAPI::startTerm."Enter your first and last name".LinksAPI::endTerm;
     // Get icons
     $icons = LF_env( 'WEBDESK_images');
-    $idIcon = ( strpos( $icons[ 'Id'], "http") === false) ? "/".$icons['Id'] : $icons['Id'] ;
-    $lockIcon = ( strpos( $icons[ 'Lock'], "http") === false) ? "/".$icons['Lock'] : $icons['Lock']; 
+    $idIcon = ( strpos( $icons[ 'Id'], "http") === false) ? "/".$icons['Id'] : val( $icons, 'Id') ;
+    $lockIcon = ( strpos( $icons[ 'Lock'], "http") === false) ? "/".$icons['Lock'] : val( $icons, 'Lock'); 
     $stayConnected = LinksAPI::startTerm."Stay connected".LinksAPI::endTerm;
     // HTML for form
     // Forgot password action

@@ -34,13 +34,13 @@ class UDbreak extends UDelement
            $this->tag = substr( $this->tag, 0, $p1);
        }
        if ( $this->type == UD_page) {
-           $this->pageNo = $datarow['_pageNo'];
-           $this->pageHeight = $datarow['_pageHeight'];
-           $this->topPage = $datarow['_topPage'];
+           $this->pageNo = val( $datarow, '_pageNo');
+           $this->pageHeight = val( $datarow, '_pageHeight');
+           $this->topPage = val( $datarow, '_topPage');
        }
        if (!$this->name ) $this->name ="Break_{$this->tag}_{$this->pageNo}";
-       if ( $datarow[ '_forced']) $this->name ="Forced_".$this->name;
-       $this->title = ( $datarow['_title']) ? $datarow['_title'] : $datarow[ 'nlabel'];
+       if ( val( $datarow, '_forced')) $this->name ="Forced_".$this->name;
+       $this->title = ( val( $datarow, '_title')) ? $datarow['_title'] : val( $datarow, 'nlabel');
        if ( $this->ud && $this->type == UD_view && ( $this->mode == "edit" || !$this->lang || $this->lang == LF_env( 'lang')))
        {
            // Manage outline for Views (parts)
@@ -60,7 +60,7 @@ class UDbreak extends UDelement
    function renderAsHTMLandJS( $active = true)
    {
       $r = "";
-      $system = $this->extra[ 'system'];
+      $system = val( $this->extra, 'system');
       if ( $this->tag == "br") $r .= "<br>";
       elseif ( $this->tag == "CLOSEALL")
       {           

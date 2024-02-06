@@ -429,7 +429,7 @@ function SDBEE_serviceCall( $request) {
 /**
  * Auto-test
  */
-if ( $argv && $argv[0] && strpos( $argv[0], "udservices.php") !== false) {
+if ( $argv && val( $argv, 0) && strpos( $argv[0], "udservices.php") !== false) {
     // CLI launched for tests
     print "Syntax OK\n";  
     define( 'TEST_ENVIRONMENT', true);    
@@ -491,7 +491,7 @@ if ( $argv && $argv[0] && strpos( $argv[0], "udservices.php") !== false) {
         require_once( __DIR__."/../ud-view-model/udconstants.php");
         $LFF = new Test_dataModel();
         $jumpToTest = 2;
-        if (isset( $argv[1])) $jumpToTest = $argv[1];
+        if (isset( val( $argv, 1))) $jumpToTest = val( $argv, 1);
         print "Auto test udservices.php\n";
         function nextTest( $services) {
             global $TEST_NO, $LF, $LFF, $jumpToTest;

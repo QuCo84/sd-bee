@@ -107,8 +107,8 @@ function L_getClipHTML( $clip, $saved)
    $nameParts = explode( '_', $name);
    $type = "";
    $tags =  HTML_getContentsByTag( $text, "div")[0];
-   if ( LF_count( $nameParts) > 1) $type = $nameParts[1];
-   if ( $nameParts[0] == "LastClip") { $name = $nameParts[0];}
+   if ( LF_count( $nameParts) > 1) $type = val( $nameParts, 1);
+   if ( $nameParts[0] == "LastClip") { $name = val( $nameParts, 0);}
    $onclick = "window.clipboarder.insert( '{$name}');";   
    // Adjust clip according to type
    if ( $type == "" && LF_count( HTML_getContentsByTag( $text, "img")) == 1)

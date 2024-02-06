@@ -34,8 +34,8 @@ class SDBEE_access_sqlite {
         $source = val( $params, 'database'); 
         $this->source = $source;
         $sourceParts = explode( ':', $source);       
-        $media = $sourceParts[0];
-        $pathParts = explode( '/', $sourceParts[1]);
+        $media = val( $sourceParts, 0);
+        $pathParts = explode( '/', val( $sourceParts, 1));
         $filename = array_pop( $pathParts);
         $path = implode( '/', $pathParts);       
         if ( $media == "sqlite") {
@@ -73,8 +73,8 @@ class SDBEE_access_sqlite {
         if ( $this->isModified) {        ;    
             $source = $this->source;
             $sourceParts = explode( ':', $source);       
-            $media = $sourceParts[0];
-            $pathParts = explode( '/', $sourceParts[1]);
+            $media = val( $sourceParts, 0);
+            $pathParts = explode( '/', val( $sourceParts, 1));
             $filename = array_pop( $pathParts);
             $path = implode( '/', $pathParts);  
             if ( $media == "sqlite") {

@@ -25,12 +25,12 @@ class UD_connector_googleDoc extends UD_googleConnector {
         $this->subType = "googleDoc";
         // Extract some of the connector's parameters
         $params = $this->JSONparameters;
-        $this->ready = $params[ 'ready'];
-        $this->docId = $params[ 'docId'];
-        $this->rangeStr = $params[ 'range'];
+        $this->ready = val( $params, 'ready');
+        $this->docId = val( $params, 'docId');
+        $this->rangeStr = val( $params, 'range');
         
         // Get Data part
-        if ( isset( $datarow[ '_divContent'][1]))
+        if ( val( $datarow, '_divContent')[1]))
         {
             // Data present
             $this->JSONdata = JSON_decode( $datarow[ '_divContent'][1], true);
@@ -46,7 +46,7 @@ class UD_connector_googleDoc extends UD_googleConnector {
         // Update data cache if needed
         $update = false;
         $cache = val( $this->JSON, 'data/cache');
-        if ( !$cache && $this->ready /*|| LF_date( $cache[ 'expires']) < LF_date()*/) {
+        if ( !$cache && $this->ready /*|| LF_date( val( $cache, 'expires')) < LF_date()*/) {
             $attr = [ 'name'=>$this->elementName, 'cssClass'=>"dataset", 'source'=>"GoogleDocAPI", 'expires'=>""];
             try {
                 $tableJSON = new_buildJSONtableFromData( $this->getData( $this->docId, $this->rangeStr), $attr);
@@ -92,22 +92,22 @@ class UD_connector_googleDoc extends UD_googleConnector {
         // sheetId = 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms
         $doc = $service->documents->get($docId);
         $body = val( $doc, 'modelData/body');
-        $content = $body[ 'content'];
+        $content = val( $body, 'content');
         $table = [[ "iindex", "stype", "tcontent"]];      
         for( $eli = 0; $eli < LF_count( $content); $eli++) {
             $el = val( $content, $eli);
             $text = "";
-            if ( isset( $el[ 'paragraph'])) {
+            if ( val( $el, 'paragraph'))) {
                 $type = UD_paragraph;
                 $subElements = val( $el, 'paragraph/elements');
                 for ( $subeli = 0; $subeli < LF_count( $subElements); $subeli++) {
                     $subEl = val( $subElements, $subeli);
                     $text .= val( $subEl, 'textRun/content');
                 }
-            } elseif ( isset( $rowOut[ 'SectionBreak'])) {
-            } elseif ( isset( $rowOut[ 'Table'])) {
-            } elseif ( isset( $rowOut[ 'TableOfContents'])) {
-            } elseif ( isset( $rowOut[ 'paragraph'])) {
+            } elseif ( val( $rowOut, 'SectionBreak'))) {
+            } elseif ( val( $rowOut, 'Table'))) {
+            } elseif ( val( $rowOut, 'TableOfContents'))) {
+            } elseif ( val( $rowOut, 'paragraph'))) {
             }
             // Remove line breaks
             $text = str_replace( [ '<br>', "\n"], ['', ''], $text);

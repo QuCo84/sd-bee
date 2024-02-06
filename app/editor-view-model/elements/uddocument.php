@@ -21,18 +21,18 @@ class UDdocument extends UDelement
     {
         parent::__construct( $datarow);
         // Set document's titles
-        $this->title =  $datarow['_title'];
-        $this->subTitle = $datarow['_subTitle'];
+        $this->title =  val( $datarow, '_title');
+        $this->subTitle = val( $datarow, '_subTitle');
         // Set status
-        $system = $this->extra[ 'system'];
+        $system = val( $this->extra, 'system');
         $this->setStatusAndInfo();
         // Manage doc's model ( = value of nstyle field)
         $model = $this->style;
         if ( $this->type == UD_docThumb || $this->type == UD_modelThumb) {
             $this->displayThumbnail = true;
-            if ( isset( $datarow[ '_onclick'])) $this->onclick = $datarow[ '_onclick'];
-            if ( isset( $datarow[ '_link'])) $this->link = $datarow[ '_link'];
-            if ( isset( $datarow[ '_image'])) $this->image = $datarow[ '_image'];
+            if ( val( $datarow, '_onclick'))) $this->onclick = val( $datarow, '_onclick');
+            if ( val( $datarow, '_link'))) $this->link = val( $datarow, '_link');
+            if ( val( $datarow, '_image'))) $this->image = val( $datarow, '_image');
             return;            
         } 
         /* handled by SDBEE_ doc in OS/cloud version
@@ -69,7 +69,7 @@ class UDdocument extends UDelement
        if ( $this->displayThumbnail) {
             // Thumbnail display of a document
             // Find an image to represent document
-            $thumbImage = ( $this->image) ? $this->image : $this->getExtraAttribute[ 'thumbnail'];
+            $thumbImage = ( $this->image) ? $this->image : val( $this->getExtraAttribute, 'thumbnail');
             if ( !$thumbImage) {
                 // Get 1st image in doc
             }

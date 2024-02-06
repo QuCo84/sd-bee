@@ -14,7 +14,7 @@ class UDjs extends UDelement
     function __construct( $datarow, $view="", $zone="")
     {
         parent::__construct( $datarow);
-        $this->textContent =  $datarow['_textContent'];
+        $this->textContent =  val( $datarow, '_textContent');
         $len = LF_count( $this->textContent);
         LF_debug( "JS element with $len lines", "UDelement", 5);
         // Add editing zone 

@@ -20,33 +20,33 @@
     {
         parent::__construct( $datarow);
         // Get titles
-        $this->title =  $datarow['_title'];
-        $this->subTitle = $datarow['_subTitle'];
+        $this->title =  val( $datarow, '_title');
+        $this->subTitle = val( $datarow, '_subTitle');
         // 2Del
         if ( $this->ud) $this->ud->loadSystemParameters( $datarow, true); // DEPRECATED with archi2218007
         // Set status & info                
-        $system = $this->extra[ 'system'];
+        $system = val( $this->extra, 'system');
         $this->setStatusAndInfo();
         /*
-        if ( isset( $system[ 'progress'])) {
+        if ( val( $system, 'progress'))) {
             $this->info = "Tâche complétée à {$system[ 'progress']}%";
         } else $this->info = "Modifié le {$this->modified}";
         */
         if ( $this->type == UD_dirThumb) {
             // Element is a directory thumbnail
             $this->displayThumbnail = true;
-            if ( isset( $datarow[ '_onclick'])) $this->onclick = $datarow[ '_onclick'];
-            if ( isset( $datarow[ '_link'])) $this->link = $datarow[ '_link'];
-            if ( isset( $datarow[ '_image'])) $this->image = $datarow[ '_image'];
+            if ( val( $datarow, '_onclick'))) $this->onclick = val( $datarow, '_onclick');
+            if ( val( $datarow, '_link'))) $this->link = val( $datarow, '_link');
+            if ( val( $datarow, '_image'))) $this->image = val( $datarow, '_image');
             if ( !$this->link) {
                /*
                 * Display a thumbnail to a user's directory named with the dirName extra parameter
                 * 
                 */
-                if ( $system && isset( $system[ 'dirName'])) {
+                if ( $system && val( $system, 'dirName'))) {
                     // Look for 2nd level directory (2DO Improve = follow a path to multiple levels)
-                    $dirName = $system[ 'dirName'];                    
-                    $userId = $system[ 'userId'];
+                    $dirName = val( $system, 'dirName');                    
+                    $userId = val( $system, 'userId');
                     $candidatesPath = "UniversalDocElement--";
                     if ( $userId) $candidatesPath .= "2-{$userId}-21-0-21--NO|NO-NO|NO";
                     else $candidatesPath .= "21-0-21--NO|NO";
@@ -54,7 +54,7 @@
                     $candidates = LF_fetchNode( $candidatesPath, "id nname");
                     if ( LF_count( $candidates) > 1) {
                         $candidate = $candidates[ 1];
-                        $this->link = "UniversalDocElement--".implode( '-', LF_stringToOid( $candidate[ 'oid']))."-21";
+                        $this->link = "UniversalDocElement--".implode( '-', LF_stringToOid( val( $candidate, 'oid')))."-21";
                     }
                 }
             }
@@ -83,7 +83,7 @@
         if ( $this->displayThumbnail) {
             // Thumbnail display of a directory
             // Find an image to represent directory
-            $thumbImage = $this->getExtraAttribute[ 'thumbnail'];
+            $thumbImage = val( $this->getExtraAttribute, 'thumbnail');
             // 2DO use model 
             if ( !$thumbImage) {
                 // Get 1st image in a doc

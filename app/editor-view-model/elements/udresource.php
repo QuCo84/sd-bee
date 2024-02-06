@@ -19,18 +19,18 @@ class UDresource extends UDelement
     function __construct( $datarow, $view = "", $zone="")
     {        
         parent::__construct( $datarow, $view, $zone);
-        $this->JSONcontent = $datarow[ '_JSONcontent'];
+        $this->JSONcontent = val( $datarow, '_JSONcontent');
         // Analyse resource here so page width & heights can be set before rendering
         $resources = val( $this->JSONcontent, 'data/value');
-        $resource = $resources[ 'resource'];
+        $resource = val( $resources, 'resource');
         // $w = UD_processResourceJSON( val( $this->JSONcontent, 'data/value'));
         if ( $resource == "styles") {
             // JSON encoded UD-extended style sheet
             $w = UD_processResourceSet( $resources, $this);
-            $this->htmlContent = $w[ 'content'];
-            $this->program = $w[ 'program'];
-            $this->css = $w[ 'style'];            
-            $this->models = $w[ 'models'];
+            $this->htmlContent = val( $w, 'content');
+            $this->program = val( $w, 'program');
+            $this->css = val( $w, 'style');            
+            $this->models = val( $w, 'models');
         } else {
             /* 2DO mergeArray for PHP
             // 2DO Direct update of tag & class info with UD_setResource
@@ -69,8 +69,8 @@ class UDresource extends UDelement
         if ( $resource == "styles") {
             // JSON encoded UD-extended style sheet
             $w = UD_processResourceSet( $this->JSONcontent[ 'data'][ 'value'], $this);
-            $js = $w[ 'program'];
-            $style = $w[ 'style'];
+            $js = val( $w, 'program');
+            $style = val( $w, 'style');
         } else {
             // 2DO Direct update of tag & class info with UD_setResource
             if ( $this->mode != "edit") {

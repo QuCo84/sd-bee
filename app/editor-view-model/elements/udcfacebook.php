@@ -31,7 +31,7 @@ class UDC_facebook extends UDconnector {
         $this->tokenFile = "facebooktoken".LF_env( 'user_id').".txt"; 
         // Check params are initialised
         $this->params = $this->JSON[ 'data'][ 'config'][ 'value'][ 'value'];
-        if ( !isset( $this->params[ 'pageId'])) {
+        if ( !val( $this->params, 'pageId'))) {
             // Content not default so initialiseElement
             $this->params = [
                "ready" => "no",
@@ -41,7 +41,7 @@ class UDC_facebook extends UDconnector {
             ];
             $this->JSON[ 'data'][ 'config'][ 'value'][ 'value'] = $this->params;
         } 
-        $this->ready = ( strtoupper( $this->params[ 'ready']) == "YES");
+        $this->ready = ( strtoupper( val( $this->params, 'ready')) == "YES");
     }
     
       /**
@@ -61,7 +61,7 @@ class UDC_facebook extends UDconnector {
                     "name"=>$this->elementName."_dataeditZone", 
                     "value"=>$connectLink
                 ];
-            } elseif ( !$cache || is_string( $cache[ 'value'])) {
+            } elseif ( !$cache || is_string( val( $cache, 'value'))) {
                 // LOGGED IN BUT NO DATA - get connected and retrieve list of posts              
                 try {                                
                     // Facebook connection state
@@ -105,11 +105,11 @@ class UDC_facebook extends UDconnector {
 
     function update() {
         // Get page id
-        $pageId = $this->params[ 'pageId'];
+        $pageId = val( $this->params, 'pageId');
         // Find data
         $data = [];
         $dataTable = $this->JSON[ 'data'][ 'cache'][ 'value'];
-        if ( $dataTable[ 'tag'] == "jsontable") $data = $dataTable[ 'value'];
+        if ( $dataTable[ 'tag'] == "jsontable") $data = val( $dataTable, 'value');
         // Process
         $change = false;
         for ( $rowi=0; $rowi < LF_count( $data); $rowi++) {
@@ -117,7 +117,7 @@ class UDC_facebook extends UDconnector {
             if ( $row[ 'action'] == "create") {
                 // New Post
                 echo "NEW POST";
-                $postId = $this->FacebookPost( $pageId, $row[ 'tmessage'], $row[ 'gimage'], $row[ 'nlink']);
+                $postId = $this->FacebookPost( $pageId, $row[ 'tmessage'], $row[ 'gimage'], val( $row, 'nlink'));
                 $row[ 'id'] = $postId;
                 $changed = true;
             } elseif ( $row[ 'action'] == "delete") {
@@ -172,7 +172,7 @@ class UDC_facebook extends UDconnector {
         $r = [];
         // List posts
         $posts = [ "id"=>"xxx", "message"=>"my msg", "image"=>"", "link"=>"", "action"=>""];
-        if ( $this->params[ 'pageId']) $posts = $this->getPosts( $this->params[ 'pageId']);
+        if ( val( $this->params, 'pageId')) $posts = $this->getPosts( val( $this->params, 'pageId'));
         if ( $this->error) $r = [ "tag"=>"span", "class"=>"warning", 'value'=>$this->error];
         else
             $r = [ 
@@ -194,11 +194,11 @@ class UDC_facebook extends UDconnector {
             CURLOPT_HEADER => 0,
         ];
         $rep = $this->sendRequest( $req);
-        if ( isset( $rep[ 'error']) )  { 
+        if ( val( $rep, 'error')) )  { 
             $this->error = val( $rep, 'error/message');
         } else {
             // Build table data from list of posts
-            $w = $rep[ 'data'];
+            $w = val( $rep, 'data');
             for ( $wi=0; $wi < LF_count( $w); $wi++) {
                 $posts[] = [ 
                     'id' => $w[ $wi]['id'], // could remove pageId_
@@ -233,7 +233,7 @@ class UDC_facebook extends UDconnector {
             ];
             $rep = $this->sendRequest( $req);
             var_dump( $rep);
-            if ( isset( $rep[ 'error'])) $this->error = val( $rep, 'error/message'); else $r = $rep[ 'id'];
+            if ( val( $rep, 'error'))) $this->error = val( $rep, 'error/message'); else $r = val( $rep, 'id');
         }
         return $r;
     } // UDC_facebook->FacebookPost()
@@ -246,8 +246,8 @@ class UDC_facebook extends UDconnector {
                 CURLOPT_HEADER => 0,
             ];
             $rep = $this->sendRequest( $req);
-            if ( isset( $rep[ 'error']) ) $this->error = val( $rep, 'error/message');
-            else $token = $this->pageAccesTokens[ $pageId] = $rep[ 'access_token'];
+            if ( val( $rep, 'error')) ) $this->error = val( $rep, 'error/message');
+            else $token = $this->pageAccesTokens[ $pageId] = val( $rep, 'access_token');
         }
         return $token;
     }

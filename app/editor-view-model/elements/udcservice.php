@@ -34,8 +34,8 @@
             $env = [];
             foreach( $params[ $env] as $key=>$value) { if ( $value != "...") { $env[ $key] = $value;}}        
             $env_json = JSON_encode( $env);
-            $service = $params[ 'service'];
-            $action = $params[ 'action'];
+            $service = val( $params, 'service');
+            $action = val( $params, 'action');
             $this->initCommand = "localService( '{$service}', '{$this->oid}', '{$action}', '{$env_json}');"; 
         }            
     }

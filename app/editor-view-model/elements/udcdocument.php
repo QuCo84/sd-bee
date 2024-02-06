@@ -23,8 +23,8 @@ require_once( __DIR__."/udconnector.php");
         $params = $this->JSONparameters;
         if ( $params && $params[ 'ready'] == "yes" ) {
             // Get useful info
-            $this->targetDocOID = $params[ 'docOID'];         
-            $this->targetElementId = $params[ 'elementId'];
+            $this->targetDocOID = val( $params, 'docOID');         
+            $this->targetElementId = val( $params, 'elementId');
         }  
     }
 
@@ -153,7 +153,7 @@ require_once( __DIR__."/udconnector.php");
         $cSection="";
         $cSubsection="";
             // Keep track of titles
-            if ( $el[ 'stype'] == UD_chapter) $cChapter = $el[ 'tcontent']; 
+            if ( $el[ 'stype'] == UD_chapter) $cChapter = val( $el, 'tcontent'); 
 
         // 2DO split into ID and sub-element path
         $elementData = $dataset->lookup( $elementId);

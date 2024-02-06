@@ -6,7 +6,7 @@ require __DIR__.'/../../vendor/autoload.php';
 function L_makeAbsoluteURL( $uri)
 {
     $url = "http:";
-    if ( $_SERVER[ 'HTTPS']) $url = "https:";
+    if ( val( $_SERVER, 'HTTPS')) $url = "https:";
     $url .= "//".$_SERVER['HTTP_HOST'].'/'.$uri.'/';
     return $url;
 }
@@ -27,14 +27,14 @@ class UDconnector_googleCalendar extends UD_googleConnector
         $scope = Google_Service_Calendar::CALENDAR_READONLY;;
         parent::__construct( $datarow, $scope);
         // Get element's name and caption
-        $this->elementName = $datarow['_elementName'];        
-        $this->caption = $datarow['_caption'];
+        $this->elementName = val( $datarow, '_elementName');        
+        $this->caption = val( $datarow, '_caption');
         $this->subType = "googleCalendar";
         // Get Parameter part
-        if (  isset( $datarow[ '_JSONcontent']) && $datarow[ '_JSONcontent'])
+        if (  val( $datarow, '_JSONcontent')) && val( $datarow, '_JSONcontent'))
         {
             // Existing parameters
-            $this->JSONparameters = $datarow[ '_JSONcontent'];
+            $this->JSONparameters = val( $datarow, '_JSONcontent');
         }
         else
         {
@@ -51,12 +51,12 @@ class UDconnector_googleCalendar extends UD_googleConnector
             */            
         }
         $params = $this->JSONparameters;
-        $this->calendarId = $params[ 'calendarId'];
-        $this->startDate = $params[ 'startDate'];
-        $this->endDate = $params[ 'endDate'];
+        $this->calendarId = val( $params, 'calendarId');
+        $this->startDate = val( $params, 'startDate');
+        $this->endDate = val( $params, 'endDate');
         
         // Get Data part
-        if ( isset( $datarow[ '_divContent'][1]))
+        if ( val( $datarow, '_divContent')[1]))
         {
             // Data present
             $this->JSONdata = JSON_decode( $datarow[ '_divContent'][1], true);

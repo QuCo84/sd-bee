@@ -21,7 +21,7 @@
     global $USER, $DATA, $STORAGE;
     $oid = val( $request, 'input_oid');
     $w = explode( '-', explode( '--', $oid)[0]);
-    $taskName = $w[ 1];
+    $taskName = val( $w, 1);
     $elementId = $w[ count( $w) - 1];
     $depth = (int) count( $w)/2 - 1;
     $doc = new SDBEE_doc( $taskName);

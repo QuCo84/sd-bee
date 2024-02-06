@@ -113,7 +113,7 @@ class UD_serviceThrottle {
             $nameParts = explode( '_', val( $log, 'name'));
             // Get entry's date   
             $entryTime = 0;    
-            $date = ( count( $nameParts) >= 3) ? $date = $nameParts[2] : $date = $nameParts[0];
+            $date = ( count( $nameParts) >= 3) ? $date = $nameParts[2] : $date = val( $nameParts, 0);
             $date = substr( $date, 0, 4).'-'.substr( $date, 4, 2).'-'.substr( $date, 6, 2).' '.substr( $date, 8, 2).':'.substr( $date, 10, 2);
             $entryTime = strtotime( $date);
             // Get details
@@ -361,7 +361,7 @@ class UD_serviceThrottle {
         $useOid = $currentOid."-2--NO|OIDLENGTH|tlabel|account";
         $accountParentData = $this->fetchNode( $useOid, "* tlabel");
         while ( LF_count( $accountParentData) >= 2) {
-            $parentData = $accoutParentData[1];
+            $parentData = val( $accoutParentData, 1);
             $parentId = val( $parentData, 'id');
             $currentOid = LF_mergeOid( $currentOid, [LINKS_user, $parentId]);
             $accountUserOid = LF_mergeOid( $accountUserOid, [LINKS_user, $parentId]);
@@ -479,7 +479,7 @@ class UD_serviceThrottle {
 
 } // PHP class UD_serviceThrottle
 
-if ( isset( $argv) && $argv[0] && strpos( $argv[0], "udservicethrottle.php") !== false) {    
+if ( isset( $argv) && val( $argv, 0) && strpos( $argv[0], "udservicethrottle.php") !== false) {    
     // Launched with php.ini so run auto-test
     print "Syntax OK\n";
     define( 'TEST_ENVIRONMENT', true);    

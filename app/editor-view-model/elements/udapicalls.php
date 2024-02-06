@@ -8,7 +8,7 @@
      function __construct( $datarow, $view="", $zone="")
      {
          parent::__construct( $datarow, $view, $zone);
-         $this->textContent =  $datarow['_textContent'];
+         $this->textContent =  val( $datarow, '_textContent');
          $len = LF_count( $this->textContent);
          LF_debug( "UDapiCalls element with $len lines", "UDelement", 5);
          // Add editing zone 

@@ -38,7 +38,7 @@ function SDBEE_endpoint_deleteDoc( $request) {
         // Unlink doc from collection or user
         $ACCESS->removeFromUser( $task, false, true);
     } else {
-        $dirInfo = $dirInfo[0];
+        $dirInfo = val( $dirInfo, 0);
         $recycled =( strpos( $dirInfo[ 'name'], "waste") !== false);
         if ( !$recycled) {
             // Link doc to wastebin

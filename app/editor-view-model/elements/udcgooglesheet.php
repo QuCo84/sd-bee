@@ -25,7 +25,7 @@ class UD_connector_googleSheet extends UD_googleConnector {
         $this->subType = "googleSheet";
         // Extract some of the connector's parameters
         $params = $this->JSONparameters;
-        if ( !isset( $params[ 'sheetId'])) {
+        if ( !val( $params, 'sheetId'))) {
             // Content not default so initialiseElement
             $params = [
                "ready" => "no",
@@ -36,11 +36,11 @@ class UD_connector_googleSheet extends UD_googleConnector {
             ];
             $this->JSON[ 'data'][ 'config'][ 'value'][ 'value'] = $params;
         }
-        $this->ready = ( strToLower( $params[ 'ready']) == "yes") ? true : false;
-        $this->sheetId = $params[ 'sheetId'];
-        $this->rangeStr = $params[ 'range'];        
+        $this->ready = ( strToLower( val( $params, 'ready')) == "yes") ? true : false;
+        $this->sheetId = val( $params, 'sheetId');
+        $this->rangeStr = val( $params, 'range');        
         // Get Data part
-        if ( isset( $datarow[ '_divContent'][1]))
+        if ( val( $datarow, '_divContent')[1]))
         {
             // Data present
             $this->JSONdata = JSON_decode( $datarow[ '_divContent'][1], true);
@@ -56,7 +56,7 @@ class UD_connector_googleSheet extends UD_googleConnector {
         // Update data cache if needed
         $update = false;
         $cache = val( $this->JSON, 'data/cache');
-        if ( (!$cache || is_string( $cache[ 'value'])) && $this->ready/*|| LF_date( $cache[ 'expires']) < LF_date()*/) {
+        if ( (!$cache || is_string( val( $cache, 'value'))) && $this->ready/*|| LF_date( val( $cache, 'expires')) < LF_date()*/) {
             $attr = [ 'name'=>$this->elementName, 'cssClass'=>"dataset", 'source'=>"GoogleSheetAPI", 'expires'=>""];
             try {
                 // Connect to Google Sheet and retrieve data

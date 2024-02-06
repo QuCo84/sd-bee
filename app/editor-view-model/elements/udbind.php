@@ -35,15 +35,15 @@ function UD_processBindedElementWrite() {
     if ( val( $binded, $input_oid)) { $bind = val( $binded, $input_oid);}
     if ( !$bind) return false;    
     // Use binded OID
-    $input_oid = $bind[ 'oid'];
+    $input_oid = val( $bind, 'oid');
     // Copy /map field values
-    $fieldMap = $bind[ 'fieldMap'];
+    $fieldMap = val( $bind, 'fieldMap');
     $data = $INPUT_DATA[ 1];
     $INPUT_DATA = [[], []];
     foreach ( $fieldMap as $source => $target) {
         $INPUT_DATA[0][] = $target;
         $value = val( $data, $source);
-        if ( isset( $bind[ 'jsonPath'][ $source])) { 
+        if ( val( $bind, 'jsonPath')[ $source])) { 
             $jsonPath = $bind[ 'jsonPath'][ $source];
             $json = JSON_decode( $value, true);
             $jsonPath = explode( '/', $jsonPath);            

@@ -16,7 +16,7 @@ class UDstyle extends UDelement
     function __construct( $datarow, $helper=false)
     {
         parent::__construct( $datarow);
-        $this->textContent =  $datarow['_textContent'];
+        $this->textContent =  val( $datarow, '_textContent');
         $len = LF_count( $this->textContent);
         LF_debug( "Style element with $len lines", "UDelement", 5);
         // Get page dimensions and store in element

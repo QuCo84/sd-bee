@@ -14,12 +14,12 @@
     function __construct( $datarow)
     {
         parent::__construct( $datarow);
-        $this->title = $datarow[ '_title'];
-        $lines = explode( "\n", $datarow[ 'tcontent']);
+        $this->title = val( $datarow, '_title');
+        $lines = explode( "\n", val( $datarow, 'tcontent'));
         $content = "";
         for ( $i=0; $i < LF_count( $lines); $i++) $content .= trim( str_replace( [ "&quo"."te;"], [ "'"], val( $lines, $i)));
         $this->content = $content;
-        // $this->content = str_replace( [ "\n", "&quo"."te"], [ "", "'"], $datarow[ 'tcontent']);
+        // $this->content = str_replace( [ "\n", "&quo"."te"], [ "", "'"], val( $datarow, 'tcontent'));
     } // UDnonEditable construct
     
     function renderAsHTMLandJS( $active=true)
@@ -53,7 +53,7 @@ class UDnonEditable extends UDelement
    function __construct( $datarow)
    {
        parent::__construct( $datarow);
-       $this->title = $datarow['_title'];
+       $this->title = val( $datarow, '_title');
    } // UDnonEditable construct
    
    function renderAsHTMLandJS( $active=true)

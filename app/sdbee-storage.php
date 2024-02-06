@@ -62,8 +62,8 @@ function SDBEE_getResourceFile( $category, $filename) {
         } else {
             // Syntax used with <service>:<parameter string>
             $parts = explode( ':', $privateResources);
-            $service = $parts[0];
-            $pathParts = explode( '/', $parts[1]);        
+            $service = val( $parts, 0);
+            $pathParts = explode( '/', val( $parts, 1));        
             if ( $service == "gs") {
                 $bucket = array_shift( $pathParts);
                 $home = implode( '/', $pathParts);
@@ -76,8 +76,8 @@ function SDBEE_getResourceFile( $category, $filename) {
                 }
             } elseif ( $service == "sftp") {
                 // sftp:<username>:<password>@domain[/<home>]
-                $parts2 = explode( '@', $parts[2]);            
-                $username = $parts[1];
+                $parts2 = explode( '@', val( $parts, 2));            
+                $username = val( $parts, 1);
                 $password = $parts2[0];
                 $domain = $parts2[1];
                 //$dir = implode( '/', $pathParts);

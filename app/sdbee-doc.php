@@ -190,11 +190,11 @@ class SDBEE_doc {
         $titles = HTML_getContentsByTag( $this->top[ 'tcontent'], "span"); 
         if ( !$titles) $titles = [  $this->top[ 'tcontent'], ''];
         if ( $this->label) $this->top[ 'nlabel'] = $this->label;
-        else $this->label =  (val( $this->top, 'nlabel')) ? $this->top[ 'nlabel'] : $titles[0];
+        else $this->label =  (val( $this->top, 'nlabel')) ? $this->top[ 'nlabel'] : val( $titles, 0);
         if ( $this->type) $this->top[ 'stype'] = $this->type;
         else $this->type =  val( $this->top, 'stype');
         if ( $this->description) $this->top[ 'tcontent'] = "<span class=\"title\">{$this->label}</span> - <span class=\"subtitle\">{$this->description}</span>";
-        else $this->description = $titles[1];
+        else $this->description = val( $titles, 1);
         if ( $this->model)  $this->top[ 'nstyle'] = $this->model;
         else $this->model = val( $this->top, 'nstyle');
         if ( $this->params)  $this->top[ 'textra']['system'] = $this->params;
@@ -268,7 +268,7 @@ class SDBEE_doc {
             // Views must have labels but they may be stored in content
             $titles = HTML_getContentsByTag( $el[ 'tcontent'], "span"); 
             if ( !count( $titles)) $titles = [  $el[ 'tcontent'], ''];
-            $el[ 'nlabel'] = $titles[ 0];
+            $el[ 'nlabel'] = val( $titles, 0);
         }
         // Add id and oid field
         $el[ 'id'] = $this->next;         
@@ -466,8 +466,8 @@ class SDBEE_doc {
             $model = $this->model;            
             $modelParts = explode( ':', $this->model);
             if ( count( $modelParts) == 2) {
-                $source = $modelParts[ 0];
-                $model = $modelParts[ 1];
+                $source = val( $modelParts, 0);
+                $model = val( $modelParts, 1);
             }
             if ( $source == "LOCAL") {
                 // Lookup credits associated with progress value
@@ -674,8 +674,8 @@ class SDBEE_doc {
         $source = "PUBLIC"
         $modelParts = explode( ':', $this->model);
         if ( count( $modelParts) == 2) {
-            $source = $modelParts[ 0];
-            $model = $modelParts[ 1];
+            $source = val( $modelParts, 0);
+            $model = val( $modelParts, 1);
         }
         if ( $source == "PUBLIC") {
 
@@ -804,7 +804,7 @@ class SDBEE_doc {
 }
 
 // Auto-test
-if ( isset( $argv) && strpos( __FILE__, $argv[0]) !== false) {
+if ( isset( $argv) && strpos( __FILE__, val( $argv, 0)) !== false) {
     echo __FILE__." syntax : OK\n";       
     include_once( __DIR__.'/editor-view-model/config/udconstants.php'); 
     /*

@@ -48,10 +48,10 @@ use GuzzleHttp\HandlerStack;
     if ( in_array( $serviceName, $freeServices)) {
         if ( !val( $map, $serviceName)) return SDBEE_endpoint_service_error(  "Bad configuration for $serviceName");
         $serviceInfo = explode( ' ', val( $map, $serviceName));
-        $protocol = $serviceInfo[0];
-        $gateway = $serviceInfo[ 1];
-        $functionPath = $serviceInfo[ 2];
-        $serviceAccount = $serviceInfo[ 3];
+        $protocol = val( $serviceInfo, 0);
+        $gateway = val( $serviceInfo, 1);
+        $functionPath = val( $serviceInfo, 2);
+        $serviceAccount = val( $serviceInfo, 3);
     } else {
         // Not a free service so check access
         $process = val( $serviceRequest, 'process'); 
@@ -94,10 +94,10 @@ use GuzzleHttp\HandlerStack;
             }
             // Use the service map
             $serviceInfo = explode( ' ', val( $map, $serviceName));
-            $protocol = $serviceInfo[0];
-            $gateway = $serviceInfo[ 1];
-            $functionPath = $serviceInfo[ 2];
-            $serviceAccount = $serviceInfo[ 3];
+            $protocol = val( $serviceInfo, 0);
+            $gateway = val( $serviceInfo, 1);
+            $functionPath = val( $serviceInfo, 2);
+            $serviceAccount = val( $serviceInfo, 3);
         }
     }
     if ( $gateway == 'local') {
@@ -113,10 +113,10 @@ use GuzzleHttp\HandlerStack;
         // Transmit request to a gateway for external services
         // Get parameters from map entry protocol gateway/ functionName accountOrToken
         $serviceInfo = explode( ' ', val( $map, $serviceName));
-        $protocol = $serviceInfo[0];
-        $gateway = $serviceInfo[ 1];
-        $functionPath = $serviceInfo[ 2];
-        $serviceAccount = $serviceInfo[ 3];
+        $protocol = val( $serviceInfo, 0);
+        $gateway = val( $serviceInfo, 1);
+        $functionPath = val( $serviceInfo, 2);
+        $serviceAccount = val( $serviceInfo, 3);
         if ( $gateway == "user") $gateway = $USER[ 'service-gateway'];
         // 2DO JSON_decode as map service:url, get service from $serviceRequest
         if ( !$gateway) {

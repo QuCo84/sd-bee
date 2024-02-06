@@ -20,17 +20,17 @@
     {
         parent::__construct( $datarow);
         // Get titles
-        $this->title =  $datarow['_title'];
-        $this->subTitle = $datarow['_subTitle'];
+        $this->title =  val( $datarow, '_title');
+        $this->subTitle = val( $datarow, '_subTitle');
         if ( $this->type == UD_archiveThumb) {
             // Element is a directory thumbnail
             $this->displayThumbnail = true;
-            if ( isset( $datarow[ '_onclick'])) $this->onclick = $datarow[ '_onclick'];
-            if ( isset( $datarow[ '_link'])) $this->link = $datarow[ '_link'];
-            if ( isset( $datarow[ '_image'])) $this->image = $datarow[ '_image'];
-            $tidyOID = 'UniversalDocElement--'.implode('-', LF_stringToOid( $elementData[ 'oid']));
+            if ( val( $datarow, '_onclick'))) $this->onclick = val( $datarow, '_onclick');
+            if ( val( $datarow, '_link'))) $this->link = val( $datarow, '_link');
+            if ( val( $datarow, '_image'))) $this->image = val( $datarow, '_image');
+            $tidyOID = 'UniversalDocElement--'.implode('-', LF_stringToOid( val( $elementData, 'oid')));
             $defaultLink = "{$tidyOID}/AJAX_showArchive/";
-            $this->link = ( isset( $datarow[ '_link'])) ? $datarow[ '_link'] : $defaultLink;
+            $this->link = ( val( $datarow, '_link'))) ? $datarow[ '_link'] : $defaultLink;
         } elseif ( $this->ud) {
             if ( !$this->ud->title) {
                 // First directory or document element provides parent's title
@@ -54,7 +54,7 @@
         if ( $this->displayThumbnail) {
             // Thumbnail display of a directory
             // Find an image to represent directory
-            $thumbImage = $this->getExtraAttribute[ 'thumbnail'];
+            $thumbImage = val( $this->getExtraAttribute, 'thumbnail');
             // 2DO use model 
             if ( !$thumbImage) {
                 // Get 1st image in a doc

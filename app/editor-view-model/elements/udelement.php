@@ -300,7 +300,6 @@ class UDelement {
             $attr .= " ud_oid=\"$shortOid\" ud_dupdated=\"0\" ud_dchanged=\"0\" ud_iheight=\"$height\"";
         if ( $this->getExtraAttribute( 'refresh')) {
             $attr .= " ud_refresh=\"yes\"";
-            //unset( val( $system, 'refresh'));
         }
         if ( $this->ud_fields) $attr .= " ud_fields=\"{$this->ud_fields}\"";
         
@@ -312,11 +311,9 @@ class UDelement {
         if ( $editable) $attr .= ' ude_edit="on"'; else $attr .= ' ude_edit="off"';
         if ( $this->getExtraAttribute( 'ude_place') && $editable) {
             $attr .= "ude_place=\"".$this->getExtraAttribute( 'ude_place')."\"";
-            //unset( val( $system, 'refresh'));
         }
         if ( !$autosave) {
             $attr .= " ude_autosave=\"off\""; // always on by default
-            //unset( val( $system, 'autosave'));
         }
         if ( LF_count( $system)) {
             // Communicate system attributes in ud_extra so they are saved 

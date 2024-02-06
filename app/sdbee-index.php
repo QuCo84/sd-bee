@@ -246,12 +246,12 @@ function SDBEE_getRequest() {
     $uriParts = explode( '/', val( $_SERVER, 'REQUEST_URI'));
     //if ( LF_count( $uriParts) > 2) {var_dump( $uriParts);}
     if ( $uriParts[0] == "" && $uriParts[2] == "") array_shift( $uriParts); // && $uriParts[2] == ""
-    $oid = $uriParts[2];
+    $oid = val( $uriParts, 2);
     $oidParts = explode( '--', $oid);
-    $oidNameParts = explode( '-', $oidParts[0]);
+    $oidNameParts = explode( '-', val( $oidParts, 0));
     $name = $oidNameParts[ count( $oidNameParts) - 1];
     if ( in_array( $name, [ 'AJAX_addDirOr', 'AJAX_addDirOrFile', 'logout'])) $action = $name;
-    else $action = ( in_array( "logout", $uriParts)) ? "logout" : $uriParts[3];
+    else $action = ( in_array( "logout", $uriParts)) ? "logout" : val( $uriParts, 3);
     $actionMap = [
         'logout' =>[ 'logout' => 'yes'],
         'AJAX_listContainers' => [ 'collection'=>$name, 'act'=>'list'],

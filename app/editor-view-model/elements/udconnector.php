@@ -25,17 +25,17 @@ class UDconnector extends UDelement
     {
         parent::__construct( $datarow);
         // Get element's name and caption
-        $this->elementName = $datarow['_elementName'];        
-        $this->caption = $datarow['_caption'];
+        $this->elementName = val( $datarow, '_elementName');        
+        $this->caption = val( $datarow, '_caption');
         // Get Parameter part
         $isJSON100 = false;
-        if (  isset( $datarow[ '_JSONcontent'])) {
+        if (  val( $datarow, '_JSONcontent'))) {
             if ( val( $datarow, '_JSONcontent/meta')) {
-                $this->JSON = $datarow[ '_JSONcontent'];
+                $this->JSON = val( $datarow, '_JSONcontent');
                 $this->caption = val( $this->JSON, 'meta/name');
                 $this->JSONparameters = $this->JSON[ 'data'][ 'config'][ 'value'][ 'value'];
                 $isJSON100 = true;
-            } else $this->JSONparameters = $datarow[ '_JSONcontent'];
+            } else $this->JSONparameters = val( $datarow, '_JSONcontent');
         }
         if ( !$this->JSONparameters || LF_count( $this->JSONparameters) < 3) {
             // Use default parameters
@@ -43,7 +43,7 @@ class UDconnector extends UDelement
             if ( $isJSON100) $this->JSON[ 'data'][ 'config'][ 'value'][ 'value'] = $this->JSONparameters;
         }
         // Get Data part
-        if ( isset( $datarow[ '_divContent'][1])) {
+        if ( val( $datarow, '_divContent')[1])) {
             // Data present
             $this->JSONdata = JSON_decode( $datarow[ '_divContent'][1], true);
         }
@@ -111,7 +111,7 @@ class UDconnector extends UDelement
     function makeAbsoluteURL( $uri)
     {
         $url = "http:";
-        if ( $_SERVER[ 'HTTPS']) $url = "https:";
+        if ( val( $_SERVER, 'HTTPS')) $url = "https:";
         $cache = LF_env( 'cache');
         $cache = 0; $url = "https:";
         $url .= (!TEST_ENVIRONMENT && $cache < 10) ? "//www.sd-bee.com/{$uri}/" :  "//".$_SERVER['HTTP_HOST'].'/'.$uri.'/';

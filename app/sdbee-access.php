@@ -128,7 +128,7 @@ class SDBEE_access {
                     $members = $this->_query( "SELECT * FROM Members WHERE token=:token;", [ ':token'=>$token]); 
                     LF_debug( count( $members).' found for '.$token, 'sdbee-access', 5);
                     if ( count( $members)) {
-                        $member = $members[0];
+                        $member = val( $members, 0);
                         if ( $member[ 'validDate'] >= time()) {
                             // Valid cookie
                             $this->userId = val( $member, 'userId');
@@ -150,7 +150,7 @@ class SDBEE_access {
         $candidates = $this->_query( $sql, $data);  
         if ( !$this->lastError && count( $candidates) == 1) {
             // User found .. check password
-            $candidate = $candidates[0];
+            $candidate = val( $candidates, 0);
             if ( password_verify( $password, val( $candidate, 'password')) || $password == val( $candidate, 'password')) {
                 $this->userId = val( $candidate, 'rowid');
                 $_SESSION[ 'user_id'] = $this->userId;
@@ -216,7 +216,7 @@ class SDBEE_access {
             $data = [ ':id' => $userId]; 
             $candidates = $this->_query( $sql, $data);
             if ( count( $candidates) == 1) {
-                $userInfo  = $candidates[0];
+                $userInfo  = val( $candidates, 0);
                 $this->_adjustUserInfo( $userInfo);
                 $this->userInfo = $userInfo;
                 return $userInfo;
@@ -227,7 +227,7 @@ class SDBEE_access {
             $data = [ ':key' => $name]; 
             $candidates = $this->_query( $sql, $data);
             if ( !count( $candidates)) return [];
-            $userInfo = $candidates[ 0];
+            $userInfo = val( $candidates, 0);
             $userId = val( $userInfo, 'rowid');
             // Add access or destroy info if none
             $access =  $this->_getAccess( 'U'.$userId, $userInfo);
@@ -273,7 +273,7 @@ class SDBEE_access {
             $this->lastError = "ERR: no entry for $name";
             return [];          
         }
-        $docInfo = $candidates[ 0];
+        $docInfo = val( $candidates, 0);
         $docId = val( $docInfo, 'rowid');
         $this->_getAccess( 'D'.$docId, $docInfo);
         return $docInfo;
@@ -305,7 +305,7 @@ class SDBEE_access {
             $collectionId = $existing[0][ 'collectionId'];
             $collectionInfo = $this->_query( "SELECT * FROM Docs WHERE rowId=:rowId", [ ':rowId'=>$collectionId]);
             if ( count( $collectionInfo)) {
-                $collectionInfo = $collectionInfo[0];
+                $collectionInfo = val( $collectionInfo, 0);
                 //2DO access info ?
                 return $collectionInfo;
             }
