@@ -251,7 +251,7 @@ function L_contentsByTag( $html, $wantedTag)
      	{
              if ( LF_count( $contents)) $contents[ LF_count( $contents) - 1] .="<br>".$content;
         }
-     	else if ( $tag[0] == "/")
+     	else if ( val( $tag, 0) == "/")
      	{
             // Closing tag
             $openTag = array_pop( $tags);

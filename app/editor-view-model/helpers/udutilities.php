@@ -920,9 +920,9 @@ class UD_utilities
             $spanCount = LF_count( $spans);
             if ( $spanCount) {
                 if ( LF_count( $spans) <= $lang_index * 2) $lang_index = 0;             
-                $elementData['_title'] = HTML_stripTags( $spans[ $lang_index * 2 + 0]);
-                $elementData['_subTitle'] = HTML_stripTags( $spans[ $lang_index * 2 + 1]);
-                $elementData['_titleForProgram'] = HTML_stripTags( $spans[0]);
+                $elementData['_title'] = HTML_stripTags( val( $spans, $lang_index * 2 + 0));
+                $elementData['_subTitle'] = HTML_stripTags( val( $spans, $lang_index * 2 + 1));
+                $elementData['_titleForProgram'] = HTML_stripTags( val( $spans, 0));
             } elseif ( strlen( $content) < 100) { 
                 $elementData['_title'] = substr( $content,0, 60);
                 $elementData['_titleForProgram'] = val( $elementData, '_title');

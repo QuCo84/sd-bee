@@ -245,7 +245,7 @@ function SDBEE_getRequest() {
     // Examine URI for backward compatibilty with SOILink version
     $uriParts = explode( '/', val( $_SERVER, 'REQUEST_URI'));
     //if ( LF_count( $uriParts) > 2) {var_dump( $uriParts);}
-    if ( $uriParts[0] == "" && $uriParts[2] == "") array_shift( $uriParts); // && $uriParts[2] == ""
+    if ( val( $uriParts, 0) == "" && val( $uriParts, 2) == "") array_shift( $uriParts); // && $uriParts[2] == ""
     $oid = val( $uriParts, 2);
     $oidParts = explode( '--', $oid);
     $oidNameParts = explode( '-', val( $oidParts, 0));
@@ -255,7 +255,7 @@ function SDBEE_getRequest() {
     $actionMap = [
         'logout' =>[ 'logout' => 'yes'],
         'AJAX_listContainers' => [ 'collection'=>$name, 'act'=>'list'],
-        'AJAX_fetch' => [ 'task'=>$oidNameParts[ 1], 'element'=>$name, 'act'=>'fetch'],
+        'AJAX_fetch' => [ 'task'=>val( $oidNameParts, 1), 'element'=>$name, 'act'=>'fetch'],
         'AJAX_getChanged' => [ 'act' => 'changes', 'task'=>$name],
         'AJAX_addDirOr' =>[ 'act' => 'ignore'],
         'AJAX_addDirOrFile' =>[ 'act' => 'ignore'],

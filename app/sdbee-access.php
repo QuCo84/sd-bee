@@ -107,6 +107,7 @@ class SDBEE_access {
      * @return integer User's id or -1 if failed
      */
     function login( $nameKey, $passwordKey, $input=[]) {
+        global $TEST;
         if ( !$input) $input = $_REQUEST;
         $name = $password = "";
         if ( val(  $input, $nameKey))  $name = val( $input, $nameKey);

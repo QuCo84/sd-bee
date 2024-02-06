@@ -59,7 +59,7 @@ class SDBEE_access_sqlite {
             // Copy base to tmp and open 
             $db = $bucket->read( $path, $filename);                    
             file_put_contents( "/tmp/{$filename}", $db);  
-            $this->db = new PDO( "sqlite:/tmp/{$filename}", '', '', $p);        
+            $this->db = new PDO( "sqlite:/tmp/{$filename}", '', '', $this->pdoParams);        
         }
     }
 

@@ -146,7 +146,7 @@ class SDBEE_doc {
 
     function sendToClient( $params=[ 'mode' => 'edit']) {    
         // Create UD with this as dataset
-        $oid = "_FILE_UniversalDocElement-{$this->name}--21-{$this->info[ 'id']}";
+        $oid = "_FILE_UniversalDocElement-{$this->name}--21-".val( $this->info, 'id');
         $context = [ 'mode'=>$params[ 'mode'], 'oid'=>$oid, 'displayPart'=>"default", 'cacheModels'=>false, 'cssFile'=>false];
         $ud = new UniversalDoc( $context, $this->fctLib);
         if ( $params[ 'mode'] == "model") $ud->loadModel( $this->name, false);
@@ -184,34 +184,37 @@ class SDBEE_doc {
             $this->doc = JSON_decode( LF_substitute( file_get_contents( __DIR__.'/editor-view-model/config/newDocument.json'), $data), true);            
         }
         $this->content = val( $this->doc, 'content');        
-        $this->top = $this->content[ $this->topName];
-        //$this->storage->write( $this->dir, $this->name.".json", JSON_encode( $this->doc, JSON_PRETTY_PRINT));
-        include_once "editor-view-model/helpers/html.php";
-        $titles = HTML_getContentsByTag( $this->top[ 'tcontent'], "span"); 
-        if ( !$titles) $titles = [  $this->top[ 'tcontent'], ''];
-        if ( $this->label) $this->top[ 'nlabel'] = $this->label;
-        else $this->label =  (val( $this->top, 'nlabel')) ? $this->top[ 'nlabel'] : val( $titles, 0);
-        if ( $this->type) $this->top[ 'stype'] = $this->type;
-        else $this->type =  val( $this->top, 'stype');
-        if ( $this->description) $this->top[ 'tcontent'] = "<span class=\"title\">{$this->label}</span> - <span class=\"subtitle\">{$this->description}</span>";
-        else $this->description = val( $titles, 1);
-        if ( $this->model)  $this->top[ 'nstyle'] = $this->model;
-        else $this->model = val( $this->top, 'nstyle');
-        if ( $this->params)  $this->top[ 'textra']['system'] = $this->params;
-        else {
-            $this->params = $this->top[ 'textra'][ 'system'];
-            if ( val( $this->params, 'state')) $this->state = val( $this->params, 'state');
-            if ( val( $this->params, 'progress')) $this->progress = val( $this->params, 'progress');
-            if ( val( $this->params, 'deadline')) $this->deadline = val( $this->params, 'deadline');
-        }
-        $this->content[ $this->topName] = $this->top;
-        $this->index = Array_keys( $this->content);
-        $this->size = count( $this->index);
-        $this->next = 0;       
-        // Initialise if needed        
-        if ( $this->state == "new" && $this->model && $this->model != "ASS000000000301_System" && strtolower( $this->model) != "none") {
-            LF_debug( "Initialising {$this->name} with {$this->model}", 'doc', 8);
-            $this->initialiseFromModel();
+        $this->top = val( $this->content, $this->topName, []);
+        if ( $this->top) {
+            $topContent = val( $this->top, 'tcontent');
+            //$this->storage->write( $this->dir, $this->name.".json", JSON_encode( $this->doc, JSON_PRETTY_PRINT));
+            include_once "editor-view-model/helpers/html.php";
+            $titles = HTML_getContentsByTag( $topContent, "span"); 
+            if ( !$titles) $titles = [  $topContent, ''];
+            if ( $this->label) $this->top[ 'nlabel'] = $this->label;
+            else $this->label =  (val( $this->top, 'nlabel')) ? $this->top[ 'nlabel'] : val( $titles, 0);
+            if ( $this->type) $this->top[ 'stype'] = $this->type;
+            else $this->type =  val( $this->top, 'stype');
+            if ( $this->description) $this->top[ 'tcontent'] = "<span class=\"title\">{$this->label}</span> - <span class=\"subtitle\">{$this->description}</span>";
+            else $this->description = val( $titles, 1);
+            if ( $this->model)  $this->top[ 'nstyle'] = $this->model;
+            else $this->model = val( $this->top, 'nstyle');
+            if ( $this->params)  $this->top[ 'textra']['system'] = $this->params;
+            else {
+                $this->params = $this->top[ 'textra'][ 'system'];
+                if ( val( $this->params, 'state')) $this->state = val( $this->params, 'state');
+                if ( val( $this->params, 'progress')) $this->progress = val( $this->params, 'progress');
+                if ( val( $this->params, 'deadline')) $this->deadline = val( $this->params, 'deadline');
+            }
+            $this->content[ $this->topName] = $this->top;
+            $this->index = Array_keys( $this->content);
+            $this->size = count( $this->index);
+            $this->next = 0;       
+            // Initialise if needed        
+            if ( $this->state == "new" && $this->model && $this->model != "ASS000000000301_System" && strtolower( $this->model) != "none") {
+                LF_debug( "Initialising {$this->name} with {$this->model}", 'doc', 8);
+                $this->initialiseFromModel();
+            }
         }
     }
 

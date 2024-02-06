@@ -322,7 +322,7 @@ class UniversalDoc {
             $element = $this->createElement( $elementData);
             $this->addElement( $element); // addToPage                        
             // Post element creation processing
-            $this->requireModules( $element->requiredModules);
+            if( $element->requiredModules) $this->requireModules( $element->requiredModules);
             // Add text editor if textEditable element (style, JS)
             $this->addAuxillary( $elementData);           
         } // end of element loop
@@ -331,7 +331,7 @@ class UniversalDoc {
         // Close all DIVs      
         $this->addElement( new UDbreak());
         // Detect paging issue
-        if ( $this->pager->latePageHeightDetection) {
+        if ( $this->pager->latePageHeightDetected) {
             LF_debug( "Late page height detection", "UD", 8);
         }
         return true;
@@ -490,7 +490,7 @@ class UniversalDoc {
     */    
     function initialiseClient() {      
         // Document is content editable if edit mode and non-zero editable elements
-        LF_debug( "Generate HTML on {$this->name} in mode {$this->mode} with editable {$this->editableCount}", "UD", 8);
+        LF_debug( "Generate HTML on {$this->title} in mode {$this->mode} with editable {$this->editableCount}", "UD", 8);
         $contentEditable = ( ( $this->mode == "edit" || $this->mode =="editmodel") && $this->editableCount) ? 1 : 0 ;
         
         // Get user's preferences for this document
@@ -683,8 +683,8 @@ EOT;
         // Fill UD_resources Div with doc & user info
         $modelStr = "";
         if ($this->model) $modelStr = "({$this->model})";
-        $oidNew = $this->topOid."-0";
-        if ( !$this->topOid) $oidNew = "UniversalDocElement--21-0";
+        $oidNew = $this->oidTop."-0";
+        if ( !$this->oidTop) $oidNew = "UniversalDocElement--21-0";
         // Store useful information in ENV for AJAX calls
         LF_env( 'UD_ressources', [ 'title' => $this->titleForProgram]);
         // Include UD_resources in page
@@ -842,7 +842,7 @@ EOT;
     function createElement( $elementData) {
         $element = null;
         $type = (int) val( $elementData, 'stype');
-        $class = self::$elementClasses[ $type];
+        $class = val( self::$elementClasses, $type);
         if ( $class) { 
             if ( strpos( $class, ".php")) {
                 global $UD_justLoadedClass;

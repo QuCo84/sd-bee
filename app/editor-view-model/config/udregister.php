@@ -94,7 +94,7 @@ function UD_getDbTypeInfo( $dbType, $param = "") {
         }
     }
     // Get exTag
-    $exTag = $UD_dbTypeIndex[ (int) $dbType];
+    $exTag = val( $UD_dbTypeIndex, (int) $dbType);
     // Return info
     if ( $param) return val( $UD_exTagAndClassInfo,"$exTag/$param");
     else return $UD_exTagAndClassInfo[ $exTag];
@@ -239,7 +239,7 @@ function UD_autoFillResourcePath( &$path) {
         $refresh = [];
         foreach ( $ress as $key => $value) {
             if ( $key == 'resource' && $value == 'styles') continue;
-            if ( $key === 'source') continue;
+            if ( $key == 'source') continue;
             // 2DO substitute lastKeyParts on empty parts
             if ( $key == 'include') {
                 // INCLUDE instruction -- include 1 or more files
@@ -335,7 +335,7 @@ function UD_autoFillResourcePath( &$path) {
                 if ( is_array( $value)) $sass = implode( "\n", $value)."\n";
                 else $sass ="{$value}\n";
                 $css = UD_convertSASStoCSS( $sass, $path);
-                $cleanCSS = UD_loadCSS( $css, val( $ress, 'source'));
+                $cleanCSS = UD_loadCSS( $css, val( $ress, 'source', 'css'));
                 $style .= $cleanCSS;
             } elseif ( strpos( " program style-block-id template-id description ", $key.' ')) {    
                 // Ignore these keys used for SFC/VUE files
@@ -410,6 +410,7 @@ function UD_autoFillResourcePath( &$path) {
                 $includeData = JSON_decode( $r); //$loadedJSON);
                 // Process valid JSON using recurrence
                 if ( $includeData) {
+                    $includeData[ 'source'] = $filename; 
                     $w = UD_processResourceSet( $includeData, str_replace( "{$filename}", '', $fileUsed));
                     $js .= val( $w, 'program'); 
                     $style .= val( $w, 'style');
