@@ -741,7 +741,7 @@ class UD_utilities
                 $w = $dataset->lookup( self::$botlogCandidates[ $botlogi]);
                 if ( LF_count( $w) > 1) {
                     // Botlog found - initialise botlogName, OID and index
-                    self::$botlogName = self:: val( $botlogCandidates, $botlogi);
+                    self::$botlogName = self::$botlogCandidates[ $botlogi];
                     $botlogOID = "UniversalDocElement--".implode('-', LF_stringToOid( $w[1]['oid']));
                     LF_env( "SD_botlog", $botlogOID);
                     self::$botlogIndex = $w[1]['index'];          
@@ -1009,7 +1009,7 @@ class UD_utilities
                 $json = JSON_decode( $cleanContent, true);               
                 $elementData[ DATA_cleanContent] = $cleanContent;
                 $elementData['_JSONcontent'] = $json;
-                if ( $json['meta']['type'] == "text") {
+                if ( val( $json, 'meta/type') == "text") {
                     // Extract textContent from text objects
                     $elementData['_textContent'] = val( $json, 'data/value');
                 }

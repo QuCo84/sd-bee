@@ -491,7 +491,7 @@ if ( $argv && val( $argv, 0) && strpos( $argv[0], "udservices.php") !== false) {
         require_once( __DIR__."/../ud-view-model/udconstants.php");
         $LFF = new Test_dataModel();
         $jumpToTest = 2;
-        if (isset( val( $argv, 1))) $jumpToTest = val( $argv, 1);
+        if ( val( $argv, 1)) $jumpToTest = val( $argv, 1);
         print "Auto test udservices.php\n";
         function nextTest( $services) {
             global $TEST_NO, $LF, $LFF, $jumpToTest;
