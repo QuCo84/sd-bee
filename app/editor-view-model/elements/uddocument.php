@@ -52,7 +52,7 @@ class UDdocument extends UDelement
                     $this->ud->setDocAttributes( $datarow); 
                 }
                 // Load the document's model
-                if ( $model != "NONE") $this->ud->loadModel( $model); 
+                if ( strToUpper( $model) != "NONE") $this->ud->loadModel( $model); 
             } elseif ( !$this->isTopDoc && ( $this->oidLength - LF_count( LF_stringToOid( $this->ud->oid))) <= 3) {
                 // Subsequent documents elements inside a document are to be displayed as thumbnail
                 $this->displayThumbnail = true;
@@ -69,7 +69,7 @@ class UDdocument extends UDelement
        if ( $this->displayThumbnail) {
             // Thumbnail display of a document
             // Find an image to represent document
-            $thumbImage = ( $this->image) ? $this->image : val( $this->getExtraAttribute, 'thumbnail');
+            $thumbImage = ( $this->image) ? $this->image : $this->getExtraAttribute( 'thumbnail');
             if ( !$thumbImage) {
                 // Get 1st image in doc
             }

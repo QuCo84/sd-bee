@@ -826,10 +826,13 @@ names = [fields[1] for fields in desc]
         for ( $linki=0; $linki < count( $links); $linki++) {
             $link = val( $links, $linki);
             $linkId = val( $link, 'targetId');
-            if ( is_string( val( $link, 'access'))) $link[ 'access'] = (int) val( $link, 'access');
-            if ( is_NaN( $link[ 'access'] || !val( $link, 'access'))) $link[ 'access'] = $access;
-            else $link[ 'access'] &= $access;
+            // Compute access
+            $caccess = val( $link, 'access');
+            if ( !$caccess || is_NaN( $caccess)) $link[ 'access'] = $access;
+            else $link[ 'access'] = $access & $caccess;
+            // Path
             $link[ 'path'] = $path;
+            // Save in cache and do next step
             if ( val( $link, 'isUser')) {
                 // It's a user
                 $this->cache[ 'U'.$linkId] = $link;

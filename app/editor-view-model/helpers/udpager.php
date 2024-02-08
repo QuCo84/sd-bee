@@ -155,7 +155,7 @@ class UDpager
             // Decode JSON extra data
             $extra = JSON_decode( LF_preDisplay( 't', val( $elementData, 'textra')), true);
             // 2DO if $this->reCompute page Heights or if too far away (twice last element's height then ignore) 
-            $top = max( $extra['offsetTop'], $this->currentPageOffsetTop);
+            $top = max( val( $extra, 'offsetTop', 0), $this->currentPageOffsetTop);
             $height = val( $extra, 'height');
             $relTop = $top - $this->currentPageOffsetTop;
             $relTop2 = 0;

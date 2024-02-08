@@ -25,7 +25,7 @@
     function renderAsHTMLandJS( $active=true)
     {
         $r = "";
-        if ( $this->extra[ 'system']['onlyprod'] == "yes" && LF_env( 'cache') > 10 && $this->mode != "edit") {
+        if ( val( $this->extra, 'system/onlyprod') == "yes" && LF_env( 'cache') > 10 && $this->mode != "edit") {
            return [ 'content'=>$r, 'program'=>""];
         }
         $h = $this->type-UD_part+1;

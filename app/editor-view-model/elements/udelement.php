@@ -401,7 +401,7 @@ class UDelement {
             // Extract title and sub-title to seperate fields in elementData
             // Multiple pairs of spans for multiple languages just EN and FR for the moment
             $lang_index = 0;
-            if ( $lang == "FR") { $lang_index = 1;}
+            if ( $this->lang == "FR") { $lang_index = 1;}
             $spans = HTML_getContentsByTag( $content, "span");           
             $spanCount = LF_count( $spans);
             if ( $spanCount) {

@@ -16,7 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-error_reporting( E_ERROR | E_WARNING); // & ~E_STRICT & ~E_DEPRECATED);
+// PHP configuration
+error_reporting( E_PARSE | E_ERROR | E_WARNING); // & ~E_STRICT & ~E_DEPRECATED);
+ini_set('display_errors', '0');
+set_time_limit( 30);
+ini_set("allow_url_fopen", true);
 
 use Google\Cloud\Storage\StorageClient;
 
@@ -26,9 +30,6 @@ include_once "sdbee-access.php";
 include_once "sdbee-doc.php";
 include_once "editor-view-model/helpers/uddatamodel.php";
 include_once "editor-view-model/ud.php";
-
-
-ini_set("allow_url_fopen", true);
 
 $TEST = false; //( strpos( $_SERVER[ 'HTTP_HOST'], "ud-server") === false);
 
@@ -219,7 +220,14 @@ if ( count( $request)) {
         // Display a task        
         $taskName = val( $request, 'task');
         LF_debug( "Displaying {$taskName}", 'index', 8);
-        $doc = new SDBEE_doc( $taskName);
+        if ( strpos( $taskName, 'system') === 0) {
+            // Display a public task or doc
+            $taskName = str_replace( 'system/', '', $taskName);            
+            $doc = new SDBEE_doc( $taskName, 'system', $PUBLIC);
+        } else {
+            // DIsplay a private task
+            $doc = new SDBEE_doc( $taskName);
+        }
         $doc->sendToClient();
     } elseif( val( $request, 'model')) {
         // Display a model
@@ -277,7 +285,7 @@ function SDBEE_getRequest() {
     $requestKeys = array( 
         'test', 'e', 'form', 'nServiceRequest', 'task', 'model', 'collection', 'act', 'input_oid', 
         'nname', 'nlabel', 'stype', 'nstyle', 'tcontent', 'thtml', 'nlang', 'textra', 'ngivenname', 'nParams', 'lastTime', 'ticks',
-        'tpasswd', 'tdomain', '_stype', '_tdomain', 'ttext', 'iaccess', 'tlabel'
+        'tpasswd', 'tdomain', '_stype', '_tdomain', 'ttext', 'iaccess', 'tlabel', 'debug'
         // v, m,d ?
     );
     foreach( $requestKeys as $key) {
@@ -292,7 +300,7 @@ function SDBEE_testUser() {
         'id'=>2, 'name'=>'demo', 'language'=>'FR',
         'doc-storage'=>"private-storage",
         'top-dir'=>'', 'home'=>'A0012345678920001_trialhome', 
-        'prefix'=>""
+        'prefix'=>"priV222e"
     ];
     global $CONFIG;
     $storage = $CONFIG[ 'private-storage'];

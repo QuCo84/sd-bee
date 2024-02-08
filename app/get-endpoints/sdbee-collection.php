@@ -76,7 +76,9 @@ function SDBEE_endpoint_collection_test() {
     $data = [ 
         [ 'nname', 'tlabel', 'stype', 'nstyle', 'tcontent', 'tparams'],
         [ 'nname'=>'A0000002NHSEB0000M_Repageaf', 'tlabel'=>'Trial doc', 'stype'=>2, 'nstyle'=>'A000012121444444000M_model', 
-        'tcontent'=>'Trial document', 'tparams'=>'{"system":{"state":"initialised", "progress":"10"}}', '_link'=>"?task=A0000002NHSEB0000M_Repageaf"]
+        'tcontent'=>'Trial document', 'tparams'=>'{"system":{"state":"initialised", "progress":"10"}}', '_link'=>"?task=A0000002NHSEB0000M_Repageaf"],
+        [ 'nname'=>'A00000032TU6K00001_GettingStarted', 'tlabel'=>'Trial doc', 'stype'=>2, 'nstyle'=>'A000012121444444000M_model', 
+        'tcontent'=>'Trial document', 'tparams'=>'{"system":{"state":"initialised", "progress":"10"}}', '_link'=>"?task=A00000032TU6K00001_GettingStarted"]
     ];
     $DM->load( $data);
     $DM->out( UDUTILITY_breadcrumbs( [ 

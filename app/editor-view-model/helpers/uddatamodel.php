@@ -467,7 +467,7 @@ if ( !defined( 'TEST_ENVIRONMENT')) define ( 'TEST_ENVIRONMENT', false);
     return $r;
   } // LF_substitute()
 
- function LF_removeAccents( $tr) {
+ function LF_removeAccents( $str) {
 	$r = strtr($str,
 	  array( 'à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'a',
 	  'ç'=>'c', 
@@ -671,7 +671,7 @@ function LF_fileServer() {
         }
     } else {
         // Available locally    
-        if ( $filename != "requireconfig.js") array_shift( $uriParts); // smartdoc or app or upload
+        //if ( $filename != "requireconfig.js") array_shift( $uriParts); // smartdoc or app or upload
         $path = implode( '/', $uriParts);               
     }
     return LF_sendFile( $path, $ext, $fileContents);

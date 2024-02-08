@@ -74,7 +74,7 @@ class SDBEE_doc {
         $this->topName= 'A'.substr( $name, 1);
        // if ( $this->storage != $STORAGE && $dir != "models") var_dump( $name, $this->storage);
         // Check access
-        if ( $this->access && $this->dir != "models") {
+        if ( $this->access && $this->dir != "models" && $this->dir != "system") {
             $this->info = $this->access->getDocInfo( $name);
             if ( !$this->info) {
                 if ( 
@@ -172,8 +172,7 @@ class SDBEE_doc {
             if ( !function_exists( 'SDBEE_endpoint_marketplace' )) {
                 include_once( 'get-endpoints/sdbee-marketplace.php');
                 //echo "oops marketplace already loaded"; die();
-            }
-            
+            }            
             $marketplace = SDBEE_endpoint_marketplace( [], false);
             // Create fixed content       
             $data = [

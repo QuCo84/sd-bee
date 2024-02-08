@@ -103,6 +103,7 @@ if ( !file_exists( __DIR__."/udconstants.php")) {
 class UniversalDoc {
     // Static
     private static $elementClasses = []; 
+    private static $modelCount = 0;
     // General
     private $cacheModels = true; // True to use cached model files. A model can disactivate its being cached
     private $cssFile = true;     // True to use a CSS file, false to use inline CSS. Modified by construct context variable
@@ -320,9 +321,11 @@ class UniversalDoc {
             $this->autoCloseContainers( $elementData, $docOIDlen); 
             // Process elements through element class
             $element = $this->createElement( $elementData);
-            $this->addElement( $element); // addToPage                        
-            // Post element creation processing
-            if( $element->requiredModules) $this->requireModules( $element->requiredModules);
+            if ( $element) {
+                $this->addElement( $element); // addToPage                        
+                // Post element creation processing
+                if( $element->requiredModules) $this->requireModules( $element->requiredModules);
+            }
             // Add text editor if textEditable element (style, JS)
             $this->addAuxillary( $elementData);           
         } // end of element loop
@@ -360,6 +363,18 @@ class UniversalDoc {
             LF_debug( "Repeating model loading detected ".$modelName, "UD", 8);
             return;
         }
+        // Keep track of models loaded
+        self::$modelCount++;
+        /*
+        echo $modelName.'<br>';
+        if ( isset( $_REQUEST[ 'debug']) && $_REQUEST[ 'debug'] < self::$modelCount) {
+            var_dump( $this->loadedModels);
+            echo "MEMORY: $modelName ".memory_get_usage().' '.self::$modelCount."<br>";
+            debug_backtrace();
+            die();
+            return;
+        }
+        */
         if ( !$this->oidTop) $this->oidTop = LF_env( 'oid');
         if ( !$this->model) $this->model = $modelName;              
         // Trace
@@ -414,10 +429,15 @@ class UniversalDoc {
             //$this->docType = UD_model; // ??       
             // Create a UniversalDoc for Model or use current ud if modelShow AND no document yet (using title for this)
             if ( $this->modelShow && !$this->title) $modelUD = $this;
-            else $modelUD = new UniversalDoc( 
-                [ 'mode'=>"model", "displayPart" => "default", 'cacheModels'=>$this->cacheModels, 'cssFile'=>$this->cssFile], 
-                $this->dataModel
-            );
+            else{
+                $modelUD = new UniversalDoc( 
+                    [ 'mode'=>"model", "displayPart" => "default", 'cacheModels'=>$this->cacheModels, 'cssFile'=>$this->cssFile], 
+                    $this->dataModel
+                );
+                // and use same pager as model
+                $modelUD->pager = $this->pager; //!!!pb page breaks added to parent UD solved by provide ud to managePages
+                $modelUD->loadedModels = $this->loadedModels;
+            }
             // and use same pager as model
             $modelUD->pager = $this->pager; //!!!pb page breaks added to parent UD solved by provide ud to managePages
             // if $modelOId is string don't use asString
@@ -459,7 +479,7 @@ class UniversalDoc {
                $this->displayPart = $modelUD->displayPart;
             // Merge required modules, avoiding doubles
             foreach( $modelUD->requiredModules as $mod) { $this->requireModule( $mod);}
-            $this->loadedModels = array_merge( $this->loadedModels, $modelUD->loadedModels);
+            $this->loadedModels = $modelUD->loadedModels;
             if ( !$this->model) $this->model = $modelUD->title;
             // Grab page Height
             if ( $this->pager != $modelUD->pager) {

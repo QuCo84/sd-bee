@@ -965,6 +965,7 @@ class UD_utilities
             OR
             pure JSON 
         */
+        $elementName = val( $elementData, 'nname');
         $type = val( $elementData, 'stype');
         //$indexType = array_search( $type, self::$compositeElementTypes);
         //$typeName = self:: val( $compositeElementTypeNames, $indexType);
