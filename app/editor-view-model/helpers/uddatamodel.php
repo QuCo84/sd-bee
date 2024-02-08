@@ -633,6 +633,8 @@ function LF_timestamp( $time) {
 function LF_fetchNode( $oid, $cols="") { return [];}
 
 function LF_fileServer() {
+    // Check if file request
+    if ( strpos( val( $_SERVER, 'REQUEST_URI'), '?') !== false || count( $_POST)) return false;
     // Config
     $localFiles = [ 'requireconfig.js', 'udajax.js', 'udregister.js', 'servertracker.js'];
     $authorisedPaths = ["sd-bee", "sdbee", "upload", "tmp", "download", "app", "fonts", "favicon.ico"];

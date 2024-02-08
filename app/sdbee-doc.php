@@ -83,7 +83,7 @@ class SDBEE_doc {
                 ) {
                     // File exists with user's prefix with no entry in access DB
                     // Low security patch for quick import of JSON tasks from archive or developped seperately
-                    $this->import( $this->name.'.json');
+                    $this->import( $this->name, "json");
                 } else return ($this->state = "no access");
             }
             // Transfer info to visible attributes
@@ -583,10 +583,8 @@ class SDBEE_doc {
     * import file to dir
     * import zip = dir + all files in zip
     */
-    function import() {
+    function import( $name, $fileType) {
         if ( !$this->access) return;
-        $fileType = "";
-        if ( substr( $name, -5) == ".json") $fileType = "json";
         // Add entry in database
         if ( $fileType == 'json') {
             // Check file and extract type
