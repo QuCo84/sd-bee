@@ -17,31 +17,42 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-function SDBEE_endpoint_changes( $task) {
+function SDBEE_endpoint_changes( $request) {
     global $USER, $ACCESS, $STORAGE;
+    $collection = val( $request, 'collection');
+    $task = val( $request, 'task');
+    $act = val( $request, 'act');
     $lastTime = (int) $_REQUEST['lastTime'] - 1;
-    $doc = new SDBEE_doc( $task);
-    $parents = [];
-    $changed = ['UD_user' => [ 'content'=>"me"]]; // 2DO $USER name
-    while ( !$doc->eof())  {
-        $element = $doc->next();
-        if ( $element[ 'modified'] > $lastTime) {
-            $name = val( $element, 'name');
-            $changed[ $element[ 'name']] = [ 
-                'oid' => $element[ 'oid'],
-                'ticks' =>$_REQUEST[ 'ticks'],
-                'before' => $doc->nameAtOffset(-1),
-                'after' => $doc->nameAtOffset(0),
-                'debug' => ""
-            ];
-            // Add parent and keep track of parents
-            $level = val( $element, 'level');
-            if ( $level > 2) $changedElements[ $name]['parent'] =  $parents[ $level-1];
-            else $parents[ $level] = $name;
+    $changed = ['UD_user' => [ 'content'=>"me"]];
+    if ( $task) {
+        $doc = new SDBEE_doc( $task);
+        $parents = [];
+        // 2DO $USER name
+        while ( !$doc->eof())  {
+            $element = $doc->next();
+            $mod = val( $element, 'modified');
+            if ( $mod && $mod > $lastTime) {
+                $name = val( $element, 'name');
+                $changed[ $element[ 'name']] = [ 
+                    'oid' => $element[ 'oid'],
+                    'ticks' =>$_REQUEST[ 'ticks'],
+                    'before' => $doc->nameAtOffset(-1),
+                    'after' => $doc->nameAtOffset(0),
+                    'debug' => ""
+                ];
+                // Add parent and keep track of parents
+                $level = val( $element, 'level');
+                if ( $level > 2) $changedElements[ $name]['parent'] =  $parents[ $level-1];
+                else $parents[ $level] = $name;
+            }
         }
+       
+    } else if ( $collection) {
+        // TODO Get cdir contents
+        
     }
     echo JSON_encode( $changed);
 }
 
 global $request;
-SDBEE_endpoint_changes( $request[ 'collection'], val( $request, 'act'));
+SDBEE_endpoint_changes( $request);

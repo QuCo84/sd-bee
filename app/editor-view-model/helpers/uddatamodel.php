@@ -271,6 +271,19 @@
         
     } // DataModel->flush()
     
+    function translate( $text) {
+        foreach( LF_env( 'UD_terms') as $term=>$value) {
+            // $value = LF_preDisplay("n", $value);
+            if ($term != "" && $value !="") { 
+                //if ( $lang != "EN" && strpos( $r, LinksAPI::startTerm.$term.LinksAPI::endTerm))
+                    $text = str_replace(LinksAPI::startTerm.$term.LinksAPI::endTerm, $value, $text);
+                //elseif ( $lang == "EN" && strpos( $r, LinksAPI::startTerm.$value.LinksAPI::endTerm))
+                //  $r = str_replace(LinksAPI::startTerm.$value.LinksAPI::endTerm, $term, $r);
+            }         
+        }
+        $text = str_replace( [ '{!', '!}'], [ '',''], $text);
+        return $text;
+    }
    /**
     * Get hidden fields to include in Input form
     *  @param string formName : UDE_fetch (updating and fetching an element), ... to be completed
@@ -571,7 +584,7 @@ if ( !defined( 'TEST_ENVIRONMENT')) define ( 'TEST_ENVIRONMENT', false);
             $env[ 'is_Anonymous'] = true;            
         }
         $env[ 'oid'] = "_FILE_UniversalDocElement-doc";
-        $env[ 'cache'] = 18;       
+        $env[ 'cache'] = ( isset( $_REQUEST[ 'cache'])) ? $_REQUEST[ 'cache'] : 18;       
     }
     if ( $key == 'UD_icons') $key = 'WEBDESK_images';
     if ( $value) $env[ $key] = $value;
@@ -642,7 +655,7 @@ function LF_fileServer() {
     $uri = val( $_SERVER, 'REQUEST_URI');
     if ( substr( $uri, 0 ,2) == "/?") return false;
     $uriParts = explode( '/', $uri);
-    array_shift( $uriParts);
+    $topDir = array_shift( $uriParts);
     $topDir = val( $uriParts, 0);
     if ( !in_array( $topDir, $authorisedPaths)) return false;
     $filename = $uriParts[ count( $uriParts) - 1];
@@ -668,7 +681,7 @@ function LF_fileServer() {
         }
         if ( !$fileContents || stripos( $fileContents, 'ERR') === 0) {
             // Fallback on sdbee
-            $path = 'https://www.sd-bee.com/upload/'.implode( '/', $uriParts).'/'.$filename;
+            $path = 'https://www.sd-bee.com/upload/'.$topDir.implode( '/', $uriParts).'/'.$filename;
             $fileContents = @file_get_contents( $path);
         }
     } else {

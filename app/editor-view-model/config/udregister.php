@@ -379,7 +379,8 @@ function UD_autoFillResourcePath( &$path) {
     *  @param {string} $fullPath Full path and file name
     */     
     function UD_loadResourceFile( $fullPath, &$resources=null) {
-        $html = $js = $style = $models = "";    
+        $html = $js = $style = $models = ""; 
+        $startTime = time();
         $r = UD_fetchResource( $fullPath, $filename,  $fileExt); 
         // Process resource according to extension
         if ( $fileExt == "scss") {
@@ -456,6 +457,10 @@ function UD_autoFillResourcePath( &$path) {
             $resources[ 'style'] .= $style;
             $resources[ 'models'] .= $models;
         }
+        // Trace
+        $time = time() - $startTime;
+        LF_debug( "Resource file $fullPath loaded in $time secs.", "UDregister", 8);
+        // Return
         return [ 'content'=>$html, 'style'=>$style, 'program'=>$js, 'models'=>$models];
     }
 
@@ -486,7 +491,7 @@ function UD_autoFillResourcePath( &$path) {
         $filename =  array_pop( $filenameParts);
         // $fileParts = explode( '.', $filename);$fileParts[ LF_count( $fileParts) - 1];
         $ext = array_pop( explode( '.', $filename)); 
-        if ( !$filenameParts[0])  {  // Syntax /domain/path/filename.ext
+        if ( $filenameParts &&!$filenameParts[0])  {  // Syntax /domain/path/filename.ext
             array_shift( $filenameParts);
             $domain = array_shift( $filenameParts);
         }     

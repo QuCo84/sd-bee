@@ -536,9 +536,9 @@ span.footerItem.highlight {border:2px solid yellow;}:root { --indoc-menu-font-si
 </div> <!-- content -->
 <div id="footer">
 <span class="footerItem left">©sd-bee</span>
-<span id="RGPD" class="footerItem left"><a href="javascript:" onclick="window.open('?task=system&2FA0000000K1NM60000M_rgpd', 'rgpd')">GRPD - Privacy</a></span>
-<span id="TandC" class="footerItem left"><a href="javascript:" onclick="window.open('?task=system&2FA0000000UMNNS0000M_TandC', 'CGU')">Terms of Use</a></span>
-<span id="DEV" class="footerItem left if800"><a href="javascript:" onclick="window.open('?task=system&2FA00000010S8S60000M_doc', 'dev')">Developers</a></span></span>
+<span id="RGPD" class="footerItem left"><a href="javascript:" onclick="window.open('?task=system%2FA0000000K1NM60000M_RGPD', 'rgpd')">GRPD - Privacy</a></span>
+<span id="TandC" class="footerItem left"><a href="javascript:" onclick="window.open('?task=system%2FA0000000UMNNS0000M_TandC', 'CGU')">Terms of Use</a></span>
+<span id="DEV" class="footerItem left if800"><a href="javascript:" onclick="window.open('?task=system%2FA00000010S8S60000M_doc', 'dev')">Developers</a></span></span>
 <span class="footerItem right if800">
   <img src="/upload/Hay01AdaK_db.png" width="30" height="30">
   <svg width="30" height="30">
@@ -548,7 +548,12 @@ span.footerItem.highlight {border:2px solid yellow;}:root { --indoc-menu-font-si
 <span class="footerItem right if800">
   <img src="/tmp/W50H50_H0V0l1h0a_wifi.png" width="30" height="30" />
   <svg width="30" height="30">
-    <circle id="STATUS_network" cx="15" cy="15" r="6"  stroke="lightgreen" stroke-width="1" fill="lightgreen"/></svg></span><span class="footerItem right" onclick="API.showBotlog();"><img src="/tmp/W50H50_N373r1k1G_brain.png" width="30" height="30"><svg width="30" height="30"><circle id="STATUS_busy" cx="15" cy="15" r="6"  stroke="lightgreen" stroke-width="1" fill="lightgreen"/>
+    <circle id="STATUS_network" cx="15" cy="15" r="6"  stroke="lightgreen" stroke-width="1" fill="lightgreen"/>
+  </svg>
+</span>
+<span class="footerItem right" onclick="API.showBotlog();">
+      <img src="/tmp/W50H50_N373r1k1G_brain.png" width="30" height="30">
+      <svg width="30" height="30"><circle id="STATUS_busy" cx="15" cy="15" r="6"  stroke="lightgreen" stroke-width="1" fill="lightgreen"/>
   </svg>
 </span>
 </div> <!-- footer -->

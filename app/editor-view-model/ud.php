@@ -358,23 +358,21 @@ class UniversalDoc {
             $modelDate = val( $modelNameAndOid, 'date');
         }
         // Check not already loaded
-        if ( in_array( $modelName, $this->loadedModels))
+        if ( in_array( 'models/'.$modelName, $this->loadedModels))
         {
             LF_debug( "Repeating model loading detected ".$modelName, "UD", 8);
             return;
         }
         // Keep track of models loaded
         self::$modelCount++;
-        /*
-        echo $modelName.'<br>';
+        // Temporary code for debugging OS
         if ( isset( $_REQUEST[ 'debug']) && $_REQUEST[ 'debug'] < self::$modelCount) {
             var_dump( $this->loadedModels);
             echo "MEMORY: $modelName ".memory_get_usage().' '.self::$modelCount."<br>";
-            debug_backtrace();
+            var_dump( debug_backtrace());
             die();
             return;
         }
-        */
         if ( !$this->oidTop) $this->oidTop = LF_env( 'oid');
         if ( !$this->model) $this->model = $modelName;              
         // Trace
@@ -977,7 +975,7 @@ EOT;
                 $this->onTheFlyDrop = false;
                 $this->loadSystemParameters( $elementData);
                 $model = LF_preDisplay( 'n', val( $elementData, 'nstyle'));
-                if ($model != "NONE") $this->loadModel( $model);
+                $this->loadModel( $model);
             } elseif ( $type == UD_document) {
                 $this->loadSystemParameters( $elementData); // or use #2217007 below
             } elseif ( $type == UD_view) {

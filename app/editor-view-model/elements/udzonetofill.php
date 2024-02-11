@@ -28,7 +28,6 @@
         if ( val( $this->extra, 'system/onlyprod') == "yes" && LF_env( 'cache') > 10 && $this->mode != "edit") {
            return [ 'content'=>$r, 'program'=>""];
         }
-        $h = $this->type-UD_part+1;
         // 2DO if url grab and display
         $r .= "<div "; //id=\"{$this->name}\" class=\"zone\" ude_input=\"none\">"; 
         $r .= $this->getHTMLattributes();

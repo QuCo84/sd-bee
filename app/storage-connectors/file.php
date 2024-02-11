@@ -45,10 +45,14 @@ class FileStorage extends SDBEE_storage {
     function read( $dir, $filename) {
         $contents = "";
         if ( $this->exists( $dir, $filename)) {
-            try {
-                $contents = @file_get_contents( $this->_getURL( $dir, $filename));
+            $ctx = stream_context_create( [
+                'http' => [ 'timeout' => 1500]
+            ]);
+            $contents = @file_get_contents( $this->_getURL( $dir, $filename), false, $ctx);
+            if ( $contents === false || !$contents) { 
+                LF_debug( "FILE ERROR $dir $filename not found with error ".print_r( error_get_last(), true), 'FILE', 8);
+                $contents = "";
             }
-            catch( \Exception $e) { $contents = "";}
         }
         return $contents;
     }

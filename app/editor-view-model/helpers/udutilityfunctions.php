@@ -500,6 +500,21 @@ function val( $container, $key, $default=null) {
     /*
     * idea $default="__UNSET__" to delete value unset( val => val,,__UNSET__)
     */
+    if ( isset( $_REQUEST[ 'debug'])) {
+        // Temp debug code
+        global $DEBUG_startTime;
+        $maxTime = 15;
+        if ( !$DEBUG_startTime) $DEBUG_startTime = time();
+        elseif ( ( time() - $DEBUG_startTime) > $maxTime) {
+            $d = debug_backtrace();
+            $t = "Stash<br>\n";
+            for ( $di=0; $di < count( $d); $di++) { 
+                $t .= " {$d[ $di][ 'file']} {$d[ $di][ 'line']}<br>\n";
+            }
+            echo $t;
+            die( "$maxTime secs timeup");
+        }
+    }
     if ( is_string( $key)) $keyParts = explode( '/', $key);
     else $keyParts = [ $key];
     switch ( count( $keyParts)) {

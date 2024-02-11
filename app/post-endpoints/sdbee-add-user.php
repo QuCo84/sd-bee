@@ -21,8 +21,8 @@ function SDBEE_form_addUser( $request) {
     global $ACCESS;   
     $username = val( $request, 'nname');
     $password = val( $request, 'tpasswd');
-    $domain = val( $request, '_tdomain');
-    $type = val( $request, '_stype');
+    //$domain = val( $request, '_tdomain');
+    //$type = val( $request, '_stype');
     // Get unique doc id
     $docName = UD_utilities::getContainerName();
     // Get list of dirs and docs to create

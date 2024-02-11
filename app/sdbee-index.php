@@ -18,9 +18,10 @@
  */
 // PHP configuration
 error_reporting( E_PARSE | E_ERROR | E_WARNING); // & ~E_STRICT & ~E_DEPRECATED);
-ini_set('display_errors', '0');
+ini_set('display_errors', ( ( isset( $_REQUEST[ 'debug'])) ? '1' : '0'));
 set_time_limit( 30);
 ini_set("allow_url_fopen", true);
+ini_set('memory_limit', '384M');
 
 use Google\Cloud\Storage\StorageClient;
 
@@ -174,6 +175,12 @@ if ( count( $request)) {
             $archive = new SDBEE_archive( $archiveName);
             var_dump( $archive->getCollectionContents());
             exit();
+        } elseif( $test == "TO") {
+            set_time_limit( 1);
+            for ( $i=0; $i < 100; $i =$i) {
+                // test infnite loop
+                echo ".";
+            }
         }
         echo "no test $test configurated";
     } elseif ( val( $request, 'act') && $request[ 'act'] != "ignore") {
@@ -194,6 +201,9 @@ if ( count( $request)) {
         } elseif ( $act == "getClipboard") {
             // Get clipboard as HTML
             include( "get-endpoints/sdbee-clipboard.php");
+        } elseif ( $act == 'user') {
+            // Display create user form
+            include( 'get-endpoints/sdbee-user.php');
         } else {
             echo "No such action";
         }
@@ -208,7 +218,7 @@ if ( count( $request)) {
         } elseif ( $form == "INPUT_addApage" || $form == "INPUT_ajouterUnePage") {
             //echo "Adding a page"; var_dump( $request); die();
             include ( "post-endpoints/sdbee-add-doc.php");
-        } elseif ( $form == "INPUT_createUser") {
+        } elseif ( $form == "INPUT_createUser" || $form == "INPUT_addAuser") {
             include ( "post-endpoints/sdbee-add-user.php");
             //echo "Adding a user"; var_dump( $request); //die();            
         } elseif ( $form == "INPUT_pasteForm") {
@@ -218,7 +228,7 @@ if ( count( $request)) {
         // 2DO Fetch element    
     } elseif ( val( $request, 'task')) {
         // Display a task        
-        $taskName = val( $request, 'task');
+        $taskName = urldecode( val( $request, 'task'));
         LF_debug( "Displaying {$taskName}", 'index', 8);
         if ( strpos( $taskName, 'system') === 0) {
             // Display a public task or doc
@@ -258,7 +268,7 @@ function SDBEE_getRequest() {
     $oidParts = explode( '--', $oid);
     $oidNameParts = explode( '-', val( $oidParts, 0));
     $name = $oidNameParts[ count( $oidNameParts) - 1];
-    if ( in_array( $name, [ 'AJAX_addDirOr', 'AJAX_addDirOrFile', 'logout'])) $action = $name;
+    if ( in_array( $name, [ 'AJAX_addDirOr', 'AJAX_addDirOrFile', 'AJAX_userManager', 'logout'])) $action = $name;
     else $action = ( in_array( "logout", $uriParts)) ? "logout" : val( $uriParts, 3);
     $actionMap = [
         'logout' =>[ 'logout' => 'yes'],
@@ -267,7 +277,8 @@ function SDBEE_getRequest() {
         'AJAX_getChanged' => [ 'act' => 'changes', 'task'=>$name],
         'AJAX_addDirOr' =>[ 'act' => 'ignore'],
         'AJAX_addDirOrFile' =>[ 'act' => 'ignore'],
-        'AJAX_clipboardTool' => [ 'act' => 'getClipboard']
+        'AJAX_clipboardTool' => [ 'act' => 'getClipboard'],
+        'AJAX_userManager' => [ 'act' => 'user']
         /*
         'AJAX_show' => [],
         'AJAX_update =>[],

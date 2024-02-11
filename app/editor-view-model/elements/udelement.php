@@ -370,7 +370,7 @@ class UDelement {
         // Extract label from content if there is a caption span
         $typeName =  UD_getDbTypeInfo( $type, 'ud_type');
         $isContainer = UD_getDbTypeInfo( $type, 'isContainer');        
-        if ( $typeName && !$isContainer) {
+        if ( $content && $typeName && !$isContainer) {
             // Composite element
             // $typeName = self::$compositeElementTypeNames[ $typIndex]; // 2DO Multilingual caption defaults
             // if ( !$typeName && $type >= UD_connector && $type <= UD_connector_end) { $typeName = "connector";}
@@ -525,7 +525,7 @@ class UDelement {
                 elseif ( $progress < 100 && ($now - $deadline) > (100-$progress)*86400/20) $this->status = $warning;
                 else $this->status = $ok;
             }            
-            $this->info = "Tâche complétée à {val( $system, 'progress')}%";
+            $this->info = "Tâche complétée à ".$progress."%";
         }
     }
     
