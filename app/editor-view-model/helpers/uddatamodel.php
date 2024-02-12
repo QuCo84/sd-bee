@@ -687,6 +687,7 @@ function LF_fileServer() {
     } else {
         // Available locally    
         //if ( $filename != "requireconfig.js") array_shift( $uriParts); // smartdoc or app or upload
+        if ( in_array( $uriParts[0], [ "sdbee", "sd-bee"])) array_shift( $uriParts);
         $path = implode( '/', $uriParts);               
     }
     return LF_sendFile( $path, $ext, $fileContents);
