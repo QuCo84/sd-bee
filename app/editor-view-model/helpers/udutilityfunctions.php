@@ -161,10 +161,10 @@ function UDUTILITY_breadcrumbs( $pathWithLinks) {
         $selected = ( $name == $lastName) ? 'class="is-active"' : '';       
         $breadcrumbs .= "<li $selected><a href=\"javascript:\" onclick=\"{$link}\">{$name}</a></li>";
     }
-    $breadcrumbs .= '</nav></div>';    
+    $breadcrumbs .= '</nav>';    
     $breadcrumbs .= '<nav class="breadcrumb" aria-label="breadcrumbs" style="float:right;color:rgb( 50,50,50);">';
     $breadcrumbs .= '<a href="javascript:" onclick="$$$.showOneOfClass(\'Manage\',1);$$$.buildManagePart();">';
-    $breadcrumbs .= '{!Manage!}</a></nav>';
+    $breadcrumbs .= '{!Manage!}</a></nav></div>';
     return $breadcrumbs;
 }
 
