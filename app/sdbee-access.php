@@ -233,6 +233,7 @@ class SDBEE_access {
             // Add access or destroy info if none
             $access =  $this->_getAccess( 'U'.$userId, $userInfo);
             if ( $access) $this->_adjustUserInfo( $userInfo);
+            // $this->userInfo[ 'id'] = $userId;
             $this->userInfo = $userInfo;
             return $userInfo;
         }
@@ -568,6 +569,31 @@ class SDBEE_access {
         }
         $this->cache = [];
         return val( $target, 'id');
+    }
+
+    /**
+     * Remove a user see post-endpoint delete-user 2DO
+     * Call removeUser and get list of docs. Remove docs in delete-user
+     * 
+     */
+    function removeUser(  $name) {
+        $info = $this->getUserInfo( $name);
+        if ( !$info) return $this->_error( "no permissions for $name or it doesn't exist");
+        // Add userId to info
+        $contents = $this->getUserContents( $info[ id]);
+        // Loop through contents
+            // if directory this->getCollectionContents( $name, $useMap=true)
+            // if 
+        // Return list of doc
+    }
+    function removeUserContents( $contents) {
+        // Loop through contents
+            // if directory removeUserContents( this->getCollectionContents( $name))
+            // if doc
+            {
+                // removeFromCollection();
+            }
+
     }
 
     function archive( $list, $collectionName) {

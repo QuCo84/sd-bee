@@ -153,14 +153,18 @@ function UDUTILITY_listContainersAsThumbnails( $dataOrDataset, $params=[ 'sort'=
 } // UDUTILITY_listContainersAsThumbnails()
 
 function UDUTILITY_breadcrumbs( $pathWithLinks) {
-    $breadcrumbs = '<div id="DIRS_Breadcrumbs"><nav class="breadcrumb has-arrow-separator" aria-label="breadcrumbs">';
-    $breadcrumbs .= '<ul>';
+    $breadcrumbs = '<div id="DIRS_Breadcrumbs" style="width:100%;height:1.5em;">';
+    $breadcrumbs .= '<nav class="breadcrumb has-arrow-separator" aria-label="breadcrumbs" style=""float:left; margin:0;">';
+    $breadcrumbs .= '<ul style="margin:0;padding:0">';
     $lastName = end(array_keys($pathWithLinks));
     foreach( $pathWithLinks as $name => $link) {
         $selected = ( $name == $lastName) ? 'class="is-active"' : '';       
         $breadcrumbs .= "<li $selected><a href=\"javascript:\" onclick=\"{$link}\">{$name}</a></li>";
     }
-    $breadcrumbs .= '</nav></div>';
+    $breadcrumbs .= '</nav></div>';    
+    $breadcrumbs .= '<nav class="breadcrumb" aria-label="breadcrumbs" style="float-right;color:rgb( 50,50,50);">';
+    $breadcrumbs .= '<a href="javascript:" onclick="$$$.showOneOfClass(\'Manage\',1);$$$.buildManagePart();">';
+    $breadcrumbs .= '{!Manage!}</a></nav>;';
     return $breadcrumbs;
 }
 
@@ -260,7 +264,7 @@ function UDUTILITY_addClip( $name, $type, $content) {
 
 
 /**
- * Build a JSON coded table from standard data array
+ * Build a JSON coded table from standard data array DEPRECATED
  * @param array $data Standard data array 
  * @param array $system Named list of systeme parameters
  * @return string THe JSON string representing the table
@@ -307,6 +311,9 @@ function buildJSONtableFromData( $data, $system)
 
 } // buildJSONtableFromData
 
+/**
+ * DEPRECATE with new connector setup or at least have a param for the zone name
+ */
 function new_buildJSONtableFromData( $data, $system) {
     $table = [];
     // Get columns

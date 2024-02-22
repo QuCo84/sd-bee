@@ -22,7 +22,7 @@ function SDBEE_endpoint_collection( $collectionName, $action) {
     if ( !$ACCESS) return SDBEE_endpoint_collection_test();
     $thumbDocClass = ( val( $_REQUEST, 'dcl')) ? (int) $_REQUEST[ 'dcl'] : 0;
     $displayBreadcrumbs = ( val( $_REQUEST, 'bc')) ? (bool) $_REQUEST[ 'bc'] : true;
-    $link = "$$$.updateZone('USER--21/AJAX_listContainers/updateOid|off/', 'BE00000000000000M_dirListing');";
+    $link = "$$$.updateZone('USER--21/AJAX_listContainers/', 'BE00000000000000M_dirListing');";
     $pathWithLinks = [ 'Top' => $link];
     $view = "'BE00000000000000M_dirListing'";
     if ( !$collectionName || $collectionName == 'USER') {
@@ -46,7 +46,7 @@ function SDBEE_endpoint_collection( $collectionName, $action) {
                 $nodeInfo =  $ACCESS->getCollectionInfo( $collectionName);
                 $nodeLabel = val( $nodeInfo, 'label');            
                 $link = "$$$.updateZone('_FILE_UniversalDocElement-{$collectionName}--21-{$info[ 'id']}";
-                $link .= "/AJAX_listContainers/updateOid|off/', {$view});";
+                $link .= "/AJAX_listContainers/', {$view});";
                 $pathWithLinks[ $nodeLabel] = $link;                
             }
             // Display breadcrumbs
@@ -57,6 +57,29 @@ function SDBEE_endpoint_collection( $collectionName, $action) {
             $params = [ 'maxNb'=>0, 'offset'=>0, 'wrEnable' => 1];
             if ( $thumbDocClass) $params[ 'doc-type'] = $thumbDocClass;
             $DM->out( UDUTILITY_listContainersAsThumbnails( $DM, $params));
+            // 2DO Add JS code to update resources
+            /*
+            $js = "";
+            $title = val( $info, 'label'];
+            $subtitle =  val( $info, 'description'];
+            $system = val( $info, 'params');
+            $docOID = "__FILE__UniversalDocElement-".val( $info, 'name').'--21-1';
+            $oidNew = $docOID."-0";
+            $oidChildren = $docOID."-21";
+            // 2DO make a fct in udutilitiesfct complete = docModel = Basic Dir, docFull
+            $updateOid = "on""; // LF_env( 'updateOid');
+            if ( $updateOid != "off") {
+                // 2DO Only do this if call from Dir Model, not files inside doc
+                $js .= "$$$.dom.element( 'UD_docTitle').textContent = '{$title}';\n";
+                $js .= "$$$.dom.element( 'UD_docSubtitle').textContent = '{$subtitle}';\n";
+                $js .= "$$$.dom.element( 'UD_oidNew').textContent = '{$oidNew}';\n";
+                $js .= "$$$.dom.attr( 'document', 'ud_oid','{$docOID}');\n";
+                $js .= "$$$.dom.attr( 'document', 'ud_oidchildren','{$oidChildren}');\n";
+                $js .= "$$$.dom.element( 'UD_system').textContent = '" . JSON_encode( $system)."';\n";
+            }
+            $js .= "ud.ude.calc.redoDependencies()\n";
+            $DM->onload( $js);
+            */
             $DM->flush( 'ajax');
         } else {
             // Display collection listing model NOT OK

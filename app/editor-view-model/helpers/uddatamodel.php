@@ -681,7 +681,7 @@ function LF_fileServer() {
         }
         if ( !$fileContents || stripos( $fileContents, 'ERR') === 0) {
             // Fallback on sdbee
-            $path = 'https://www.sd-bee.com/upload/'.$topDir.implode( '/', $uriParts).'/'.$filename;
+            $path = 'https://www.sd-bee.com/'.$topDir.implode( '/', $uriParts).'/'.$filename;
             $fileContents = @file_get_contents( $path);
         }
     } else {

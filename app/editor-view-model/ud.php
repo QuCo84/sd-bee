@@ -964,7 +964,8 @@ EOT;
             // Process in Models data         
             if ( $type == UD_model) {
                 // Use model's copyParts parameter to determine which views to display
-                $this->viewsToIgnore = [ 'MANAGE'];
+                $this->viewsToIgnore = [];
+                if( $elementData[ '_title'] != "Basic model for home directories") $this->viewsToIgnore[] = 'MANAGE';
                 $params = val( $elementData, '_extra/system');                 
                 if ( val( $params, 'copyParts'))  {
                     $params[ 'copyParts'][] = 'MANAGE';
@@ -982,8 +983,10 @@ EOT;
                 // Skip views that are in doc
                 $view = val( $elementData, 'nlabel');
                 if ( !$view) $view = val( $elementData, '_title');
-                if ( $this->viewsToIgnore && in_array( strToUpper( $view), $this->viewsToIgnore)) $this->onTheFlyDrop = true;
-                else $this->onTheFlyDrop = false;
+                if ( $this->viewsToIgnore && in_array( strToUpper( $view), $this->viewsToIgnore)){
+                    $this->onTheFlyDrop = true;
+                    LF_debug( "Filtering view $view", 'UD', 8);
+                } else $this->onTheFlyDrop = false;                
             } 
             return $this->onTheFlyDrop;
         }
@@ -1140,6 +1143,7 @@ EOT;
             $this->views[] = "MANAGE";
         }
         */
+        
         foreach( $fromUD->elements as $partName=>$part) {            
             if ( in_array( $partName, $this->views)) {
                 // Add view to main document. Rcereate elementData from object to use identical function

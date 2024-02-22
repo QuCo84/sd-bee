@@ -952,7 +952,7 @@ class UD_utilities
             // $textra = str_replace( ["&quot;", '\\"', '\"'], ['"', '"', '"'], LF_preDisplay( 't', val( $elementData, 'textra')));
             $textra = LF_preDisplay( 't', val( $elementData, 'textra'));
             $elementData['_extra'] = JSON_decode( $textra, true);
-        }
+        } else  $elementData['_extra'] = [ 'system'=>[ 'dummy'=>"dummy"]];
         // Make as analysed
         $elementData[ '_analysis'] = "OK";
     } // UD_utilities::analyseContent()

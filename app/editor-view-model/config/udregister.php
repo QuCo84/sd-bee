@@ -525,6 +525,13 @@ function UD_autoFillResourcePath( &$path) {
             if ( $PUBLIC) {
                 // OS version
                 $r = $PUBLIC->read( $category, $filename);
+                /*
+                if ( !$r || stripos( $r, 'ERR') === 0) {
+                    // Fallback on sd-bee site (useful for doc for example)
+                    $path = 'https://www.sd-bee.com/upload/sd-bee-cdn/'.implode( '/', $uriParts).'/'.$filename;
+                    $fileContents = @file_get_contents( $path);
+                }
+                */
             } else {
                 // SOILinks version
                 $r = @file_get_contents( __DIR__."/../{$category}/{$filename}");
