@@ -154,7 +154,7 @@ function UDUTILITY_listContainersAsThumbnails( $dataOrDataset, $params=[ 'sort'=
 
 function UDUTILITY_breadcrumbs( $pathWithLinks) {
     $breadcrumbs = '<div id="DIRS_Breadcrumbs" style="width:100%;height:1.5em;">';
-    $breadcrumbs .= '<nav class="breadcrumb has-arrow-separator" aria-label="breadcrumbs" style=""float:left; margin:0;">';
+    $breadcrumbs .= '<nav class="breadcrumb has-arrow-separator" aria-label="breadcrumbs" style="float:left; margin:0;">';
     $breadcrumbs .= '<ul style="margin:0;padding:0">';
     $lastName = end(array_keys($pathWithLinks));
     foreach( $pathWithLinks as $name => $link) {
