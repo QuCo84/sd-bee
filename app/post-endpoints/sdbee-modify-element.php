@@ -40,6 +40,7 @@
         // Update
         $rep = $doc->updateElement( $elementId, $request);
     }
+    unset( $doc);
     echo $rep;
  }
  global $request;

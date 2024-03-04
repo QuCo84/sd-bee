@@ -163,7 +163,7 @@ function UDUTILITY_breadcrumbs( $pathWithLinks) {
     }
     $breadcrumbs .= '</nav>';    
     $breadcrumbs .= '<nav class="breadcrumb" aria-label="breadcrumbs" style="float:right;color:rgb( 50,50,50);">';
-    $breadcrumbs .= '<a href="javascript:" onclick="$$$.showOneOfClass(\'Manage\',1);$$$.buildManagePart();">';
+    $breadcrumbs .= '<a href="javascript:" onclick="$$$.showOneOfClass(\'Manage\',1);$$$.buildManagePart(1);">';
     $breadcrumbs .= '{!Manage!}</a></nav></div>';
     return $breadcrumbs;
 }

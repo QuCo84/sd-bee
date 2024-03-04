@@ -376,7 +376,7 @@ class UD_utilities
                 $elementTextra[ 'system'][ 'ude_place'] = $content;
             } else {
                 // Use initialcontent class to indicate default value
-                $element[ 'nclass'] .= ( (val( $element, 'nclass')) ? " ": "") . "initialcontent";
+                $element[ 'nstyle'] .= ( (val( $element, 'nstyle')) ? " ": "") . "initialcontent";
             }
             // Indicate from model
             $elementTextra[ 'system'][ 'fromModel'] = true;
@@ -1485,10 +1485,10 @@ class UD_utilities
             LF_env( 'UD_shareDir', $shareOID);    
         }
         // Dates
-        LF_env( 'Date', date( 'd/m/Y'));
-        LF_env( 'Year', date( 'y'));
-        LF_env( 'Week', date( 'W'));
-        LF_env( 'Month', date( 'M'));
+        LF_env( 'date', date( 'd/m/Y'));
+        LF_env( 'year', date( 'y'));
+        LF_env( 'week', date( 'W'));
+        LF_env( 'month', date( 'M'));
     }
     
     static function getNamedElementFromUD( $docOID, $elementName) {

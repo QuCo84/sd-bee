@@ -15,7 +15,7 @@ class SDBEE_access_mySql {
             );
             $this->db = $db;
         } catch(PDOException $ex) { 
-            echo "An Error occured! ".$ex->getMessage()." ".$dbHost.' '.$database; 
+            $this->lastMessage = "An Error occured! ".$ex->getMessage()." ".$dbHost.' '.$database; 
             return null;        
         }
     }

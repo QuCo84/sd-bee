@@ -44,9 +44,10 @@ class GoogleCloudStorage extends SDBEE_storage {
     function exists( $dir, $filename) {
         if ( !$this->storage) return false;
         $bucket = $this->storage->bucket( $this->bucket);
-        $this->_prefix( $dir, $filename);
+        $this->_prefix( $dir, $filename);        
         if ( $dir && substr( $dir, -1) != '/' ) $dir .= '/';
-        $found = false;
+        if ( $this->home) $dir = $this->home.'/'.$dir;
+        $found = false;       
         foreach ($bucket->objects([ 'prefix'=>$dir.$filename]) as $object) {
             if ( $object->name() == $dir.$filename) {
                 $found = true;
@@ -59,12 +60,17 @@ class GoogleCloudStorage extends SDBEE_storage {
     function _getURL( $dir, $filename) {
         $this->_prefix( $dir, $filename);
         if ( $dir && substr( $dir, -1) != '/' ) $dir .= '/';
-        $full = "gs://{$this->bucket}/".rawurlencode( $dir.$filename);
+        /*
+        $dir = rawurlencode( $dir);
+        $filename = rawurlencode( $filename);
+        */
+        if ( $this->home) $dir = $this->home.'/'.$dir;
+        $full = "gs://{$this->bucket}/{$dir}{$filename}";
         return $full;
     }
 
-    function _prefix( $dir, &$filename) {
-        if ( !$this->isPublic( $dir, $filename)) $filename = $this->prefix.'_'.$filename;
+    function _prefix( &$dir, &$filename) {
+        if ( !$this->isPublic( $dir, $filename) && $this->prefix) $filename = $this->prefix.'_'.$filename;        
     }
 
     function isPublic( $dir, $filename) {
@@ -76,7 +82,7 @@ class GoogleCloudStorage extends SDBEE_storage {
         if ( !$this->storage) return false;
         // Get contents if file exists
         $contents = "";
-        if ( $this->exists( $dir, $filename)) {
+        if ( $this->exists( $dir, $filename)) {            
             $full = $this->_getURL( $dir, $filename);
             $contents = file_get_contents( $full);
         }
@@ -96,6 +102,7 @@ class GoogleCloudStorage extends SDBEE_storage {
         $bucket = $this->storage->bucket( $this->bucket);
         $this->_prefix( $dir, $filename);
         $full = ( $dir) ?  "{$dir}/{$filename}" : $filename;
+        if ( $this->home) $full = $this->home.'/'.$full;
         $object = $bucket->object( $full);
         if ( $TEST && !$object) { echo "$full not found in {$this->bucket}<br>\n"; return "NOT FOUND";}
         $info = $object->info();
@@ -140,6 +147,9 @@ class GoogleCloudStorage extends SDBEE_storage {
                 );
                 $context = stream_context_create($opts);
                 $result = file_get_contents( $url, false, $context);
+                var_dump( "create", $result);
+                //if ( $result) 
+                $contents = strlen( $data);
                 if ( $TEST) echo "$contents bytes written to $full<br>\n";
             } catch (Exception $ex) {
                 echo $ex->getMessage() . "\n<pre>";
@@ -170,8 +180,9 @@ class GoogleCloudStorage extends SDBEE_storage {
     }
 
     function getFullName( $dir, $filename) {
-        if ( $dir != "models") $filename = $this->prefix.'_'.$filename;
+        if ( $dir != "models" && $this->prefix) $filename = $this->prefix.'_'.$filename;
         if ( $dir && substr( $dir, -1) != '/' ) $dir .= '/';
+        if ( $this->home) $dir = $this->home.'/'.$dir;
         $full = "gs://{$this->bucket}/".rawurlencode( $dir.$filename);
         return $full;
     }

@@ -5,6 +5,7 @@ REM Setup data directories
 mkdir data
 mkdir data\access
 mkdir data\users
+mkdir data\resources
 REM Setup additional local services
 mkdir services
 REM check localhost:8080

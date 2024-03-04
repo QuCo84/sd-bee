@@ -49,7 +49,8 @@ class SDBEE_access_sqlite {
                 $this->db = new PDO( $dsn, '', '', $this->pdoParams);
                 // var_dump( $this->db, $dsn);
             } catch(PDOException $ex) { 
-                echo "An Error occured! ".$ex->getMessage()." ".$dbHost.' '.$database; die ("no DB");
+                $this->lastError =  "An Error occured! ".$ex->getMessage()." ".$dbHost.' '.$database;
+                return;
             }
         } elseif ( $media == "gs") {
             // DB is stored as file accessible via storage parameters

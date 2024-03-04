@@ -1,6 +1,6 @@
 {
     "content": {
-        "modeltest": {
+        "A00modeltest": {
             "depth": 0,
             "permissions": 3,
             "nlabel": "",
@@ -28,7 +28,8 @@
                     "copyParts": [
                         "App",
                         "Doc",
-                        "Doc FR"
+                        "Doc FR",
+                        "Data"
                     ]
                 }
             },
@@ -469,13 +470,18 @@
         "B6000000000000000M_Data": {
             "depth": 1,
             "permissions": 3,
-            "nlabel": "",
+            "nlabel": "Data",
             "stype": "4",
             "nstyle": "",
             "tcontent": "<span class=\"title\">Data<\/span> - <span class=\"subtitle\"><\/span>",
             "thtml": "",
             "nlanguage": "",
-            "textra": [],
+            "textra": {
+                "height" : 689,
+                "system" : {
+                    "share" : 1
+                }
+            },
             "dcreated": 1616509850,
             "dmodified": 1675327400
         },

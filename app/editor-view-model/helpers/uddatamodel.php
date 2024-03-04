@@ -569,7 +569,7 @@ if ( !defined( 'TEST_ENVIRONMENT')) define ( 'TEST_ENVIRONMENT', false);
     global $env, $USER, $CONFIG;
     if ( !$env) {
         // Load parameters stored in config
-        $env = $CONFIG[ 'App-parameters'];
+        $env = ( $CONFIG) ? $CONFIG[ 'App-parameters'] : [];
         // Update version with no stored in version.txt
         $version = file_get_contents( __DIR__."/../config/version.txt");
         $env[ 'UD_version'] = '-v-'.str_replace( '.', '-', substr( $version, strrpos( $version, ' '))); // -5
@@ -671,11 +671,11 @@ function LF_fileServer() {
     $fileContents = "";
     if ( $ext != 'js' || !in_array( $filename, $localFiles)) {
         // Public file
+        array_pop( $uriParts); // remove filename for dir
+        array_shift( $uriParts); // remove first path
         global $PUBLIC;
         if ( $PUBLIC) {
-            // Get from configured space
-            array_pop( $uriParts); // remove filename for dir
-            array_shift( $uriParts); // remove first path
+            // Get from configured space            
             $dir = implode( '/', $uriParts);
             $fileContents = $PUBLIC->read( $dir, $filename);
         }

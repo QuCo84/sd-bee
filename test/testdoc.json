@@ -5,7 +5,7 @@
             "permissions": 7,
             "nlabel": "Repage after delete",
             "stype": "3",
-            "nstyle": "ASS000000000301_System",
+            "nstyle": "A00modeltest",
             "tcontent": "<span class=\"title\">Repage after delete<\/span><span class=\"subtitle\">created in directory<\/span>",
             "thtml": "",
             "nlanguage": "",

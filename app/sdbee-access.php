@@ -67,7 +67,7 @@ class SDBEE_access {
      */
     function __construct( $params) {
         $this->_connectToAccessDatabase( $params);
-        $this->state = ($this->helper);
+        $this->state = ($this->helper && !$this->helper->lastError);
         if ( $this->state) {
             // Check DB is initialised
             $r = $this->_query( "SELECT * FROM LoadedFiles WHERE file LIKE '%createaccess.sql';");            

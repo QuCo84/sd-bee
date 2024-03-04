@@ -80,6 +80,7 @@
     /**
      * access database section - where to store the databse used for controling access
      */
+     /* Server version" */
     "access-database" : {
         "type" : "sqlite",
         "database" : "sqlite:sdbee-access.db",
@@ -90,6 +91,18 @@
         "admin-user" : "admin",
         "admin-pass" : "admin54!!"
     },
+    /* GCP version 
+    "access-database" : {
+        "type" : "sqlite",
+        "database" : "gs:sdbee-access.db",
+        "use-storage" : "admin-storage",            // set for file transfert to tmp
+        "crypt-algo" : "DES",
+        "crypt-key" : "",
+        "homeModel" : "A0000001IPLHB0000M_bienvenu2",
+        "admin-user" : "admin",
+        "admin-pass" : "admin54!!"
+    },
+    */
     /**
      * App parameters section - paramaters for the SD bee App
      */
