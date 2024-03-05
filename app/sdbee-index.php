@@ -224,7 +224,7 @@ if ( count( $request)) {
         } elseif ( $form == "INPUT_pasteForm") {
             //echo "Add a clip
             include ( "post-endpoints/sdbee-add-delete-clip.php");
-        } } elseif ( $form == "INPUT_deleteDoc") {
+        } elseif ( $form == "INPUT_deleteDoc") {
             //echo "Add a clip
             include ( "post-endpoints/sdbee-delete-doc.php");
         }
