@@ -27,6 +27,10 @@ function SDBEE_endpoint_marketplace( $request, $output=false) {
     $thumbnailTemplate = '<div id="" class="model-thumb"><h2>{%title}</h2><img src="{%image}" />';
     $thumbnailTemplate .= '<p>{%descr}<p>';
     $thumbnailTemplate .= '<a href="javascript:" class="mainOption" onclick="{%click1};">{!Utiliser !}{%title}</a>';
+    /* secondary options
+     <br><a href="javascript:" class="secondaryOption" onclick="API.setModel('A4 text');" contenteditable="false">Créer un processus basé sur cette app</a>
+     <a href="javascript:" class="secondaryOption" onclick="API.copyModel('A4 text');" contenteditable="false">Copier</a>
+    */
     $thumbnailTemplate .= '</div>';
     $publicModels = $PUBLIC->getList( 'models');
     //var_dump( $publicModels);
@@ -65,7 +69,7 @@ function SDBEE_endpoint_marketplace( $request, $output=false) {
             echo "model not found $modelName"; 
             die(); //continue;
         }
-        if ( false) {
+        if ( true) {
             $model = new SDBEE_doc( str_replace( '.json', '', $modelName), 'models', $PUBLIC);        
             if ( $model) {
                 // Grab the description and image from the model itself

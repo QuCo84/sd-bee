@@ -77,7 +77,7 @@ class SDBEE_doc {
             $this->fetch();
             return;
         }
-        $this->topName= 'A'.substr( $name, 1);
+        $this->topName = 'A'.substr( $name, 1);
        // if ( $this->storage != $STORAGE && $dir != "models") var_dump( $name, $this->storage);
         // Check access
         if ( $this->access && $this->dir != "models" && $this->dir != "system") {
@@ -118,18 +118,21 @@ class SDBEE_doc {
         $this->params[ 'progress'] = $this->progress;
         $this->params[ 'deadline'] = $this->deadline;
         $this->top[ 'textra']['system'] = $this->params;
-        $this->content[ 'A'.substr( $this->name, 1)] = $this->top; // Z becomes A for doc content
-        if ( $this->modifiedInfo && $this->access) {
-            // Update access database
-            $this->info[ 'label'] = $this->label;
-            $this->info[ 'type'] = $this->type;
-            $this->info[ 'model'] = $this->model;
-            $this->info[ 'description'] = $this->description;
-            $this->info[ 'state'] = $this->state;
-            $this->info[ 'progress'] = $this->progress;  
-            // $this->info[ 'deadline'] = $this->deadline;          
-            $this->info[ 'params'] = JSON_encode( $this->params);
-            $this->access->updateDocInfo( $this->name, $this->info);           
+        if ( $this->topName[0] != 'S') {
+            // Not a  shared doc
+            $this->content[ $this->topName] = $this->top; // Z becomes A for doc content
+            if ( $this->modifiedInfo && $this->access) {
+                // Update access database
+                $this->info[ 'label'] = $this->label;
+                $this->info[ 'type'] = $this->type;
+                $this->info[ 'model'] = $this->model;
+                $this->info[ 'description'] = $this->description;
+                $this->info[ 'state'] = $this->state;
+                $this->info[ 'progress'] = $this->progress;  
+                // $this->info[ 'deadline'] = $this->deadline;          
+                $this->info[ 'params'] = JSON_encode( $this->params);
+                $this->access->updateDocInfo( $this->name, $this->info);           
+            }
         }
         if ( count( $this->modifications) || $this->modifiedInfo) {
             $this->doc[ 'content']  = $this->content;            
@@ -190,9 +193,7 @@ class SDBEE_doc {
             $this->doc = JSON_decode( LF_substitute( file_get_contents( __DIR__.'/editor-view-model/config/newDocument.json'), $data), true);            
         }
         // Load content
-        $this->content = val( $this->doc, 'content');        
-        // Incorporate shared content
-        $this->_fetchSharedContent();
+        $this->content = val( $this->doc, 'content');               
         // Incoprate access DB values into top element
         $this->top = val( $this->content, $this->topName, []);
         if ( $this->top) {
@@ -225,6 +226,9 @@ class SDBEE_doc {
             if ( $this->state == "new" && $this->model && $this->model != "ASS000000000301_System" && strtolower( $this->model) != "none") {
                 LF_debug( "Initialising {$this->name} with {$this->model}", 'doc', 8);
                 $this->initialiseFromModel();
+            } elseif ( $this->name[0] != 'S' && !val( $this->params, 'noShare'))  {
+                // Incorporate shared content
+                $this->_fetchSharedContent();
             }
         }
     }
@@ -233,28 +237,32 @@ class SDBEE_doc {
         $this->next = 0;
         $foundShared = false;
         while ( !$this->eof()) {
-            $el = $this->next( false, true);
+            $el = $this->next( false, true, true);
             if ( $el[ 'stype'] == UD_view) {                     
                 $viewName = val( $el, 'nname');
                 // Detect shared element
                 $textra = val( $el, 'textra');  
                 $sharedDocName = val( $textra, 'system/shared');
-                if ( $shared) {
+                if ( $sharedDocName) {
                    $this->_fetchSharedView( $sharedDocName, $viewName);
+                   $foundShared = true;
                 }
             }
         }
         // Resort content by name field
         if ( $foundShared) ksort( $this->content);
+        $this->index = array_keys( $this->content);
+        $this->size = count( $this->index);
         $this->next = 0;
     }
 
     function _fetchSharedView( $sharedDocName, $viewName) {
         $sharedDoc = new SDBEE_doc( $sharedDocName);                    
         $copy = false;
+        $foundShared = false;
         $sharedDoc->next(); // skip top
         while ( !$sharedDoc->eof()) {                        
-            $sharedEl = $sharedDoc->next( false, true);
+            $sharedEl = $sharedDoc->next( false, true, true);
             if ( val( $sharedEl, 'stype') == UD_view) {                   
                 $copy = ( val( $sharedEl, 'nname') == $viewName);
                 // Break from loop if end of copied view detected
@@ -275,7 +283,7 @@ class SDBEE_doc {
 
     }
 
-    function next( $jsonise=true, $filterLang = true) {
+    function next( $jsonise=true, $filterLang = true, $skipShare = false) {
         if ( $this->next >= count( $this->index)) return [];
         if ( $this->nextEl) {
             // Return special element, prepared during last next
@@ -288,9 +296,13 @@ class SDBEE_doc {
         $elementId = $this->index[ $this->next];
         $el = $this->content[ $this->index[ $this->next]];
         $textra = val( $el, 'textra');       
+        if ( is_string( $textra)) $textra = JSON_decode( $textra, true);
         // Detect shared element
         $shared = val( $textra, 'system/shared');
-        if ( $shared) return $this->accessSharedElement( $shared, $elementId);
+        if ( $shared && !$skipShare) {
+            $this->next++;
+            $r =  $this->accessSharedElement( $shared, $elementId);
+        }
         /*
         if ( view) {
             // Detect shared view
@@ -406,7 +418,7 @@ class SDBEE_doc {
 
     function existsElement( $elementId) { return val(  $this->content, $elementId);}
 
-    function readElement( $elementId) {      
+    function readElement( $elementId, $skipShare = false) {      
         if ( val(  $this->content, $elementId)) {
             $el = val( $this->content, $elementId);
             $params = val( $el, 'textra');
@@ -414,7 +426,10 @@ class SDBEE_doc {
             elseif ( is_string( $params))  $params = JSON_decode( $el[ 'textra'], true);
            // $params = ( val( $el, 'textra')) ? JSON_decode( $el[ 'textra'], true) : [ 'system'=>[]];
             $shared = val( $params, 'system/shared');
-            if ( $shared) return $this->accessSharedElement( $shared, $elementId);            
+            if ( $shared) {
+                $sharedEl = $this->accessSharedElement( $shared, $elementId);            
+                return $this->_jsonResponse( $sharedEl);
+            }
             return $this->_jsonResponse( val( $this->content, $elementId));
         }
         return $this->_jsonResponse( [ 'msg'=>"No $elementId in {$this->name}"], 'KO');
@@ -431,7 +446,21 @@ class SDBEE_doc {
         if ( !$data) {
             // Read shared element
             $sharedEl = val(  $shared->content, $elementId);
-            return $this->_jsonResponse( $sharedEl);
+            $sharedEl[ 'nname'] = $elementId;
+            $sharedEl[ 'id'] =   100;
+            $sharedEl[ 'oid'] = "_FILE_UniversalDocElement-{$sharedDocName}-{$elementId}--21-100"; //$this->buildOid( $sharedEl);
+            if ( true || $jsonise) {
+                // JSONise tcontent, textra, iaccessRequest
+                if ( val( $sharedEl, 'tcontent') && !is_string( val( $sharedEl, 'tcontent'))) {
+                    $sharedEl[ 'tcontent'] = JSON_encode( val( $sharedEl, 'tcontent'));
+                }
+                if ( $textra && !is_string( $textra)) $sharedEl[ 'textra'] = JSON_encode( $textra);
+                if ( val( $sharedEl, 'iacessRequest') && !is_string( val( $sharedEl, 'iaccessRequest'))) {
+                    $sharedEl[ 'iacessRequest'] = JSON_encode( val( $sharedEl, 'iaccessRequest'));
+                }
+            } 
+            return $sharedEl;     
+            // return $this->_jsonResponse( $sharedEl);
             //return $shared->readElement( $elementId);
         }
         // Update, create or delete shared element
@@ -457,7 +486,7 @@ class SDBEE_doc {
         }
         if ( $shared->existsElement( $elementId)) {
             // Update shared element
-            $shared->content[ $elementId] = $sharedEl;
+            $shared->content[ 'content'][ $elementId] = $sharedEl;
             $shared->modifications[] = [ 'action'=>'update', 'elementId'=>$elementId, 'data'=>$data];
             //$r = $shared->updateElement( $elementId, $data);
             unset( $shared);
@@ -823,7 +852,7 @@ class SDBEE_doc {
         $copy = false;
         while( !$this->eof()) { 
             $el = $this->next();        
-            if ( (int) $el[ 'stype'] == UD_view) {
+            if ( (int) val( $el, 'stype') == UD_view) {
                 if ( strpos( $el[ 'nname'], "BVU") === 0) $copy = true; else $copy = false;
             }
             if ( $copy) {
@@ -851,27 +880,27 @@ class SDBEE_doc {
                 unset( $el[ 'nname']);
                 unset( $el[ 'id']);
                 unset( $el[ 'oid']);  
-                $params[ 'system'][ 'fromModel'] = true;
+                $params[ 'system'][ 'fromModel'] = 1;
                 // $params = ( val( $el, 'tparams')) ? JSON_decode( $el[ 'tparams'], true) : ;
                 $content = val( $el, 'tcontent');
                 if ( $type >= UD_chapter && $type <= UD_subParagraph 
                 && strlen( $content) <= 40 && strpos( $content, "<") === false
                 ) $params[ 'system'][ 'ude_place'] = $content;
-                $el[ 'tparams'] = JSON_encode( $params);
+                // $el[ 'tparams'] = JSON_encode( $params);
                 $this->content[ $name] = $el;
                 $this->modifications[] = [ 'action'=>"create", 'elementId'=>$name, 'data'=>$el, 'depth'=>$el[ 'depth']];
-                // Shared elements
-                if ( val( $params, 'system/share')) {
+                // Shared views
+                if ( $type == UD_view && val( $params, 'system/share')) {
                     // Look for shared doc in same directory as this doc
                     $collection = explode( '/', val( $this->info, 'path'));
                     if ( $collection && count( $collection) > 1 && !$collection[0]) array_shift( $collection);
-                    $sharedDocName = 'S' . substr( $this->name, 1) . implode( '_', $collection);
+                    $sharedDocName = 'S' . substr( $this->model, 1) . implode( '_', $collection);
                     //  $sharedDoc = new SDBEE_doc( $sharedDocName, $this->dir, $this->storage);
                     if ( !$this->storage->exists( $this->dir, $sharedDocName.'.json')) {
                         // Save el for shared doc
                         $el_s = $el;
                         // Update element in doc
-                        $params[ 'system'][ 'shared'] = $sharedDocName;                    
+                        $params[ 'system'][ 'shared'] = $sharedDocName;                                         
                         $el[ 'textra'] = JSON_encode( $params);
                         $this->content[ $name] = $el;
                         // Create the shared doc
@@ -879,6 +908,9 @@ class SDBEE_doc {
                         global $ACCESS, $STORAGE, $USER;
                         if ( $ACCESS) {
                             // Create new entry in access database
+                            $params = val( 'textra', $el_s);
+                            unset( $params[ 'system'][ 'share']);
+                            $params[ 'system'][ 'noShare'] = 1;  
                             $sharedDocInfo = [ 
                                 'label'=>"Shared data for {$this->name}", 
                                 'type'=>UD_document, 
@@ -934,7 +966,7 @@ class SDBEE_doc {
                         $model->next -= 1;
                         
                         // Create json file for shared view
-                        $this->storage->write( $this->dir, $sharedDocName . ".json", JSON_encode( $sharedContent));                        
+                        $this->storage->write( $this->dir, $sharedDocName . ".json", JSON_encode( $sharedContent, JSON_PRETTY_PRINT));                        
                         // Open & close shared doc
                         /*
                         $sharedDoc = new SDBEE_doc( $sharedDocName, $this->doc, $this->storage);
@@ -942,12 +974,39 @@ class SDBEE_doc {
                         unset( $sharedDoc);
                         */
                         // Update element in doc with shared doc name
+                        // $params[ 'system'][ 'shared'] = $sharedDocName;                    
+                        // $el[ 'textra'] = JSON_encode( $params);
+                        // Incorporate shared view into current doc
+                        $this->_fetchSharedView( $sharedDocName, $name);
+                    } else {
+                        // Shared doc exists check if view present
+                        $j =  $this->storage->read( $this->dir, $sharedDocName . ".json");
+                        $sharedContent = JSON_decode( $j, true); // new SDBEE_doc( $sharedDocName, $this->dir, $this->storage);
+                        $el_s = $el;
+                        // Update element in doc
                         $params[ 'system'][ 'shared'] = $sharedDocName;                    
                         $el[ 'textra'] = JSON_encode( $params);
-
-                    } 
-                    // Incorporate shared view into current doc
-                    $this->_fetchSharedView( $sharedDocName, $name);
+                        $this->content[ $name] = $el;
+                        if ( !isset( $sharedContent[ 'content'][ $name])) {
+                            // Add all elements to shared view and to doc
+                            $sharedContent[ 'content'][ $name] = $el_s;
+                            $sharedEl = $model->next( false, false);
+                            while( val( $sharedEl, 'stype') != UD_view) {
+                                $sName = val( $sharedEl, 'nname');
+                                unset( $sharedEl[ 'nname']);
+                                unset( $sharedEl[ 'id']);
+                                unset( $sharedEl[ 'oid']);                           
+                                $sharedContent[ 'content'][ $sName] = $sharedEl;                                
+                                // Next element
+                                $sharedEl = $model->next( false, false);
+                            }                 
+                            $this->storage->write( $this->dir, $sharedDocName . ".json", JSON_encode( $sharedContent, JSON_PRETTY_PRINT));
+                            $model->next -= 1;
+                        }
+                        // Incorporate shared view into current doc
+                        $this->_fetchSharedView( $sharedDocName, $name);
+                    }
+                    
                 }
                 /*
                     unset( $el[ 'nname']);
@@ -967,7 +1026,8 @@ class SDBEE_doc {
         }
         // Sort 
         ksort( $this->content); // !!!important sort by ids to get the right order
-        $this->index = Array_keys( $this->content);
+        $this->index = array_keys( $this->content);
+        $this->size = count( $this->index);
         // Update model in content
         $this->top[ 'nstyle'] = $this->content[ $this->topName][ 'nstyle'] = $this->model;
         // Copy params

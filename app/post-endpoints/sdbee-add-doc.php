@@ -27,18 +27,19 @@ function SDBEE_endpoint_addDoc( $request) {
         // With empty model, marketplace will automatically be inserted when doc is opened
         $doc = [ 'label'=>"Nouvelle tache", 'type'=>$type, 'model'=>"", 'description'=>"", 'params'=>"", 'prefix'=> "", 'state'=>"", 'progress'=>0];
         if ( !$dir) $dir = val( $USER, 'home');
+        $url = UD_getParameter( 'url');
         if ( $dir) {
             $id = $ACCESS->addDocToCollection( $name, $dir, $doc, $access=7);       
-            echo "coll $id {$ACCESS->lastError}\n";
-            $url ="/?task={$name}";
+            // echo "coll $id {$ACCESS->lastError}\n";
+            $url .= "?task={$name}";
         } else {
             $id = $ACCESS->addToUser( $name, $USER[ 'id'], $doc, $access=7); 
-            echo "usr $id {$ACCESS->lastError}\n";
+           //  echo "usr $id {$ACCESS->lastError}\n";
             //$url = "_FILE_UniversalDocElement-{$name}--21-{$id}";
-            $url ="/?task={$name}";
+            $url .= "?task={$name}";
         }
     } else {
-        $url ="?task={$name}&add=yes";
+        $url .= "?task={$name}&add=yes";
     }
     if ( true || $request[ 'e'] == "createAndOpen") {
         global $DM;
