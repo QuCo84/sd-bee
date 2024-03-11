@@ -242,6 +242,7 @@ class SDBEE_doc {
                 $viewName = val( $el, 'nname');
                 // Detect shared element
                 $textra = val( $el, 'textra');  
+                if ( is_string( $textra)) $textra = JSON_decode( $textra, true);
                 $sharedDocName = val( $textra, 'system/shared');
                 if ( $sharedDocName) {
                    $this->_fetchSharedView( $sharedDocName, $viewName);
@@ -300,20 +301,13 @@ class SDBEE_doc {
         // Detect shared element
         $shared = val( $textra, 'system/shared');
         if ( $shared && !$skipShare) {
-            $this->next++;
+            // Retrieve shared element
+            $this->next++; // !!! IMPORTANT as for noraml elements done when getting name
             $r =  $this->accessSharedElement( $shared, $elementId);
-        }
-        /*
-        if ( view) {
-            // Detect shared view
-            if ( $params[ 'system'][ 'shared']) $this->shared = $params[ 'system'][ 'shared'];
-            else $this->shared = null;
         } else {
-            if ( $this->shared) return $this->accessSharedElement( $this->shared, $elementId);
+            // Normal elements
+            $el[ 'nname'] = $this->index[ $this->next++];
         }
-        */
-        // Normal elements
-        $el[ 'nname'] = $this->index[ $this->next++];
         if ( $filterLang)  {
             // Filter if not right language
             $elLang =  val( $el, 'nlanguage');

@@ -23,6 +23,7 @@ class UD_services {
     private $params = null;
     private $cache = [];
     private $throttle = null;
+    private $serviceRootDir;
 
     function __construct( $params = null) {
         $this->params = $params;
@@ -30,6 +31,7 @@ class UD_services {
             require_once( "udservicethrottle.php");
             $this->throttle = new UD_serviceThrottle();
         }
+        $this->serviceRootDir = val( $params, 'service-root-dir', __DIR__);
     }
 
     function _identified() { return ( !LF_env( 'is_Anonymous'));} // 2DO ENviromental 
@@ -111,37 +113,37 @@ class UD_services {
         // - find module and class name
         switch ( $serviceName) {
             case "email" :
-                $modPath = __DIR__."/{$serviceName}/uds{$providerLC}.php";
+                $modPath = $this->serviceRootDir."/{$serviceName}/uds{$providerLC}.php";
                 $serviceClass = "UDS_{$provider}";
                 break;
             case "doc" : case "document" :
             case "task" :
             case "resource" :
             case "scrape" :
-                $modPath = __DIR__."/{$serviceName}/uds{$serviceName}service.php";
+                $modPath = $this->serviceRootDir."/{$serviceName}/uds{$serviceName}service.php";
                 $serviceClass = "UDS_{$serviceName}";
                 break;
             case "images" :
             case "translation" :
-                $modPath = __DIR__."/{$serviceName}/uds{$serviceName}.php";
+                $modPath = $this->serviceRootDir."/{$serviceName}/uds{$serviceName}.php";
                 $serviceClass = "UDS_{$serviceName}";
                 break;
             case "keywords" : // 2DO rename class UDS_keywords and file udskeywords
-                $modPath = __DIR__."/NLP/uds{$serviceName}service.php";
+                $modPath = $this->serviceRootDir."/NLP/uds{$serviceName}service.php";
                 $serviceClass = ($providerLC && $providerLC != "default") ? "UDS_{$providerLC}_{$serviceName}" : "UDS_{$serviceName}";
                 break;
             case "textgen" :
                 $modPath = ($providerLC && $providerLC != "default") ?
-                    __DIR__."/NLP/uds{$providerLC}{$serviceName}.php" :
-                    __DIR__."/NLP/uds{$serviceName}.php";
+                    $this->serviceRootDir."/NLP/uds{$providerLC}{$serviceName}.php" :
+                    $this->serviceRootDir."/NLP/uds{$serviceName}.php";
                 $serviceClass = ($provider && $provider != "default") ? 
                     "UDS_{$provider}_{$serviceName}" : 
                     "UDS_{$serviceName}";
                 break;
             default :
                 $modPath = ($providerLC && $providerLC != "default") ?
-                    __DIR__."/{$serviceName}/uds{$providerLC}{$serviceName}.php" :
-                    __DIR__."/{$serviceName}/uds{$serviceName}.php";
+                    $this->serviceRootDir."/{$serviceName}/uds{$providerLC}{$serviceName}.php" :
+                    $this->serviceRootDir."/{$serviceName}/uds{$serviceName}.php";
                 $serviceClass = ($provider && $provider != "default") ? 
                     "UDS_{$provider}_{$serviceName}" : 
                     "UDS_{$serviceName}";
@@ -151,7 +153,7 @@ class UD_services {
         try {
             // Look for module here and also ../../.services
             if ( file_exists( $modPath)) include_once $modPath;
-            else include_once( str_replace( __DIR__, __DIR__."/../../services", $modPath));
+            else include_once( str_replace( $this->serviceRootDir, __DIR__."/../../services", $modPath));
             $service = new $serviceClass( $params, $this->throttle, $throttleId);                       
         } catch ( Exception $e) {
             return $this->_error( "203 {!Module not available!} : {$modPath}");
@@ -257,6 +259,7 @@ class UD_services {
         $provider = "";
         // Get credentials to access service from config task-doc
         $user = LF_env( 'user_id');
+        $user = strToUpper( base_convert( $user, 10, 32));
         $user32 = substr( "00000".$user, strlen( $user.""));
         $request = [
             'service' => 'doc',
@@ -429,7 +432,7 @@ function SDBEE_serviceCall( $request) {
 /**
  * Auto-test
  */
-if ( $argv && val( $argv, 0) && strpos( $argv[0], "udservices.php") !== false) {
+if ( isset( $argv) && strpos( $argv[0], "udservices.php") !== false) {
     // CLI launched for tests
     print "Syntax OK\n";  
     define( 'TEST_ENVIRONMENT', true);    
@@ -464,7 +467,7 @@ if ( $argv && val( $argv, 0) && strpos( $argv[0], "udservices.php") !== false) {
                         'from'=> [ 'name'=>"sd bee", 'email'=>"contact@sd-bee.com"],
                         'subject'=> "Test message",
                         'body'=> $html,
-                        'to' =>[ 'email'=> "pt95bn95@gmail.com"]
+                        'to' =>[ 'email'=> "pt95.bn95@gmail.com"]
                     ];
                     $r = $services->do( $serviceRequest);
                     echo "$test\n";
@@ -498,9 +501,11 @@ if ( $argv && val( $argv, 0) && strpos( $argv[0], "udservices.php") !== false) {
             switch ( $TEST_NO) {
                 case 1 : // Login
                     $r = $LFF->openSession( "demo", "demo", 133);
-                    // echo strlen( $r).substr( $r, 23000, 500);
-                    if (  strlen( $r) > 1000 && stripos( $r, "Autotest")) echo "Login test : OK\n";
+                    // echo $r.strlen( $r).' '.strpos( $r, 'Autotest'); // substr( $r, 23000, 500);
+                    // Dir listing only filled by ajax call
+                    if (  strlen( $r) > 1000 && stripos( $r, "_dirListing")) echo "Login test : OK\n";
                     else echo "Login test: KO\n";
+                    LF_env( 'user_id', 3*32+28);
                     $TEST_NO = $jumpToTest - 1;
                     echo "Jumping to $jumpToTest\n";
                     break;
@@ -513,7 +518,7 @@ if ( $argv && val( $argv, 0) && strpos( $argv[0], "udservices.php") !== false) {
                         'from'=> [ 'name'=>"sd bee", 'email'=>"contact@sd-bee.com"],
                         'subject'=> "Test message",
                         'body'=> $html,
-                        'to' =>[ 'email'=> "pt95bn95@gmail.com"]
+                        'to' =>[ 'email'=> "pt95.bn95@gmail.com"]
                     ];
                     //$r = $services->do( $serviceRequest);
                     //print_r( $r);

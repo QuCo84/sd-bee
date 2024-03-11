@@ -248,7 +248,9 @@ class UniversalDoc {
             // Make view active (visible) only if it is the default one
             $view =  trim( str_replace( $element->lang, "", mb_strtoupper( ($element->label) ? $element->label : $element->title)));
             $this->currentPart = $view;
-            $active = ( $view == mb_strtoupper($this->displayPart)); 
+            // view is visible if default view and not loading a model. Exception for Dir listing.
+            $active = ( $view == mb_strtoupper($this->displayPart));
+            // && ( $this->mode != 'model' || substr( $element->name,0,2) == "BE")); 
         }         
         // Render element as [ 'content'=>html, 'style'=>css, 'program'=>js, 'models'=>list string, 'hidden'=>data, ] 
         $w = $element->renderAsHTMLandJS( $active);            
@@ -1088,7 +1090,7 @@ EOT;
             $this->pager->views = $this->views = array_map( 'mb_strtoupper', $system['views_if_'.$this->mode]);
         }
         if ( val( $system, 'lang')) $this->lang = val( $system, 'lang');
-        if ( val( $system, 'cacheable')) $this->cacheModels = val( $system, 'cacheable');
+        $this->cacheModels = (bool) val( $system, 'cacheable', $this->cacheModels);
         // Transfert to ENViromental variables
         if ( $toEnv && !$this->dataModel)
         {

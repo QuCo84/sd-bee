@@ -580,6 +580,7 @@ if ( !defined( 'TEST_ENVIRONMENT')) define ( 'TEST_ENVIRONMENT', false);
             $usr32 = strToUpper( base_convert( $USER[ 'id'], 10, 32));
             $usr32 = substr( "00000".$usr32, strlen( $usr32)); 
             $env[ 'UD_accountLink'] = "window.open('?task=Z00000010VKK8{$usr32}_UserConfig')";
+            $env[ 'UD_userConfigOid'] = "Z00000010VKK8{$usr32}_UserConfig";
         } else {
             $env[ 'is_Anonymous'] = true;            
         }

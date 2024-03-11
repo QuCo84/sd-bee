@@ -1,6 +1,6 @@
 <?php
 /**
- * sdbee-service-gateway.php - Endpoint on SD bee server for access to local and remote services
+ * sdbee-service-gateway.php - Endpoint on SD bee server for access to all services wether provided locally or remotely
  * Copyright (C) 2023  Quentin CORNWELL
  *  
  * This program is free software: you can redistribute it and/or modify
@@ -100,10 +100,13 @@ use GuzzleHttp\HandlerStack;
             $serviceAccount = val( $serviceInfo, 3);
         }
     }
-    if ( $gateway == 'local') {
+    if ( $gateway == 'local' || $gateway == 'local+') {
         // Handle local services
         // Get parameters
-        $params = null;
+        $params = null;        
+        if ( $gateway == 'local+') {
+            $params = [ 'service-root-dir' => __DIR__.'/../../../.config/added-local-services', 'throttle' => 'off'];
+        }
         // Call service via local gateway
         include_once __DIR__.'/../local-services/udservices.php';
         $services = new UD_services( $params);
@@ -207,8 +210,8 @@ function SDBEE_service_endpoint_gcf( $gateway, $functionPath, $serviceAccount, $
 
 function SDBEE_service_endpoint_getServiceMap() {
     $map = [];
-    // Build map with JSON files from app/local-services and .config/external-services
-    $dirs = [ __DIR__.'/../local-services', __DIR__.'/../../.config/external-services'];
+    // Build map with JSON files from app/local-services, .config/added-local-service and .config/external-services
+    $dirs = [ __DIR__.'/../local-services', __DIR__.'/../../.config/added-local-services', __DIR__.'/../../.config/external-services'];
     for ( $diri=0; $diri < count( $dirs); $diri++) {
         $dir = val( $dirs, $diri);
         if ( !file_exists( $dir)) continue;

@@ -53,6 +53,9 @@ function SDBEE_endpoint_deleteDoc( $request) {
         }
     }   
     // Send back dir listing
+    $coll = ( count( $oidA) > 2) ? $oidA[ count( $oidA) - 2] : '';
+    $request = [ 'collection' => $coll, 'action' => ''];
+    include __DIR__.'/../get-endpoints/sdbee-collection.php'
 }
 
 SDBEE_endpoint_deleteDoc( $request);

@@ -525,7 +525,8 @@ function val( $container, $key, $default=null) {
     if ( is_string( $key)) $keyParts = explode( '/', $key);
     else $keyParts = [ $key];
     switch ( count( $keyParts)) {
-        case 1: if ( isset( $container[ $key])) return $container[ $key]; break;
+        case 1: if ( isset( $container[ $key])) return $container[ $key]; 
+            break;
         case 2 : 
             $w = val( $container, $keyParts[0]);
             if ( $w && isset( $w[ $keyParts[1]])) 
@@ -541,6 +542,11 @@ function val( $container, $key, $default=null) {
     return $default;
 }
 function isVal( $value) { return ( $value);}
+function valBool( $container, $key) {
+    $r = val( $contaner, $key);
+    if ( $r == 'off' || $r == '0') return false;
+    return true;
+}
 
 if ( isset( $argv) && strpos( $argv[0], "udutilityfunctions.php") !== false)
 {    
