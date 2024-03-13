@@ -1510,7 +1510,7 @@ class UD_utilities
         ];
         $response = $services->_doRequest( $request);
         $d = val( $response, 'data');
-        if ( val( $response, 'success') && !(strpos( $d, 'ERR:') === 0)) return JSON_decode($d, true);
+        if ( val( $response, 'success') && strpos( $d, 'ERR:') !== 0) return $d;
         return "";
     }
 

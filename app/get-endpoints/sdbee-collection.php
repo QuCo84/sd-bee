@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-function SDBEE_endpoint_collection( $collectionName, $action) {
+function SDBEE_endpoint_collection( $collectionName, $action, $updateOid = "on") {
     global $ACCESS, $DM;
     if ( !$ACCESS) return SDBEE_endpoint_collection_test();
     $thumbDocClass = ( val( $_REQUEST, 'dcl')) ? (int) $_REQUEST[ 'dcl'] : 0;
@@ -29,7 +29,7 @@ function SDBEE_endpoint_collection( $collectionName, $action) {
         // Users top directory
         $DM->out( UDUTILITY_breadcrumbs( $pathWithLinks));
         $data = $ACCESS->getUserContents();        
-        $DM->load( $data);
+        $DM->load( $data);        
         $DM->out( UDUTILITY_listContainersAsThumbnails( $DM, [ 'maxNb'=>0, 'offset'=>0, 'wrEnable' => 1]));
         $DM->flush( 'ajax');
     } else {
@@ -54,20 +54,19 @@ function SDBEE_endpoint_collection( $collectionName, $action) {
             // Get and display directory contents
             $data = $ACCESS->getCollectionContents( $collectionName);
             $DM->load( $data);
-            $params = [ 'maxNb'=>0, 'offset'=>0, 'wrEnable' => 1];
+            $forceModel = val( $info, 'force-model', '')
+            $params = [ 'maxNb'=>0, 'offset'=>0, 'wrEnable' => 1, 'forceModel' => $forceModel];
             if ( $thumbDocClass) $params[ 'doc-type'] = $thumbDocClass;
             $DM->out( UDUTILITY_listContainersAsThumbnails( $DM, $params));
-            // 2DO Add JS code to update resources
-            /*
+            // Add JS code to update resources client side            
             $js = "";
-            $title = val( $info, 'label'];
-            $subtitle =  val( $info, 'description'];
+            $title = val( $info, 'label');
+            $subtitle =  val( $info, 'description');
             $system = val( $info, 'params');
             $docOID = "__FILE__UniversalDocElement-".val( $info, 'name').'--21-1';
             $oidNew = $docOID."-0";
             $oidChildren = $docOID."-21";
             // 2DO make a fct in udutilitiesfct complete = docModel = Basic Dir, docFull
-            $updateOid = "on""; // LF_env( 'updateOid');
             if ( $updateOid != "off") {
                 // 2DO Only do this if call from Dir Model, not files inside doc
                 $js .= "$$$.dom.element( 'UD_docTitle').textContent = '{$title}';\n";
@@ -77,9 +76,8 @@ function SDBEE_endpoint_collection( $collectionName, $action) {
                 $js .= "$$$.dom.attr( 'document', 'ud_oidchildren','{$oidChildren}');\n";
                 $js .= "$$$.dom.element( 'UD_system').textContent = '" . JSON_encode( $system)."';\n";
             }
-            $js .= "ud.ude.calc.redoDependencies()\n";
-            $DM->onload( $js);
-            */
+            //$js .= "ud.ude.calc.redoDependencies()\n";
+            $DM->onload( $js);            
             $DM->flush( 'ajax');
         } else {
             // Display collection listing model NOT OK

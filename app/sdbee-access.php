@@ -540,7 +540,7 @@ class SDBEE_access {
         // If no other links delete target
         $data = [ ':targetId'=>$target[ 'id'], ':isDoc'=>$isDoc];
         $collLinks = $this->_query( 'SELECT * FROM CollectionLinks WHERE targetId=:targetId AND isDoc=:isDoc', $data);
-        $userLinks = $this->_query( 'SELECT * FROM UserLinks WHERE targetId=:targetId AND isUser=0 AND isDoc=:isDoc', $data);
+        $userLinks = $this->_query( 'SELECT * FROM UserLinks WHERE targetId=:targetId AND isUser=0', $data);
         if ( !$collLinks  && !$userLinks) {
             // Delete Doc Or Collection
             $table = ( $isDoc) ? 'Docs' : 'Collections';

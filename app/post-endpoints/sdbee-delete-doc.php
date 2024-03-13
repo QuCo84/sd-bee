@@ -26,7 +26,7 @@ function SDBEE_endpoint_deleteDoc( $request) {
     // Get info on doc
     $taskInfo = $ACCESS->getDocInfo( $task);
     if ( !$taskInfo) {
-        echo "Cannot find task $task";
+        die( "Cannot find task $task");
     }
     $access = val( $taskInfo, 'access');
     $id = val( $taskInfo, 'id');
@@ -35,16 +35,19 @@ function SDBEE_endpoint_deleteDoc( $request) {
         // Attached to user
         // Link doc to wastebin
         $ACCESS->addDocToCollection( $task,'Z00000000100000001_wastebin', null, $access);
+        if ( $ACCESS->lastError) die( "Can't trash from user ". $ACCESS->lastError);
         // Unlink doc from collection or user
         $ACCESS->removeFromUser( $task, false, true);
+        if ( $ACCESS->lastError) die( "Can't remove from user ". $ACCESS->lastError);
     } else {
-        $dirInfo = val( $dirInfo, 0);
         $recycled =( strpos( $dirInfo[ 'name'], "waste") !== false);
         if ( !$recycled) {
             // Link doc to wastebin
             $ACCESS->addDocToCollection( $task,'Z00000000100000001_wastebin', null, $access);
+            if ( $ACCESS->lastError) die( "Can't trash ". $ACCESS->lastError);
             // Unlink doc from collection or user
             $ACCESS->removeFromCollection( $task, $dirInfo[ 'name'], true);
+            if ( $ACCESS->lastError) die( "Can't remove ". $ACCESS->lastError);
         } else {
             // Unlink from waste bin
             $ACCESS->removeFromCollection( $task, $dirInfo[ 'name'], true);
@@ -55,7 +58,7 @@ function SDBEE_endpoint_deleteDoc( $request) {
     // Send back dir listing
     $coll = ( count( $oidA) > 2) ? $oidA[ count( $oidA) - 2] : '';
     $request = [ 'collection' => $coll, 'action' => ''];
-    include __DIR__.'/../get-endpoints/sdbee-collection.php'
+    include __DIR__.'/../get-endpoints/sdbee-collection.php';
 }
 
 SDBEE_endpoint_deleteDoc( $request);

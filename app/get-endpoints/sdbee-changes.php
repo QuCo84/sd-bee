@@ -36,8 +36,8 @@ function SDBEE_endpoint_changes( $request) {
                 $changed[ $element[ 'name']] = [ 
                     'oid' => $element[ 'oid'],
                     'ticks' =>$_REQUEST[ 'ticks'],
-                    'before' => $doc->nameAtOffset(-1),
-                    'after' => $doc->nameAtOffset(0),
+                    'before' => $doc->nameAtIndexOffset(-1),
+                    'after' => $doc->nameAtIndexOffset(0),
                     'debug' => ""
                 ];
                 // Add parent and keep track of parents

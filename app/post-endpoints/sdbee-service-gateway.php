@@ -105,9 +105,10 @@ use GuzzleHttp\HandlerStack;
         // Get parameters
         $params = null;        
         if ( $gateway == 'local+') {
-            $params = [ 'service-root-dir' => __DIR__.'/../../../.config/added-local-services', 'throttle' => 'off'];
+            $params = [ 'service-root-dir' => __DIR__.'/../../.config/added-local-services', 'throttle' => 'off'];
         }
-        // Call service via local gateway
+        // Call service via local gateway and load helpers
+        include_once __DIR__.'/../editor-view-model/helpers/udutilities.php';
         include_once __DIR__.'/../local-services/udservices.php';
         $services = new UD_services( $params);
 	    $response = $services->do( $serviceRequest);
@@ -239,6 +240,7 @@ function SDBEE_service_endpoint_error( $response, $data=[]) {
         'message'=> $response,
         'data'=>$data
     ];
+    echo JSON_encode( $jsonResponse);
     return $jsonResponse;
 }
 

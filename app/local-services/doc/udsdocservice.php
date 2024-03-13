@@ -82,6 +82,12 @@ class UDS_doc extends UD_service {
                 case "getNamedContent" : {
                     $dir = val( $data, 'dir');
                     $docName = val( $data, 'docName');
+                    if ( !$docName) {
+                        $docOID = val( $data, 'docOID');
+                        $parts = explode( '-', explode( '--', $docOID)[0]);
+                        $docName = $parts[ count( $parts) -1];
+                        $dir = '';
+                    }
                     $elementName = val( $data, 'elementName');
                     $targetElementName = val( $data, 'targetElementName');
                     $doc = new SDBEE_doc( $docName, $dir);

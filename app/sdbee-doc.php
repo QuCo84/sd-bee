@@ -193,7 +193,7 @@ class SDBEE_doc {
             $this->doc = JSON_decode( LF_substitute( file_get_contents( __DIR__.'/editor-view-model/config/newDocument.json'), $data), true);            
         }
         // Load content
-        $this->content = val( $this->doc, 'content');               
+        $this->content = val( $this->doc, 'content');                 
         // Incoprate access DB values into top element
         $this->top = val( $this->content, $this->topName, []);
         if ( $this->top) {
@@ -303,7 +303,7 @@ class SDBEE_doc {
         if ( $shared && !$skipShare) {
             // Retrieve shared element
             $this->next++; // !!! IMPORTANT as for noraml elements done when getting name
-            $r =  $this->accessSharedElement( $shared, $elementId);
+            $el =  $this->accessSharedElement( $shared, $elementId);
         } else {
             // Normal elements
             $el[ 'nname'] = $this->index[ $this->next++];
@@ -345,7 +345,8 @@ class SDBEE_doc {
         $el[ 'id'] = $this->next;         
         $el[ 'oid'] = $this->_buildOID( $el);
         // Insert elements in dir listing views
-        if ( (int) $el[ 'stype'] == UD_view && substr( $el['nname'], 0, 2) == "BE") {                
+        if ( (int) $el[ 'stype'] == UD_view && substr( $el['nname'], 0, 2) == "BE") {            
+            // Dir listing view    
             // Set next element as a JS element to provoke filling this view with containers
             // Determine path to look at
             if ( isset($textra[ 'system']['dirPath'])) {
@@ -353,6 +354,9 @@ class SDBEE_doc {
                 $path = $textra[ 'system']['dirPath'];                  
                 if ( $path == "DOC") {
                     // Use OID provided in request
+                    /*
+                    * currentOid as collection name
+                    */
                     $currentOID = LF_env( 'OID');
                     $home = (val( $this->user, 'home')) ? $this->user[ 'home'] : 'home';
                     $path = "_FILE_UniversalDocElement-{$home}--21-1"; // testing
@@ -421,9 +425,12 @@ class SDBEE_doc {
            // $params = ( val( $el, 'textra')) ? JSON_decode( $el[ 'textra'], true) : [ 'system'=>[]];
             $shared = val( $params, 'system/shared');
             if ( $shared) {
-                $sharedEl = $this->accessSharedElement( $shared, $elementId);            
+                $sharedEl = $this->accessSharedElement( $shared, $elementId); 
+                $sharedEl[ 'nname'] = $elementId;           
                 return $this->_jsonResponse( $sharedEl);
             }
+            $el = val( $this->content, $elementId);
+            $el[ 'nname'] = $elementId;
             return $this->_jsonResponse( val( $this->content, $elementId));
         }
         return $this->_jsonResponse( [ 'msg'=>"No $elementId in {$this->name}"], 'KO');
@@ -480,11 +487,12 @@ class SDBEE_doc {
         }
         if ( $shared->existsElement( $elementId)) {
             // Update shared element
-            $shared->content[ 'content'][ $elementId] = $sharedEl;
+            $shared->content[ $elementId] = $sharedEl;
             $shared->modifications[] = [ 'action'=>'update', 'elementId'=>$elementId, 'data'=>$data];
             //$r = $shared->updateElement( $elementId, $data);
             unset( $shared);
-            return $elementId;
+            return $this->_jsonResponse( $sharedEl);
+            //return $elementId;
         }
         // 2DO add sharedDocName to system
         // Create shared element
@@ -540,6 +548,7 @@ class SDBEE_doc {
        // var_dump( $this->content);
         $element = val( $this->content, $elementId);
         if ( !$element) return JSON_encode( ['result' =>'KO', 'msg' => "No element {$elementId} in {$this->name}"]);
+        $element[ 'nname'] = $elementId;
         foreach( $data as $key=>$value) {
             if ( in_array( $key, [ 'input_oid', 'form'])) continue;
             //if ( !val(  $element, $key)) continue;
@@ -571,12 +580,15 @@ class SDBEE_doc {
                 echo "model set as {$this->model}";
                 //$this->initialiseFromModel(); // Or we could detect new at loading
             }
-            if ( val( $data, 'textra/system')) {
-                // Parameters changed
-                $this->params = $element[ 'textra'][ 'system'];
-                if ( val( $this->params, 'state')) $this->state = val( $this->params, 'state');
-                if ( val( $this->params, 'progress'))  $this->updateProgress( val( $this->params, 'progress'));
-            }   
+            if ( isset( $data[ 'textra'])) {
+                $params = JSON_decode( $data[ 'textra'], true);
+                if ( val( $params, 'system')) {
+                    // Parameters changed
+                    $this->params = $val( $params, 'system');
+                    if ( val( $this->params, 'state')) $this->state = val( $this->params, 'state');
+                    if ( val( $this->params, 'progress'))  $this->updateProgress( val( $this->params, 'progress'));
+                }   
+            }
             $this->modifiedInfo = true;        
         }
         return $this->_jsonResponse( $element);
@@ -838,6 +850,8 @@ class SDBEE_doc {
         */
         global $PUBLIC;
         $model = new SDBEE_doc( $this->model, 'models', $PUBLIC);
+        // 2DO Get defaultName and defaultSubtitle, substitute env or dedicated array
+        // 2DO Rebuild doc's top element, info etc
         // Get views to copy
         $views = val( $model->params, 'copyParts');
         // Empty existing content except container and manage view (BVU0000000000000M_manage)

@@ -32,7 +32,7 @@ include_once "sdbee-doc.php";
 include_once "editor-view-model/helpers/uddatamodel.php";
 include_once "editor-view-model/ud.php";
 
-$TEST = false; //( strpos( $_SERVER[ 'HTTP_HOST'], "ud-server") === false);
+$TEST = true; //( strpos( $_SERVER[ 'HTTP_HOST'], "ud-server") === false);
 
 // MAIN
 
@@ -47,7 +47,6 @@ if ( LF_fileServer()) exit();
 
 // Session
 session_start();
-
 // ACCESS DATABASE CONNECTION
 try {
     $ACCESS = new SDBEE_access( $CONFIG[ 'access-database']);
@@ -89,7 +88,7 @@ $DM = new DataModel( $STORAGE);
 
 // Run request
 $request = SDBEE_getRequest();
-//if ( count( $request) >0) {var_dump( $request); die();}
+// if ( count( $request) >0) {var_dump( $request); die();}
 if ( count( $request)) {
     // Request has data
     $post = $request;       
@@ -182,7 +181,30 @@ if ( count( $request)) {
                 echo ".";
             }
         }
-        echo "no test $test configurated";
+        echo "no test $test configurated";    
+        exit();    
+    }  elseif ( val( $request, 'nServiceRequest')) {
+        // Service call
+        include ( "post-endpoints/sdbee-service-gateway.php");
+    } elseif ( val( $request, 'form')) {
+        // FORM data
+        $form = val( $request, 'form'); 
+        if ( $form == "INPUT_UDE_FETCH") {           
+            include ( "post-endpoints/sdbee-modify-element.php");
+        } elseif ( $form == "INPUT_addApage" || $form == "INPUT_ajouterUnePage") {
+            //echo "Adding a page"; var_dump( $request); die();
+            include ( "post-endpoints/sdbee-add-doc.php");
+        } elseif ( $form == "INPUT_createUser" || $form == "INPUT_addAuser") {
+            include ( "post-endpoints/sdbee-add-user.php");
+            //echo "Adding a user"; var_dump( $request); //die();            
+        } elseif ( $form == "INPUT_pasteForm") {
+            //echo "Add a clip
+            include ( "post-endpoints/sdbee-add-delete-clip.php");
+        } elseif ( $form == "INPUT_deleteDoc") {
+            //echo "Delete a task"
+            include ( "post-endpoints/sdbee-delete-doc.php");
+        }
+        // 2DO Fetch element            
     } elseif ( val( $request, 'act') && $request[ 'act'] != "ignore") {
         // Operational request
         $act = val( $request, 'act'); 
@@ -207,28 +229,6 @@ if ( count( $request)) {
         } else {
             echo "No such action";
         }
-    } elseif ( val( $request, 'nServiceRequest')) {
-        // Service call
-        include ( "post-endpoints/sdbee-service-gateway.php");
-    } elseif ( val( $request, 'form')) {
-        // FORM data
-        $form = val( $request, 'form'); 
-        if ( $form == "INPUT_UDE_FETCH") {           
-            include ( "post-endpoints/sdbee-modify-element.php");
-        } elseif ( $form == "INPUT_addApage" || $form == "INPUT_ajouterUnePage") {
-            //echo "Adding a page"; var_dump( $request); die();
-            include ( "post-endpoints/sdbee-add-doc.php");
-        } elseif ( $form == "INPUT_createUser" || $form == "INPUT_addAuser") {
-            include ( "post-endpoints/sdbee-add-user.php");
-            //echo "Adding a user"; var_dump( $request); //die();            
-        } elseif ( $form == "INPUT_pasteForm") {
-            //echo "Add a clip
-            include ( "post-endpoints/sdbee-add-delete-clip.php");
-        } elseif ( $form == "INPUT_deleteDoc") {
-            //echo "Add a clip
-            include ( "post-endpoints/sdbee-delete-doc.php");
-        }
-        // 2DO Fetch element    
     } elseif ( val( $request, 'task')) {
         // Display a task        
         $taskName = urldecode( val( $request, 'task'));
