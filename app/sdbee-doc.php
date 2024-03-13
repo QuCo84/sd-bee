@@ -490,7 +490,8 @@ class SDBEE_doc {
             $shared->content[ $elementId] = $sharedEl;
             $shared->modifications[] = [ 'action'=>'update', 'elementId'=>$elementId, 'data'=>$data];
             //$r = $shared->updateElement( $elementId, $data);
-            unset( $shared);
+            //unset( $shared);
+            $sharedEl[ 'nname'] = $elementId;
             return $this->_jsonResponse( $sharedEl);
             //return $elementId;
         }
@@ -584,7 +585,7 @@ class SDBEE_doc {
                 $params = JSON_decode( $data[ 'textra'], true);
                 if ( val( $params, 'system')) {
                     // Parameters changed
-                    $this->params = $val( $params, 'system');
+                    $this->params = val( $params, 'system');
                     if ( val( $this->params, 'state')) $this->state = val( $this->params, 'state');
                     if ( val( $this->params, 'progress'))  $this->updateProgress( val( $this->params, 'progress'));
                 }   
