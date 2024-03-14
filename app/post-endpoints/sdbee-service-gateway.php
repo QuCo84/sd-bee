@@ -40,7 +40,8 @@ use GuzzleHttp\HandlerStack;
     // Build service map
     $map = SDBEE_service_endpoint_getServiceMap();
     // Get request and inof on service gateway to use
-    if ( !val( $map, $serviceName)) return SDBEE_endpoint_service_error(  "Bad configuration for $serviceName");
+    if ( !val( $map, $serviceName)) 
+       return SDBEE_service_endpoint_service_error(  "Bad configuration for $serviceName" . print_r( $map, true));
     $serviceInfo = explode( ' ', val( $map, $serviceName));
     $protocol = val( $serviceInfo, 0);
     $gateway = val( $serviceInfo, 1);
