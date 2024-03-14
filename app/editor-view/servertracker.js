@@ -18,6 +18,8 @@
 
  function serverTracker( data) {
     let status = data.status;
-    /*
-    */
+    if ( status == 'not sent yet') {
+      // Filter if needed
+    }
+    return true;
  }
