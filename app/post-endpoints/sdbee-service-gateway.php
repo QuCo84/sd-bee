@@ -40,6 +40,8 @@ use GuzzleHttp\HandlerStack;
     // Build service map
     $map = SDBEE_service_endpoint_getServiceMap();
     // Get request and inof on service gateway to use
+    $reqRaw = val( $request, 'nServiceRequest');  // 2DO comment 2 lines
+    $serviceRequest = JSON_decode( urldecode( $reqRaw), true);    
     $serviceName = val( $serviceRequest, 'service');
     if ( !val( $map, $serviceName)) 
        return SDBEE_service_endpoint_error(  "Bad configuration for $serviceName" . print_r( $map, true));
@@ -47,9 +49,7 @@ use GuzzleHttp\HandlerStack;
     $protocol = val( $serviceInfo, 0);
     $gateway = val( $serviceInfo, 1);
     $functionPath = val( $serviceInfo, 2);
-    $serviceAccount = val( $serviceInfo, 3);
-    $reqRaw = val( $request, 'nServiceRequest');  // 2DO comment 2 lines
-    $serviceRequest = JSON_decode( urldecode( $reqRaw), true);    
+    $serviceAccount = val( $serviceInfo, 3);    
     // Check access rights
     if ( $gateway != 'local' && $gateway != 'local+') {
         // Not a free service so check access
