@@ -25,7 +25,7 @@ use Google\Auth\ApplicationDefaultCredentials;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 
- function SDBEE_endpoint_service( $request) { // 2DO $serviceRequest
+ function SDBEE_service_endpoint( $request) { // 2DO $serviceRequest
     global $USER_CONFIG;
     // Error if no user
     if ( !$USER_CONFIG || LF_env( 'is_Anonymous')) {
@@ -41,7 +41,7 @@ use GuzzleHttp\HandlerStack;
     $map = SDBEE_service_endpoint_getServiceMap();
     // Get request and inof on service gateway to use
     if ( !val( $map, $serviceName)) 
-       return SDBEE_service_endpoint_service_error(  "Bad configuration for $serviceName" . print_r( $map, true));
+       return SDBEE_service_endpoint_error(  "Bad configuration for $serviceName" . print_r( $map, true));
     $serviceInfo = explode( ' ', val( $map, $serviceName));
     $protocol = val( $serviceInfo, 0);
     $gateway = val( $serviceInfo, 1);
@@ -245,5 +245,5 @@ function SDBEE_service_endpoint_error( $response, $data=[]) {
 }
 
 define ( 'VENDOR_AUTOLOAD', 'vendor/autoload.php');
-if ( isset( $request)) echo JSON_encode( SDBEE_endpoint_service( $request));
+if ( isset( $request)) echo JSON_encode( SDBEE_service_endpoint( $request));
 
