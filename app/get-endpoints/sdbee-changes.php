@@ -30,12 +30,12 @@ function SDBEE_endpoint_changes( $request) {
         // 2DO $USER name
         while ( !$doc->eof())  {
             $element = $doc->next();
-            $mod = val( $element, 'modified');
+            $mod = val( $element, 'dmodified');
             if ( $mod && $mod > $lastTime) {
-                $name = val( $element, 'name');
-                $changed[ $element[ 'name']] = [ 
+                $name = val( $element, 'nname');
+                $changed[ $name] = [ 
                     'oid' => $element[ 'oid'],
-                    'ticks' =>$_REQUEST[ 'ticks'],
+                    'ticks' => ($mod - $lastTime) * 100,
                     'before' => $doc->nameAtIndexOffset(-1),
                     'after' => $doc->nameAtIndexOffset(0),
                     'debug' => ""
