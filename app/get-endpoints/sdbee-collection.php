@@ -54,7 +54,7 @@ function SDBEE_endpoint_collection( $collectionName, $action, $updateOid = "on")
             // Get and display directory contents
             $data = $ACCESS->getCollectionContents( $collectionName);
             $DM->load( $data);
-            $forceModel = val( $info, 'force-model', '')
+            $forceModel = val( $info, 'force-model', '');
             $params = [ 'maxNb'=>0, 'offset'=>0, 'wrEnable' => 1, 'forceModel' => $forceModel];
             if ( $thumbDocClass) $params[ 'doc-type'] = $thumbDocClass;
             $DM->out( UDUTILITY_listContainersAsThumbnails( $DM, $params));
