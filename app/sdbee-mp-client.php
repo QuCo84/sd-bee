@@ -29,6 +29,10 @@ function SDBEE_marketplace( $request) {
     */
 }
 
+function SDBEE_MP_isMarketPlace( $process) {
+    return true;
+}
+
 function SDBEE_MP_checkServiceAvailable( $service) {
 
 }

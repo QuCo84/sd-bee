@@ -39,20 +39,18 @@ use GuzzleHttp\HandlerStack;
     }
     // Build service map
     $map = SDBEE_service_endpoint_getServiceMap();
-    // Parameters
-    $freeServices = [ 'doc'];
-    // Get request and service
+    // Get request and inof on service gateway to use
+    if ( !val( $map, $serviceName)) return SDBEE_endpoint_service_error(  "Bad configuration for $serviceName");
+    $serviceInfo = explode( ' ', val( $map, $serviceName));
+    $protocol = val( $serviceInfo, 0);
+    $gateway = val( $serviceInfo, 1);
+    $functionPath = val( $serviceInfo, 2);
+    $serviceAccount = val( $serviceInfo, 3);
     $reqRaw = val( $request, 'nServiceRequest');  // 2DO comment 2 lines
     $serviceRequest = JSON_decode( urldecode( $reqRaw), true);
     $serviceName = val( $serviceRequest, 'service');
-    if ( in_array( $serviceName, $freeServices)) {
-        if ( !val( $map, $serviceName)) return SDBEE_endpoint_service_error(  "Bad configuration for $serviceName");
-        $serviceInfo = explode( ' ', val( $map, $serviceName));
-        $protocol = val( $serviceInfo, 0);
-        $gateway = val( $serviceInfo, 1);
-        $functionPath = val( $serviceInfo, 2);
-        $serviceAccount = val( $serviceInfo, 3);
-    } else {
+    // Check access rights
+    if ( $gateway != 'local' && $gateway != 'local+') {
         // Not a free service so check access
         $process = val( $serviceRequest, 'process'); 
         if ( SDBEE_MP_isMarketplace( $process)) {
@@ -100,6 +98,7 @@ use GuzzleHttp\HandlerStack;
             $serviceAccount = val( $serviceInfo, 3);
         }
     }
+    // Handle service request
     if ( $gateway == 'local' || $gateway == 'local+') {
         // Handle local services
         // Get parameters
