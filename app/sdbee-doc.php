@@ -832,35 +832,29 @@ class SDBEE_doc {
     function initialiseFromModel( $copyAll=false) {
         // Check status
         if ( !$this->state == "new" || !$this->model) return;
-        // Get model
-        /*
-        $model = $this->model;
-        $source = "PUBLIC"
-        $modelParts = explode( ':', $this->model);
-        if ( count( $modelParts) == 2) {
-            $source = val( $modelParts, 0);
-            $model = val( $modelParts, 1);
+        /* section to cater for local models
+        global $STORAGE, $PUBLIC;
+        // Get model        
+        $modelName = $this->model;
+        $model = new SDBEE_doc( $modelName, 'models', $STORAGE);
+        if ( !$model) {
+            $model = new SDBEE_doc( $modelName, 'models', $PUBLIC);
         }
-        if ( $source == "PUBLIC") {
-
-        } elseif ( $source == "LOCAL") {
-
-        } else {
-
-        }
+        if ( !$model) {
+            // Fall back on sd-bee ?
+            die( "Cannot find model $modelName");
+        }        
         */
         global $PUBLIC;
         $model = new SDBEE_doc( $this->model, 'models', $PUBLIC);
-        // 2DO Get defaultName and defaultSubtitle, substitute env or dedicated array
-        // 2DO Rebuild doc's top element, info etc
         // Get views to copy
         $views = val( $model->params, 'copyParts');
         // Empty existing content except container and manage view (BVU0000000000000M_manage)
         $this->next = 1;
-        $content = [ $this->topName => $this->content[ $this->topName]];
+        $content = [ $this->topName => $this->top];
         $copy = false;
         while( !$this->eof()) { 
-            $el = $this->next();        
+            $el = $this->next();
             if ( (int) val( $el, 'stype') == UD_view) {
                 if ( strpos( $el[ 'nname'], "BVU") === 0) $copy = true; else $copy = false;
             }
@@ -1037,6 +1031,18 @@ class SDBEE_doc {
         ksort( $this->content); // !!!important sort by ids to get the right order
         $this->index = array_keys( $this->content);
         $this->size = count( $this->index);
+        // CHa,ge task name if requested by model
+        $defName = val( $model->params, 'defaultName');
+        $defSub = val( $model->params, 'defaultSubtitle');
+        if ( $defName) {
+            // Change label & description
+            $d = $this->_getUserPreferences();
+            $defName = LF_substitute( $defName, $d);
+            if ( $defName) $defSub = LF_substitute( $defSub, $d);
+            $this->label = $this->info[ 'label'] = $this->top[ 'nlabel'] = $defName;
+            $this->description = $this->info[ 'description'] = $defSub;
+            $this->top[ 'tcontent'] = '<span class="title">' . $defName . '</span><span class="subtitle">' . $defSub . '</span>';
+        }
         // Update model in content
         $this->top[ 'nstyle'] = $this->content[ $this->topName][ 'nstyle'] = $this->model;
         // Copy params
@@ -1050,10 +1056,24 @@ class SDBEE_doc {
         // Reset to top
         $this->next = 0;
     }
+
+    function _getUserPreferences() {
+        global $USER;
+        $d = UD_utilities::getNamedElementFromUD( $userConfigOid, 'Global');
+        if( !$d) $d = [];
+        // user
+        $d[ 'user'] = val( $USER, 'name');
+        // Dates
+        $d[ 'date'] = date( 'd/m/Y');
+        $d[ 'year'] = date( 'y');
+        $d[ 'week'] = date( 'W');
+        $d[ 'month'] = date( 'M');
+        return $d;
+    }
 }
 
 // Auto-test
-if ( isset( $argv) && strpos( __FILE__, $argv[0]) !== false) {
+if ( isset( $argv) && strpos( str_replace( '\\', '/', __FILE__), $argv[0]) !== false) {
     echo __FILE__." syntax : OK\n";  
     /*     
     include_once "sdbee-config.php";
