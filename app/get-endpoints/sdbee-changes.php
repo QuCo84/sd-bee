@@ -58,7 +58,7 @@ function SDBEE_endpoint_changes( $request) {
         $dir = $ACCESS->getCollectionContents( $collectionName);
         $refresh = false;        
         while ( !$dir->eof())  {
-            $task = $doc->next();
+            $element = $dir->next();
             $mod = val( $element, 'dmodified');
             if ( $mod && $mod > $lastTime) {
                 $name = val( $element, 'nname');
