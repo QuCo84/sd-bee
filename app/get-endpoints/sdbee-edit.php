@@ -25,7 +25,7 @@ function SDBEE_endpoint_edit( $request) {
                 $archive = new SDBEE_archive( $request[ 'archive'], $taskName);  
                 $doc = $archive->open( $name),
         }
-        */
+        */        
         $doc = new SDBEE_doc( $taskName);
         if ( !$doc->model) {
                 // No model so display market place

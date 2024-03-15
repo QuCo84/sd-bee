@@ -24,6 +24,12 @@ function SDBEE_endpoint_changes( $request) {
     $act = val( $request, 'act');
     $lastTime = (int) $_REQUEST['lastTime'] - 1;
     $changed = ['UD_user' => [ 'content'=>"me"]];
+    $info = $ACCESS->getDocInfo( $task);
+    if ( !$info) $task = "";
+    elseif( val( $info, 'type') == 1) {
+        $collection =$task;
+        $task = "";
+    }
     if ( $task) {
         $doc = new SDBEE_doc( $task);
         $parents = [];
@@ -45,8 +51,7 @@ function SDBEE_endpoint_changes( $request) {
                 if ( $level > 2) $changedElements[ $name]['parent'] =  $parents[ $level-1];
                 else $parents[ $level] = $name;
             }
-        }
-       
+        }       
     } else if ( $collection) {
         // TODO Get cdir contents
         

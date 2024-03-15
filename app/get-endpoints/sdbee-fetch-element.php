@@ -16,8 +16,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
- */
 
-global $request;
+global $request, $ACCESS;
+/*
+$task = val( $request, 'task');
+$collection = val( $request, 'collection');
+$info = $ACCESS->getDocInfo( $task);
+if ( !$info) $task = "";
+elseif( val( $info, 'type') == 1) {
+    $collection =$task;
+    $task = "";
+}
+if ( $task) {
+elseif ( $collection)     {
+    echo UDUTILITY_getContainerThumbnail( $element); !!!2DO
+}
+*/
 $doc = new SDBEE_doc( val( $request, 'task'));
 echo $doc->readElement( val( $request, 'element'));

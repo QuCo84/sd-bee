@@ -158,6 +158,8 @@ class SDBEE_doc {
         $oid = "_FILE_UniversalDocElement-{$this->name}--21-".val( $this->info, 'id');
         $context = [ 'mode'=>$params[ 'mode'], 'oid'=>$oid, 'displayPart'=>"default", 'cacheModels'=>false, 'cssFile'=>false];
         $ud = new UniversalDoc( $context, $this->fctLib);
+        global $DM;
+        $DM->onload( "API.pageBanner('set', '=UD_docFull...innerHTML');\n");
         if ( $params[ 'mode'] == "model") $ud->loadModel( $this->name, false);
         else $ud->loadData( $oid, $this);
         // Generate HTML
@@ -1059,8 +1061,8 @@ class SDBEE_doc {
 
     function _getUserPreferences() {
         global $USER;
-        $d = UD_utilities::getNamedElementFromUD( $userConfigOid, 'Global');
-        if( !$d) $d = [];
+        $d = UD_utilities::getNamedElementFromUD( $userConfigOid, 'profile');
+        $d = ( $d) ? val( $d, 'data/value') : [];
         // user
         $d[ 'user'] = val( $USER, 'name');
         // Dates

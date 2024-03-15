@@ -19,7 +19,11 @@
  function serverTracker( data) {
     let status = data.status;
     if ( status == 'not sent yet') {
-      // Filter if needed
+      // Block the request of needed by returning false
+      status = data.status;
+    } else {
+      // Block the processing of server's reponse if needed by returning false
+      status = data.status;
     }
     return true;
  }
