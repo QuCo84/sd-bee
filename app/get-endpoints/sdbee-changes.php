@@ -21,9 +21,10 @@ function SDBEE_endpoint_changes( $request) {
     global $USER, $ACCESS, $STORAGE;
     $collection = val( $request, 'collection');
     $task = val( $request, 'task');
-    $act = val( $request, 'act');
     $lastTime = (int) $_REQUEST['lastTime'] - 1;
+    // Initialise response
     $changed = ['UD_user' => [ 'content'=>"me"]];
+    // Task or collection
     $info = $ACCESS->getDocInfo( $task);
     if ( !$info) $task = "";
     elseif( val( $info, 'type') == 1) {
@@ -31,9 +32,9 @@ function SDBEE_endpoint_changes( $request) {
         $task = "";
     }
     if ( $task) {
+        // DIsplay changes in a task-doc
         $doc = new SDBEE_doc( $task);
         $parents = [];
-        // 2DO $USER name
         while ( !$doc->eof())  {
             $element = $doc->next();
             $mod = val( $element, 'dmodified');
@@ -53,8 +54,29 @@ function SDBEE_endpoint_changes( $request) {
             }
         }       
     } else if ( $collection) {
-        // TODO Get cdir contents
-        
+        // Display changes in a directory listing
+        $dir = $ACCESS->getCollectionContents( $collectionName);
+        $refresh = false;        
+        while ( !$dir->eof())  {
+            $task = $doc->next();
+            $mod = val( $element, 'dmodified');
+            if ( $mod && $mod > $lastTime) {
+                $name = val( $element, 'nname');
+                $changed[ $name] = [ 
+                    'oid' => $element[ 'oid'],
+                    'ticks' => ($mod - $lastTime) * 100,
+                    'before' => $doc->nameAtIndexOffset(-1),
+                    'after' => $doc->nameAtIndexOffset(0),
+                    'debug' => ""
+                ];
+                $refresh = true;
+                break;
+            }
+        }
+        if ( $refresh) {
+            // Send signal to client to suggest reset
+            // $changed[ 'UD_user'][ 'action'] = 'refresh';
+        }
     }
     echo JSON_encode( $changed);
 }
