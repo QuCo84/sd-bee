@@ -57,16 +57,16 @@ function SDBEE_endpoint_changes( $request) {
         // Display changes in a directory listing
         $dir = $ACCESS->getCollectionContents( $collectionName);
         $refresh = false;        
-        while ( !$dir->eof())  {
-            $element = $dir->next();
+        for ( $diri=0; $diri < count( $dir); $diri++)  {
+            $element = $dir[ $diri];
             $mod = val( $element, 'dmodified');
             if ( $mod && $mod > $lastTime) {
                 $name = val( $element, 'nname');
                 $changed[ $name] = [ 
                     'oid' => $element[ 'oid'],
                     'ticks' => ($mod - $lastTime) * 100,
-                    'before' => $doc->nameAtIndexOffset(-1),
-                    'after' => $doc->nameAtIndexOffset(0),
+                    'before' => (( $diri) ? $dir[ $diri-1][ 'nname'] : ''),
+                    'after' => (( $diri < count( $dir) -1 ) ? $dir[ $diri + 1][ 'nname'] : ''),
                     'debug' => ""
                 ];
                 $refresh = true;

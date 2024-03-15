@@ -330,7 +330,10 @@ class SDBEE_access {
         * new return getCollectionContentsFromArchive
         */
         $contents = [];        
-        $map = [ 'nname'=>'name', 'tlabel'=>'label', 'stype'=>'type', 'nstyle'=>'model', 'tcontent'=>'content', 'textra'=>'params'];
+        $map = [ 
+            'nname'=>'name', 'tlabel'=>'label', 'stype'=>'type', 'nstyle'=>'model', 
+            'tcontent'=>'content', 'textra'=>'params', 'dreated'=>'created', 'dupdated'=>'updated'
+        ];
         if ( $useMap) {
             // Set column names row
             $content = [];
