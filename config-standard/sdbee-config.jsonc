@@ -66,6 +66,30 @@
     },
     */
     /**
+     * private or local resources section - default values for where to store users' private files and how to protect
+     * some values can be overwritten by user's info ( prefix and top-dir)
+     * Leave only one of the blocks below uncommented
+     */
+     /* Server version */
+     "private-resources-storage": {
+        "storageService" : "file",        
+        "top-dir" : "data/resources/", // relative to base directory or, with leading /, absolute path
+        "prefix" : "",
+        "crypt-algo" : "DES",
+        "crypt-key" : ""
+    },
+     /* GCS version
+    "private-resources-storage": {
+        "storageService" : "gs",
+        "keyFile" : ".config/sd-bee-gcs.json", 
+        "bucket" :"sd-bee-resources", 
+        "top-dir" : "", 
+        "prefix" : "priV222e",
+        "crypt-algo" : "DES",
+        "crypt-key" : ""
+    },
+    */
+    /**
      * archive section - where to store archived tasks
      */
      "archive-storage": {

@@ -182,7 +182,7 @@ class UD_services {
         } else {
             $jsonResponse = [ 
                 'success'=>False, 
-                'message'=> "Failure on $serviceName $action",
+                'message'=> ( $service->lastResponse) ? $service->lastResponse : "Failure on $serviceName $action",
                 'value'=>$service->lastResponse,
                 'data'=>$service->lastResponseRaw
             ];
@@ -199,7 +199,7 @@ class UD_services {
         if ( $tag && $response) {
             $this->cache[ $tag] = $response;
             FILE_write( 'tmp', $cacheFile, -1, JSON_encode( $response));
-        } elseif ( $tag && val(  $this->cache, $tag)) {
+        } elseif ( $tag && isset( $this->cache[ $tag])) {
             // DO check a validity date
             FILE_write( 'tmp', $cacheFile, -1, JSON_encode( val( $this->cache, $tag)));
             return  val( $this->cache, $tag);
@@ -269,9 +269,10 @@ class UD_services {
             'docName' => "Z00000010VKK8{$user32}_UserConfig",
             'elementName' => $service.'service' /* $paramsName */
         ];
-        $response = $this->_doRequest( $request);
+        $service = new UD_services( [ 'throttle'=>'off', 'service-root-dir'=> __DIR__ ]);
+        $response = $service->_doRequest( $request); //$this
         if ( val( $response, 'success')) {
-            $paramsContent = JSON_decode( $response[ 'data'], true);
+            $paramsContent = $response[ 'data']; // JSON_decode( $response[ 'data'], true);
             if ( $paramsContent && is_array( $paramsContent)) $params = val( $paramsContent, 'data/value');
             if ( $params) {
                 foreach( $params as $key=>$value) {
@@ -299,8 +300,14 @@ class UD_services {
                         $serviceRequest[ '__all'] = $value;
                     }
                 }
+                /*
+                if ( !val(  $serviceRequest, $provider) ||  val( $serviceRequest, 'provider') == 'default') {
+                    // Use default provider
+                    $serviceRequest[ 'provider'] = $defaultProvider;
+                }
                 $provider = strToLower( val( $serviceRequest, 'provider'));
                 if ( $provider && val(  $params, $provider)) $serviceRequest[ $provider] =  val( $params, $provider);
+                */
                 /* might need a fail-safe
                 if ( !$provider && !val( $serviceRequest, '__all')) {
                     foreach( $params as $key=>$value) $serviceRequest[ $key] = $value;
@@ -362,7 +369,8 @@ class UD_services {
         }
         return false;
     }
-
+    
+    // Not used yet
     function _getParamsFromDoc( $service) {
         // Read from doc
         $request = [

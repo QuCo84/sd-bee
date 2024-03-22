@@ -95,7 +95,11 @@ class UDS_doc extends UD_service {
                         $this->lastResponse = "ERR: no file $docName";                        
                         return false;
                     }
-                    $el = $doc->readElementByLabel( $elementName);        
+                    $el = $doc->readElementByLabel( $elementName); 
+                    if ( !$el) {
+                        $this->lastResponse = "ERR: no element $el in file $docName";                        
+                        return false;
+                    }      
                     $d = JSON_decode( $el, true)[ 'tcontent'];
                     if ( $targetElementName && is_array( $d)) {
                         $d = JSON_encode( $d);

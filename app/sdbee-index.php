@@ -85,6 +85,8 @@ if ( !$USER || $USER == -1) {
 // Setup storage for identifed user
 $STORAGE = SDBEE_getStorage( $USER);
 $DM = new DataModel( $STORAGE);
+$resourcesConfig = ( $USER_CONFIG[ 'private-resources']) ? $USER_CONFIG[ 'private-resources'] : $CONFIG[ 'private-resources-storage'];
+if ( $resourcesConfig) $RESOURCES = SDBEE_getStorage( $resourcesConfig); else $RESOURCES = null;
 
 // Run request
 $request = SDBEE_getRequest();

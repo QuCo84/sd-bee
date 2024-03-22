@@ -502,16 +502,15 @@ function UD_autoFillResourcePath( &$path) {
         } else $category = $ext;
         
         // Look for resource in user's private disk space
-        global $USER_CONFIG;
-        if ( $USER_CONFIG && isset( $USER_CONFIG[ 'private-resources']) && $USER_CONFIG[ 'private-resources']) {
+        global $USER_CONFIG, $RESOURCES;
+        if ( $RESOURCES) {
+            $categoryPrivate = str_replace( 'resources/', 'SD-bee-resources/', $category);
+            $r = $RESOURCES->read( $categoryPrivate, $filename);
+        } elseif ( $USER_CONFIG && isset( $USER_CONFIG[ 'private-resources']) && $USER_CONFIG[ 'private-resources']) {
+            // For SOILinks versio,
             $privateResources = $USER_CONFIG[ 'private-resources'];
             $categoryPrivate = str_replace( 'resources/', 'SD-bee-resources/', $category);
-            // $category = str_replace( ' ', '_', $category); // Until done in FTP
-            // $filename = str_replace( ' ', '_', $filename);
-            if ( is_object( $privateResources) && $privateResources) {
-                // OS version
-                $r = $privateResources->read( $categoryPrivate, $filename);
-            } elseif ( is_string( $privateResources) && $privateResources) {
+            if ( is_string( $privateResources) && $privateResources) {
                 // SOILinks version 
                 $ftpPath = 'www/'.$categoryPrivate.'/'.$filename; //patch www .. to be handled by FTP
                 $localCopyOfExternalFile = FILE_FTP_copyFrom( $ftpPath, $privateResources);   

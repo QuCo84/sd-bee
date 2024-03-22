@@ -537,7 +537,7 @@ function val( $container, $key, $default=null) {
             if ( $w && isset( $w[ $keyParts[2]])) 
                 return $w[ $keyParts[2]];
             break;
-        default : die( "error in udutilityfunctions/val : too many steps in key");
+        default : die( "error in udutilityfunctions/val : too many steps in key $key");
     }
     return $default;
 }
