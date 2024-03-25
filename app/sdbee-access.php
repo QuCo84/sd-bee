@@ -74,19 +74,8 @@ class SDBEE_access {
             $semaName = LF_env( 'tmp') . "/sdbee_lock_access.txt";
             $semaFile = fopen( $semaName, 'w+');
             flock( $semaFile, LOCK_EX);
-            fwrite( $semaFile, time() . ' ' . LF_env( 'user_id'). ' ' . 'sdbee-access');
+            fwrite( $semaFile, time() . 'sdbee-access');
             $this->semaphore = $semaFile;
-            /*
-            $safe = 6;
-            while ( file_exists( $semaName) && --$safe) {
-                $sema = file_get_contents( $semaName);
-                $ts = (int) explode( ' ', $sema)[0];
-                if ( time() < ( $ts + 2000)) usleep( 0.5);
-                else unlink( $semaName);
-            }
-            // Block other users writing with semaphore
-            file_put_contents( $semaName, time() . ' ' . LF_env( 'user_id'). ' ' . 'sdbee-access');
-            */
         }
         $this->_connectToAccessDatabase( $params);
         $this->state = ($this->helper && !$this->helper->lastError);
@@ -169,6 +158,7 @@ class SDBEE_access {
                     }
                 }
             }
+            if ( $this->semaphore) fwrite( $this->semaphore, ' Logged as ' + $this->userId);
             return $this->userId;
         }
         // Look for user
