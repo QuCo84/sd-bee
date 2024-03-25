@@ -73,7 +73,7 @@ class SDBEE_access {
             // Semaphore
             $semaName = "/tmp/lock_access.txt";
             $semaFile = fopen( $semaName, 'w+');
-            flock( $semaFile);
+            flock( $semaFile, LOCK_EX);
             fwrite( $semaFile, time() . ' ' . LF_env( 'user_id'). ' ' . 'sdbee-access');
             $this->semaphore = $semaFile;
             /*

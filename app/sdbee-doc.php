@@ -80,7 +80,7 @@ class SDBEE_doc {
             // Semaphore
             $semaName = "/tmp/lock_{$this->name}.txt";
             $semaFile = fopen( $semaName, 'w+');
-            flock( $semaFile); // blocks if other request are writing
+            flock( $semaFile, LOCK_EX); // blocks if other request are writing
             fwrite( $semaFile, time() . ' ' . LF_env( 'user_id'). ' ' . 'sdbee-access');
             $this->semaphore = $semaFile;
         }        
