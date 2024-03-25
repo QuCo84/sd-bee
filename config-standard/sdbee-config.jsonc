@@ -151,6 +151,7 @@
                 //"<model>" : <nb of days>
             }
         },
+        "multi-user" : "off",
         "UD_terms_EN" : {
             "Add":"Add a person",
             "AddFile":"To add a file in this folder, drag and drop here.",

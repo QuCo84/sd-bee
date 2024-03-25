@@ -56,21 +56,35 @@ class SDBEE_doc {
     private $user;
     private $fctLib;
     private $modifications=[];
+    private $runningModifs = false;
     private $nextEl = null;
     private $depths = [];
     private $labelIndex = [];
     private $nextKeep = true;
     private $sharedElements = [];
+    private $multiUser = false;
+    private $semaphore = null;
 
     function __construct( $name, $dir="", $storage=null) {
         // Initialise
-        global $USER, $STORAGE, $ACCESS, $DM;
+        global $USER, $STORAGE, $ACCESS, $DM, $_POST;
         $this->access = ( $storage) ? null : $ACCESS;
         $this->storage = ( $storage) ? $storage : $STORAGE;
         $this->user= $USER;
         $this->fctLib = $DM;
         $this->dir = $dir; //( $dir) ? $dir : $USER[ 'top-dir'];
         $this->name = $name;
+        $this->multiUser = ( LF_env( 'multi-user') == 'on');
+        // Make sure no other request is writing to same file        
+        if ( $this->multiUser && count( $_POST)) {
+            // Semaphore
+            $semaName = "/tmp/lock_{$this-name}.txt";
+            $semaFile = fopen( $semaName, 'w+');
+            flock( $semaFile); // blocks if other request are writing
+            fwrite( $semaFile, time() . ' ' . LF_env( 'user_id'). ' ' . 'sdbee-access');
+            $this->semaphore = $semaFile;
+        }        
+        // Handle share docs
         if ( $name[0] == 'S') {
             // Shared doc
             $this->topName = $name;
@@ -109,6 +123,31 @@ class SDBEE_doc {
     }
 
     function __destruct() {
+        if ( !$this->modifiedInfo && !count( $this->modifications)) return;
+        // Document needs saving so check semaphore
+        /* IDEA for late semaphore
+        if ( $this->multiUser) {
+            // Semaphore
+            $semaName = "/tmp/lock_{$this-name}.txt";
+            $semaFile = fopen( $semaName, 'w+');
+            flock( $semaFile);
+            fwrite( $semaFile, time() . ' ' . LF_env( 'user_id'). ' ' . 'sdbee-access');
+            $this->semaphore = $semaFile;
+
+            $safe = 6;
+            while ( file_exists( $semaName) && --$safe) {
+                $sema = file_get_contents( $semaName);
+                $ts = (int) explode( ' ', $sema)[0];
+                if ( time() < ( $ts + 2000)) usleep( 0.5);
+                else unlink( $semaName);
+            }
+            // Block other users writing with semaphore
+            file_put_contents( $semaName, time() . ' ' . LF_env( 'user_id'). ' ' . 'sdbee-doc');
+            // Reread file and run modifications
+            $this->fetch();                
+            $this->doModifications( $this->modifications);    
+        }
+        */
         // Update top element
         $this->top[ 'nlabel'] = $this->label;        
         $this->top[ 'stype'] = $this->type;
@@ -151,6 +190,12 @@ class SDBEE_doc {
         }    
         $this->modifications = [];    
         $this->modifiedInfo = false;
+        if ( $this->multiUser && $this->semaphore) {
+            // Close semaphore            
+            fclose( $this->semaphore)
+            $this->semaphore = null;
+            // unlink( $semaName);
+        }        
     }
 
     function sendToClient( $params=[ 'mode' => 'edit']) {    
@@ -490,7 +535,7 @@ class SDBEE_doc {
         if ( $shared->existsElement( $elementId)) {
             // Update shared element
             $shared->content[ $elementId] = $sharedEl;
-            $shared->modifications[] = [ 'action'=>'update', 'elementId'=>$elementId, 'data'=>$data];
+            if (  !$this->runningModifs) $shared->modifications[] = [ 'action'=>'update', 'elementId'=>$elementId, 'data'=>$data];
             //$r = $shared->updateElement( $elementId, $data);
             //unset( $shared);
             $sharedEl[ 'nname'] = $elementId;
@@ -533,6 +578,7 @@ class SDBEE_doc {
     }
 
     function doModifications( $modifications) {
+        $this->runningModifs = true;
         for ( $modifi=0; $modifi < count( $modifications); $modifi++) {
             $modification = val( $modifications, $modifi);
             $elementId = val( $modification, 'elementId');
@@ -545,6 +591,7 @@ class SDBEE_doc {
                 //case ""
             }
         }
+        $this->runningModifs = false;
     }
 
     function updateElement( $elementId, $data) {        
@@ -572,7 +619,7 @@ class SDBEE_doc {
         // Normal element        
         $this->content[ $elementId] = $element;
         // Store modification
-        $this->modifications[] = [ 'action'=>'update', 'elementId'=>$elementId, 'data'=>$data];
+        if (  !$this->runningModifs) $this->modifications[] = [ 'action'=>'update', 'elementId'=>$elementId, 'data'=>$data];
         // Check if modification affects top element (for access database update)
         if ( $element[ 'stype'] == UD_document || $element[ 'stype'] == UD_model) {
             // Top element is modified
@@ -683,7 +730,7 @@ class SDBEE_doc {
         $this->content[ $elementId] = $element;        
         ksort( $this->content); // !!!important sort by ids to get the right order
         // Store modification
-        $this->modifications[] = [ 'action'=>'create', 'elementId'=>$elementId, 'data'=>$data, 'depth'=>$depth];
+        if (  !$this->runningModifs) $this->modifications[] = [ 'action'=>'create', 'elementId'=>$elementId, 'data'=>$data, 'depth'=>$depth];
         // Extra fields for response
         $element["updateCall"] = ""; // for binding
         $element["newElement"] = "1"; // !!! important
@@ -715,7 +762,7 @@ class SDBEE_doc {
         // Delete element
         unset( $this->content[ $elementId]);
         // Store modification
-        $this->modifications[] = [ 'action'=>'delete', 'elementId'=>$elementId];
+        if (  !$this->runningModifs) $this->modifications[] = [ 'action'=>'delete', 'elementId'=>$elementId];
         return $this->_jsonResponse( $element);
     }
 

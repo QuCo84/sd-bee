@@ -59,6 +59,8 @@ class SDBEE_access {
     private $userInfo = [];
     private $cache = [];
     private $modifications = [];
+    private $multiUser = false;
+    private $semaphore = null;
 
     /**
      * Setup & initialise the access DB connection
@@ -66,6 +68,26 @@ class SDBEE_access {
      * @return boolean True if success
      */
     function __construct( $params) {
+        $this->multiUser = ( LF_env( 'multi-user') == 'on');
+        if ( count( $_POST) && $this->multiUser) {
+            // Semaphore
+            $semaName = "/tmp/lock_access.txt";
+            $semaFile = fopen( $semaName, 'w+');
+            flock( $semaFile);
+            fwrite( $semaFile, time() . ' ' . LF_env( 'user_id'). ' ' . 'sdbee-access');
+            $this->semaphore = $semaFile;
+            /*
+            $safe = 6;
+            while ( file_exists( $semaName) && --$safe) {
+                $sema = file_get_contents( $semaName);
+                $ts = (int) explode( ' ', $sema)[0];
+                if ( time() < ( $ts + 2000)) usleep( 0.5);
+                else unlink( $semaName);
+            }
+            // Block other users writing with semaphore
+            file_put_contents( $semaName, time() . ' ' . LF_env( 'user_id'). ' ' . 'sdbee-access');
+            */
+        }
         $this->_connectToAccessDatabase( $params);
         $this->state = ($this->helper && !$this->helper->lastError);
         if ( $this->state) {
@@ -98,6 +120,10 @@ class SDBEE_access {
 
     function __destruct() {
         $this->save( true);
+        if ( $this->multiUser && $this->semaphore) {
+            fclose( $this->semaphore);
+            $this->semaphore = null;
+        }        
     }
 
     /**
