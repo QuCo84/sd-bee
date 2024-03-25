@@ -64,6 +64,7 @@ class SDBEE_doc {
     private $sharedElements = [];
     private $multiUser = false;
     private $semaphore = null;
+    private $semaphoreName = "";
 
     function __construct( $name, $dir="", $storage=null) {
         // Initialise
@@ -83,6 +84,7 @@ class SDBEE_doc {
             flock( $semaFile, LOCK_EX); // blocks if other request are writing
             fwrite( $semaFile, time() . ' ' . LF_env( 'user_id'). ' ' . 'sdbee-doc');
             $this->semaphore = $semaFile;
+            $this->semaphoreName = $semaName;
         }        
         // Handle share docs
         if ( $name[0] == 'S') {
@@ -194,7 +196,7 @@ class SDBEE_doc {
             // Close semaphore            
             fclose( $this->semaphore);
             $this->semaphore = null;
-            unlink( $semaName);
+            if ( $this->semaphoreName) unlink( $this->semaphoreName);
         }        
     }
 
