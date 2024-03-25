@@ -567,7 +567,7 @@ if ( !defined( 'TEST_ENVIRONMENT')) define ( 'TEST_ENVIRONMENT', false);
  function LF_env( $key, $value = null)
  {
     global $env, $USER, $CONFIG;
-    if ( !$env) {
+    if ( !$env || !isset( $env[ 'user_id'])) {
         // Load parameters stored in config
         $env = ( $CONFIG) ? $CONFIG[ 'App-parameters'] : [];
         // Update version with no stored in version.txt

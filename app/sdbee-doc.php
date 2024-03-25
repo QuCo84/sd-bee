@@ -78,10 +78,10 @@ class SDBEE_doc {
         // Make sure no other request is writing to same file        
         if ( $this->multiUser && count( $_POST) && LF_env( 'tmp')) {
             // Semaphore
-            $semaName = LF_env( 'tmp') + "/sdbee_lock_{$this->name}.txt";
+            $semaName = LF_env( 'tmp') . "/sdbee_lock_{$this->name}.txt";
             $semaFile = fopen( $semaName, 'w+');
             flock( $semaFile, LOCK_EX); // blocks if other request are writing
-            fwrite( $semaFile, time() . ' ' . LF_env( 'user_id'). ' ' . 'sdbee-access');
+            fwrite( $semaFile, time() . ' ' . LF_env( 'user_id'). ' ' . 'sdbee-doc');
             $this->semaphore = $semaFile;
         }        
         // Handle share docs

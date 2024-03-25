@@ -71,7 +71,7 @@ class SDBEE_access {
         $this->multiUser = ( LF_env( 'multi-user') == 'on');
         if ( count( $_POST) && $this->multiUser && LF_env( 'tmp')) {
             // Semaphore
-            $semaName = LF_env( 'tmp') + "/sdbee_lock_access.txt";
+            $semaName = LF_env( 'tmp') . "/sdbee_lock_access.txt";
             $semaFile = fopen( $semaName, 'w+');
             flock( $semaFile, LOCK_EX);
             fwrite( $semaFile, time() . ' ' . LF_env( 'user_id'). ' ' . 'sdbee-access');
@@ -244,6 +244,7 @@ class SDBEE_access {
             $candidates = $this->_query( $sql, $data);
             if ( count( $candidates) == 1) {
                 $userInfo  = val( $candidates, 0);
+                $userInfo[ 'id'] = $userId;
                 $this->_adjustUserInfo( $userInfo);
                 $this->userInfo = $userInfo;
                 return $userInfo;
