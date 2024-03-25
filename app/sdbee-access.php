@@ -158,7 +158,7 @@ class SDBEE_access {
                     }
                 }
             }
-            if ( $this->semaphore) fwrite( $this->semaphore, ' Logged as ' + $this->userId);
+            if ( $this->semaphore) fwrite( $this->semaphore, ' Logged as ' . $this->userId);
             return $this->userId;
         }
         // Look for user
