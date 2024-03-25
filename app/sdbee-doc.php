@@ -76,9 +76,9 @@ class SDBEE_doc {
         $this->name = $name;
         $this->multiUser = ( LF_env( 'multi-user') == 'on');
         // Make sure no other request is writing to same file        
-        if ( $this->multiUser && count( $_POST)) {
+        if ( $this->multiUser && count( $_POST) && LF_env( 'tmp')) {
             // Semaphore
-            $semaName = "/tmp/lock_{$this->name}.txt";
+            $semaName = LF_env( 'tmp') + "/sdbee_lock_{$this->name}.txt";
             $semaFile = fopen( $semaName, 'w+');
             flock( $semaFile, LOCK_EX); // blocks if other request are writing
             fwrite( $semaFile, time() . ' ' . LF_env( 'user_id'). ' ' . 'sdbee-access');
@@ -194,7 +194,7 @@ class SDBEE_doc {
             // Close semaphore            
             fclose( $this->semaphore);
             $this->semaphore = null;
-            // unlink( $semaName);
+            unlink( $semaName);
         }        
     }
 
