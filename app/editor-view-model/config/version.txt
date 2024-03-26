@@ -1,1 +1,1 @@
-SD Bee version 0.5.3
+SD Bee version 1.0.0
