@@ -272,7 +272,8 @@ class UD_services {
         $service = new UD_services( [ 'throttle'=>'off', 'service-root-dir'=> __DIR__ ]);
         $response = $service->_doRequest( $request); //$this
         if ( val( $response, 'success')) {
-            $paramsContent = $response[ 'data']; // JSON_decode( $response[ 'data'], true);
+            $paramsContent = $response[ 'data'];
+            if ( is_string( $paramsContent)) $paramsContent = JSON_decode( $response[ 'data'], true);
             if ( $paramsContent && is_array( $paramsContent)) $params = val( $paramsContent, 'data/value');
             if ( $params) {
                 foreach( $params as $key=>$value) {

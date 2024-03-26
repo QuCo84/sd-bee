@@ -603,7 +603,8 @@ class UD_utilities
         $user = (int) LF_env('user_id');
         $timev = ( time() - strtotime( "2020-01-01"));
         $blockNo = $timev; // ( (int) ($timev/30))*1000; 2DO something like this to leave 0's for robot creation
-        $blockNo = base_convert( $blockNo, 10, 32);
+        if ( $type == UD_document && is_integer( $index)) $blockNo += $index;
+        $blockNo = base_convert( $blockNo, 10, 32);        
         $userNo = base_convert( $user, 10, 32);
         $blockNo = substr( "0000000000".strToUpper( $blockNo), strlen( $blockNo));
         $userNo = substr( "00000".strToUpper( $userNo), strlen( $userNo));

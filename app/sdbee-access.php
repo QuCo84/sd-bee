@@ -86,10 +86,12 @@ class SDBEE_access {
                 echo "Initialising database\n";
                 // Get instructions for initialisation
                 $sql = file_get_contents( __DIR__.'/../.config/createaccess.sql');
-                // Substitue parameters
+                // Substitue parameters into initial sql
                 LF_env( 'user_id', 1);
                 $params[ 'docName'] = UD_utilities::getContainerName();
-                $params[ 'token'] = LF_getToken();
+                $params[ 'token'] = LF_getToken();                
+                $params[ 'docName2'] = UD_utilities::getContainerName( UD_document, 200);
+                $params[ 'token2'] = LF_getToken();                
                 $sql = LF_substitute( $sql, $params);
                 $this->_load( ".config/createaccess.sql", explode( "\n", $sql));
                 $this->helper->save();                 

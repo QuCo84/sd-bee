@@ -5,7 +5,7 @@ REM Setup data directories
 mkdir data
 mkdir data\access
 mkdir data\users
-mkdir data\resources
+mkdir data\SD-bee-resources
 mkdir data\tmp
 REM Setup additional local services
 mkdir services
