@@ -73,7 +73,7 @@
      /* Server version */
      "private-resources-storage": {
         "storageService" : "file",        
-        "top-dir" : "data/resources/", // relative to base directory or, with leading /, absolute path
+        "top-dir" : "data/", // relative to base directory or, with leading /, absolute path
         "prefix" : "",
         "crypt-algo" : "DES",
         "crypt-key" : ""
@@ -288,10 +288,10 @@
             "Idea": "https://www.sd-bee.com/tmp/W15H15_CUfVIvqwS_idea.png",
             "Config": "https://www.sd-bee.com/tmp/W15H15_H0Cad0n1q_config.png",
             "Styler": "https://www.sd-bee.com/tmp/W15H15_CV_UpwDVi_style.png",
-            "Logo": "<img src=\"https://www.sd-bee.com/upload/O0W1b3s20_logosite.png\" style=\"display:block; max-width:100%; max-height:100%;\"/>",
-            "Tools": "<img src=\"https://www.sd-bee.com/upload/g0Ma7Ao0K_tools.png\" style=\"display:block; max-width:100%; max-height:100%;\"/>",
-            "logswitch": "<img src=\"https://www.sd-bee.com/upload/H0na00a1a_logswitch.png\" style=\"display:block; max-width:100%; max-height:100%;\"/>",
-            "defaultTemplateImage": "<img src=\"https://www.sd-bee.com/tmp/W194H120_N0r0D0N30_defaultTemplateImage.png\" style=\"display:block; max-width:100%; max-height:100%;\"/>",
+            "Logo": "https://www.sd-bee.com/upload/O0W1b3s20_logosite.png",
+            "Tools": "https://www.sd-bee.com/upload/g0Ma7Ao0K_tools.png",
+            "logswitch": "https://www.sd-bee.com/upload/H0na00a1a_logswitch.png",
+            "defaultTemplateImage": "https://www.sd-bee.com/tmp/W194H120_N0r0D0N30_defaultTemplateImage.png",
             "Styler": "https://www.sd-bee.com/upload/H1R030!1K_styler.png",
             "Highlighter": "https://www.sd-bee.com/upload/Xncmnn6mO_highlighter.png",
             "Lock": "https://www.sd-bee.com/upload/L2K1s2W1m_lock.png",
@@ -316,9 +316,10 @@
             "DB": "https://www.sd-bee.com/upload/Hay01AdaK_db.png",
             "Wifi": "https://www.sd-bee.com/tmp/W50H50_H0V0l1h0a_wifi.png",
             "Brain": "https://www.sd-bee.com/tmp/W50H50_N373r1k1G_brain.png",
-            "Logout": "<img src=\"https://www.sd-bee.com/upload/yMInMmcNO_logout.png\" style=\"display:block; max-width:100%; max-height:100%;\" alt=\"{!Logout!}\" title=\"{!Logout!}\"/>",
-            "Account": "<img src=\"https://www.sd-bee.com/upload/CvrVYVywC_account.png\" style=\"display:block; max-width:100%; max-height:100%;\" alt=\"{!see my account!}\" title=\"{!see my account!}\"/>",
+            "Logout": "https://www.sd-bee.com/upload/yMInMmcNO_logout.png",
+            "Account": "https://www.sd-bee.com/upload/CvrVYVywC_account.png",
             "Language": "https://www.sd-bee.com/upload/O1v0I1o21_lang.png"
+
         }        
     }
 }

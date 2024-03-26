@@ -1,7 +1,11 @@
 /**
-  *  SD bee Access database initialisation
-  */
-
+*  SD bee Access database initialisation
+*/
+/**
+* Points de vigilance
+*   si modifié avec WinSCP vérfier encodage UTF-8 avant de modifier
+*   ne copier par les ' d'un éditeur en ligne
+*/
 /**
 * Users
 */
