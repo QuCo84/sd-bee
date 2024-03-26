@@ -26,7 +26,7 @@ CREATE TABLE `Users` (
 );
 INSERT INTO `Users` VALUES
     ('{admin-user}', 'CRYPT({admin-pass})', 'FR', 'private-storage', '', 'https://www.sd-bee.com/webdesk/', '{admin-user}', '{admin-pass}', '', '{docName}_Tasks', '{token}', ''),
-    ('demo', 'CRYPT(demo)', 'FR', 'private-storage', '', 'https://www.sd-bee.com/webdesk/', 'demo', 'demo', '', 'A0012345678920001_trialhome', 'ymbNpnZm', '');
+    ('{first-user}', 'CRYPT({first-pass})', 'FR', 'private-storage', '', 'https://www.sd-bee.com/webdesk/', '{first-user}', '{first-pass}', '', '{docName2}_Tasks', '', '');
 
 /**
 * Members = remember me cookies
@@ -56,11 +56,11 @@ CREATE TABLE `Docs` (
   deadline int(11)
 );
 INSERT INTO `Docs` VALUES
-    ('A00123456789200001_trialhome', 'trialhome', 1, 'none', 'trial dir', '', '', 0, 0, '', 0, 0),
+    ('{docName}_Tasks', '{!Tasks!}', 1, 'none', '{!My tasks!}', '', '', 0, 0, '', 0, 0),
     ('A0000002NHSEB0000M_Repageaf', 'trial doc', 2, 'ASS000000000301_System', 'test doc derived from repage test', '', '', 0, 0, '', 0, 0),
     ('A0000000020000002_Share', '{!Share!}', 1, 'none', '{!Shared documents!}', '', '', 0, 0, '', 0, 0),
-    ('{docName}_Tasks', '{!Tasks!}', 1, 'none', '{!My tasks!}', '{"state":"new"}', '', 0, 0, '', 0, 0),
-    ('{docName}_GettingStarted', '{!Guide de démarrage!}', 2, 'A00000001LQ09000M_Help train', '{!Tutoriaux de 10 minutes pour découvrir SD bee!}', '{"state":"new"}', '', 0, 0, '', 0, 0),
+    ('{docName2}_Tasks', '{!Tasks!}', 1, 'none', '{!My tasks!}', '{"state":"new"}', '', 0, 0, '', 0, 0),
+    ('{docName2}_GettingStarted', '{!Guide de démarrage!}', 2, 'A00000001LQ09000M_Help train', '{!Tutoriaux de 10 minutes pour découvrir SD bee!}', '{"state":"new"}', '', 0, 0, '', 0, 0),
     ('Z00000000100000001_wastebin', '{!Wastebin!}', 1, 'none', '{!Recycled tasks!}', '', '', 0, 0, '', 0, 0),
     ('Z00000010VKK800001_UserConfig', '{!UserConfig!}', 2, 'A0000000V3IL70000M_User2', '{!My preferences and parameters!}', '{"state":"new"}', '', 0, 0, '', 0, 0);
 
@@ -73,7 +73,7 @@ CREATE TABLE `UserLinks` (
   access int(11) DEFAULT NULL,
   PRIMARY KEY( userId, isUser, targetId)
 ) WITHOUT ROWID;
-INSERT INTO `UserLinks` VALUES ( 1, 0, 3, 7), ( 1, 0, 4, 7), ( 1, 0, 6, 7), ( 1, 0, 7, 7), ( 2, 0, 1, 7);
+INSERT INTO `UserLinks` VALUES (1, 1, 2, 7), ( 1, 0, 1, 7), ( 2, 0, 3, 7), ( 2, 0, 4, 7), ( 2, 0, 6, 7), ( 2, 0, 7, 7);
 
 /*  CollectionLinks : collectionId, isDoc, targetId, access*/
 DROP TABLE IF EXISTS `CollectionLinks`;
