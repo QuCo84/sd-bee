@@ -234,7 +234,9 @@
         if ( $mode == 'page') {
             // Get layout
             global $debug;
-            $layout = file_get_contents( __DIR__."/../config/sdbee-layout.html");
+            // Look for personalised layout
+            $layout = @file_get_contents( __DIR__."/../../../.config/sdbee-layout.html");
+            if ( !$layout) $layout = file_get_contents( __DIR__."/../config/sdbee-layout.html");
             // Substitute dynamic content
             $accountClick = LF_env( 'UD_accountLink'); 
             $output = str_replace( 
