@@ -682,7 +682,7 @@ function LF_fileServer() {
         }
         if ( !$fileContents || stripos( $fileContents, 'ERR') === 0) {
             // Fallback on sdbee
-            if ( $topDir) $path = 'https://www.sd-bee.com/'.$topDir.'/'.implode( '/', $uriParts).'/'.$filename;
+            if ( $topDir && strpos( LF_env( 'url'), $topDir) === false) $path = 'https://www.sd-bee.com/'.$topDir.'/'.implode( '/', $uriParts).'/'.$filename;
             else $path = 'https://www.sd-bee.com/'.implode( '/', $uriParts).'/'.$filename;
             $fileContents = @file_get_contents( $path);
         }

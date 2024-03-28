@@ -80,7 +80,7 @@ class UD_services {
             }
             $serviceRequest[ 'throttleId'] = $throttleId;
             // Check service cache 	
-            if ( ($cache = $this->_cache( $serviceRequest))) {       
+            if ( $this->throttle && ($cache = $this->_cache( $serviceRequest))) {       
                 /*if ( $throttleId) {
                     $this->throttle->consume( $throttleId, 1, "counting cache value for tests");
                 }*/

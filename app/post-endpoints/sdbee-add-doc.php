@@ -21,11 +21,18 @@ function SDBEE_endpoint_addDoc( $request) {
     global $ACCESS, $USER;
     $name = UD_utilities::getContainerName();
     $dir = ""; // TODO get this from oid
-    $type = 2;
+    $defaultType = 2;
     if ( $ACCESS) {
         // Create new entry in access database
-        // With empty model, marketplace will automatically be inserted when doc is opened
-        $doc = [ 'label'=>"Nouvelle tache", 'type'=>$type, 'model'=>"", 'description'=>"", 'params'=>"", 'prefix'=> "", 'state'=>"", 'progress'=>0];
+        $doc = [ 
+            'label'=>val( $request, tgivenname, 'Nouvelle tâche'), 
+            'type'=>val( $request, 'stype', $defaultType),
+            'model'=>val( $request, 'nstyle', ''),  // with empty model, marketplace will automatically be inserted when doc is opened
+            'description'=>val( $request, 'tcontent', ''), 
+            'params'=> '{"state":"new"}', 
+            'prefix'=> "", 'state'=>"", 'progress'=>0
+        ];
+        // $doc = [ 'label'=>"Nouvelle tache", 'type'=>$type, 'model'=>"", 'description'=>"", 'params'=>"", 'prefix'=> "", 'state'=>"", 'progress'=>0];
         if ( !$dir) $dir = val( $USER, 'home');
         $url = UD_getParameter( 'url');
         if ( $dir) {

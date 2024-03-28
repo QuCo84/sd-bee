@@ -140,7 +140,7 @@ function UDUTILITY_listContainersAsThumbnails( $dataOrDataset, $params=[ 'sort'=
         $newTaskData[ 'tcontent'] = '{!Nouvelle tâche!} {!ou!} {!groupe de tâches!}';
         $newTaskData[ '_title'] = $title;
         $newTaskData[ '_subTitle'] = $subTitle;
-        $newTaskData[ '_onclick'] = "API.createDocument( '', '', '" . val( $params, 'forceModel', '') . "');";
+        $newTaskData[ '_onclick'] = "API.createDocument( '{!Nouvelle tâche!}', '{!Description courte!}', '" . val( $params, 'forceModel', '') . "');";
         $newTaskData[ '_noPlanning'] = true;
         $newTaskData[ '_deleteStyle'] = 'hidden';
         $newTask = new UDdocument( $newTaskData);     

@@ -721,11 +721,12 @@ EOT;
         $icons = LF_env( 'UD_icons');
         $preloadIcons = "";
         if ( $icons) {
-            $iconsJSON = JSON_encode( $icons);           
+            $iconsJSON = JSON_encode( $icons);
+            $base = LF_env( 'url');           
             foreach ( $icons as $name => $img) {
-                $preloadIcons .= "<img src=\"{$img}\" />";
+                $preloadIcons .= "<img src=\"{$base}{$img}\" />";
             }
-            $preloadIcons .= '<img src="/upload/3VUvtUCVi_processing.gif" />';
+            $preloadIcons .= '<img src="https://www.sd-bee.com/upload/3VUvtUCVi_processing.gif" />';
         }        
         $env = JSON_encode( LF_env( 'app-globals'));
         $dm->out( 

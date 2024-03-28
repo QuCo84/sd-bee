@@ -225,20 +225,31 @@ class SDBEE_doc {
             LF_debug( "Read ".strlen( $jsonDoc)." from {$this->dir} {$this->name}", 'doc', 8);
             //if ( !$this->doc) throw new Exception( "Corrupted file {$this->dir}/{$this->name}");
         } else { 
-            // No doc so provide marketplace
-            // 2DO Find other docs in directroy and score apps. provide this in request parameter
-            // Get marketplace or use AJAX
-            if ( !function_exists( 'SDBEE_endpoint_marketplace' )) {
-                include_once( 'get-endpoints/sdbee-marketplace.php');
-                //echo "oops marketplace already loaded"; die();
-            }            
-            $marketplace = SDBEE_endpoint_marketplace( [], false);
-            // Create fixed content       
-            $data = [
-                '%name' => $this->name,
-                '%marketplace' => str_replace( '"', '\"', $marketplace),
-                '%time' => time()
-            ];
+            // No doc exists yet
+            if ( $this->model) {
+                // Model is set
+                $data = [
+                    '%model' => $this->model,
+                    '%name' => $this->name,
+                    '%marketplace' => 'to be deleted',
+                    '%time' => time()
+                ];
+            } else {
+                // No model so get marketplace
+                // 2DO Find other docs in directroy and score apps. provide this in request parameter
+                if ( !function_exists( 'SDBEE_endpoint_marketplace' )) {
+                    include_once( 'get-endpoints/sdbee-marketplace.php');
+                    //echo "oops marketplace already loaded"; die();
+                }            
+                $marketplace = SDBEE_endpoint_marketplace( [], false);
+                // Create fixed content       
+                $data = [
+                    '%model' => "ASS000000000301_System",
+                    '%name' => $this->name,
+                    '%marketplace' => str_replace( '"', '\"', $marketplace),
+                    '%time' => time()
+                ];
+            }
             $this->doc = JSON_decode( LF_substitute( file_get_contents( __DIR__.'/editor-view-model/config/newDocument.json'), $data), true);            
         }
         // Load content
@@ -260,12 +271,10 @@ class SDBEE_doc {
             if ( $this->model)  $this->top[ 'nstyle'] = $this->model;
             else $this->model = val( $this->top, 'nstyle');
             if ( $this->params)  $this->top[ 'textra']['system'] = $this->params;
-            else {
-                $this->params = $this->top[ 'textra'][ 'system'];
-                if ( val( $this->params, 'state')) $this->state = val( $this->params, 'state');
-                if ( val( $this->params, 'progress')) $this->progress = val( $this->params, 'progress');
-                if ( val( $this->params, 'deadline')) $this->deadline = val( $this->params, 'deadline');
-            }
+            else $this->params = $this->top[ 'textra'][ 'system'];
+            if ( val( $this->params, 'state')) $this->state = val( $this->params, 'state');
+            if ( val( $this->params, 'progress')) $this->progress = val( $this->params, 'progress');
+            if ( val( $this->params, 'deadline')) $this->deadline = val( $this->params, 'deadline');            
             $this->content[ $this->topName] = $this->top;
             $this->index = Array_keys( $this->content);
             $this->size = count( $this->index);
@@ -278,6 +287,14 @@ class SDBEE_doc {
             } elseif ( $this->name[0] != 'S' && !val( $this->params, 'noShare'))  {
                 // Incorporate shared content
                 $this->_fetchSharedContent();
+                // Set env with preferences ifn not user config and first time
+                // Test could be $this->name != LF_env( 'UD_userConfigOid')
+                if ( !strpos( $this->name, '_UserConfig') && !LF_env( 'app-globals')) {
+                    // Set env with dummy preferences to avoid looping
+                    LF_env( 'app-globals',  [ 'dummy'=>'dummy']);
+                    $prefs = $this->_getUserPreferences();
+                    if ( $prefs) LF_env( 'app-globals', $prefs);
+                }
             }
         }
     }
@@ -937,9 +954,11 @@ class SDBEE_doc {
                 $params[ 'system'][ 'fromModel'] = 1;
                 // $params = ( val( $el, 'tparams')) ? JSON_decode( $el[ 'tparams'], true) : ;
                 $content = val( $el, 'tcontent');
-                if ( $type >= UD_chapter && $type <= UD_subParagraph 
-                && strlen( $content) <= 40 && strpos( $content, "<") === false
+                if ( 
+                    $type >= UD_chapter && $type <= UD_subParagraph 
+                    && strlen( $content) <= 40 && strpos( $content, "<") === false
                 ) $params[ 'system'][ 'ude_place'] = $content;
+                else $el[ 'nstyle'] .= ( (val( $el, 'nstyle')) ? " ": "") . "initialcontent";
                 // $el[ 'tparams'] = JSON_encode( $params);
                 $this->content[ $name] = $el;
                 $this->modifications[] = [ 'action'=>"create", 'elementId'=>$name, 'data'=>$el, 'depth'=>$el[ 'depth']];
@@ -1110,6 +1129,7 @@ class SDBEE_doc {
 
     function _getUserPreferences() {
         global $USER;
+        $userConfigOid = LF_env( 'UD_userConfigOid');
         $d = UD_utilities::getNamedElementFromUD( $userConfigOid, 'profile');
         $d = ( $d) ? val( $d, 'data/value') : [];
         // user

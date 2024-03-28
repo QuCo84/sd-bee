@@ -75,19 +75,19 @@ function TIPS_manager( tipName="", position={x:100, y:100, from:"bottomLeft"}, d
  
   @font-face {
  	font-family: "Rajdhani";
- 	src: url("/fonts/Rajdhani-Regular.ttf") format("truetype"),
- 	url("/fonts/Rajdhani-Bold.ttf") format("truetype"),
+ 	src: url("{base-url}fonts/Rajdhani-Regular.ttf") format("truetype"),
+ 	url("{base-url}fonts/Rajdhani-Bold.ttf") format("truetype"),
         
-        url("/fonts/Rajdhani-SemiBold.ttf") format("truetype"),
-        url("/fonts/Rajdhani-Light.ttf") format("truetype");
+        url("{base-url}fonts/Rajdhani-SemiBold.ttf") format("truetype"),
+        url("{base-url}fonts/Rajdhani-Light.ttf") format("truetype");
   }
   @font-face {
  	font-family: "Now";
- 	src: url("/fonts/Now-Regular.otf") format("opentype"),
- 	url("/fonts/Now-Bold.otf") format("opentype"),
+ 	src: url("{base-url}fonts/Now-Regular.otf") format("opentype"),
+ 	url("{base-url}fonts/Now-Bold.otf") format("opentype"),
         
-        url("/fonts/Now-Medium.otf") format("opentype"),
-        url("/fonts/Now-Light.otf") format("opentype");
+        url("{base-url}fonts/Now-Medium.otf") format("opentype"),
+        url("{base-url}fonts/Now-Light.otf") format("opentype");
   }
   #header { 
     width:100%; 
@@ -515,10 +515,10 @@ span.footerItem.highlight {border:2px solid yellow;}:root { --indoc-menu-font-si
 <body>
 <div id="main">
   <div id="header">
-    <div id="logo"><a href="javascript:" onclick="API.back();"><img src="/upload/O0W1b3s20_logosite.png" style="display:block; max-width:100%; max-height:100%;"/></a></div><div id="leftToolIcon" onclick="leftColumn.switchDisplayMode();"><img src="/upload/g0Ma7Ao0K_tools.png" style="display:block; max-width:100%; max-height:100%;"/></div><div id="mainMenu" class="hidden"></div><div id="banner" onclick="window.ud.ude.leave2stageEditing( false);" ontouch="window.ud.ude.leave2stageEditing( false);"><span id="bannerMessage">Banner zone</span>  <div id="UDErequest" style="display:none;"></div>
+    <div id="logo"><a href="javascript:" onclick="API.back();"><img src="{base-url}upload/O0W1b3s20_logosite.png" style="display:block; max-width:100%; max-height:100%;"/></a></div><div id="leftToolIcon" onclick="leftColumn.switchDisplayMode();"><img src="{base-url}upload/g0Ma7Ao0K_tools.png" style="display:block; max-width:100%; max-height:100%;"/></div><div id="mainMenu" class="hidden"></div><div id="banner" onclick="window.ud.ude.leave2stageEditing( false);" ontouch="window.ud.ude.leave2stageEditing( false);"><span id="bannerMessage">Banner zone</span>  <div id="UDErequest" style="display:none;"></div>
       <div id="UDEreply" style="display:none;"></div>
       <div id="UDEcursorInfo" style="display:none;"></div>
-      <div id="UDEclipboard" style="display:none;"></div></div><div id="logout" class="rightIcon"><a href="/webdesk//logout/"><img src="/upload/yMInMmcNO_logout.png" style="display:block; max-width:100%; max-height:100%;" alt="Logout" title="Logout"/></a></div><div id="account" class="rightIcon"><a href="javascript:" onclick="{accountClick}"><img src="/upload/CvrVYVywC_account.png" style="display:block; max-width:100%; max-height:100%;" alt="see my account" title="see my account"/></a></div><div id="rightToolIcon" class="rightIcon" onclick="rightColumn.switchDisplayMode();"><img src="/upload/g0Ma7Ao0K_tools.png" style="display:block; max-width:100%; max-height:100%;"/></div>
+      <div id="UDEclipboard" style="display:none;"></div></div><div id="logout" class="rightIcon"><a href="/webdesk//logout/"><img src="{base-url}upload/yMInMmcNO_logout.png" style="display:block; max-width:100%; max-height:100%;" alt="Logout" title="Logout"/></a></div><div id="account" class="rightIcon"><a href="javascript:" onclick="{accountClick}"><img src="{base-url}upload/CvrVYVywC_account.png" style="display:block; max-width:100%; max-height:100%;" alt="see my account" title="see my account"/></a></div><div id="rightToolIcon" class="rightIcon" onclick="rightColumn.switchDisplayMode();"><img src="{base-url}upload/g0Ma7Ao0K_tools.png" style="display:block; max-width:100%; max-height:100%;"/></div>
   </div> <!-- header -->
 <div id="content">
 <div id="leftColumn">
@@ -541,19 +541,19 @@ span.footerItem.highlight {border:2px solid yellow;}:root { --indoc-menu-font-si
 <span id="TandC" class="footerItem left"><a href="javascript:" onclick="window.open('?task=system%2FA0000000UMNNS0000M_TandC', 'CGU')">Terms of Use</a></span>
 <span id="DEV" class="footerItem left if800"><a href="javascript:" onclick="window.open('?task=system%2FA0000000R71OR0000M_Developers', 'dev')">Developers</a></span></span>
 <span class="footerItem right if800">
-  <img src="/upload/Hay01AdaK_db.png" width="30" height="30">
+  <img src="{base-url}upload/Hay01AdaK_db.png" width="30" height="30">
   <svg width="30" height="30">
     <circle id="STATUS_db" cx="15" cy="15" r="6"  stroke="lightgreen" stroke-width="1" fill="lightgreen"/>
   </svg>
 </span>
 <span class="footerItem right if800">
-  <img src="/tmp/W50H50_H0V0l1h0a_wifi.png" width="30" height="30" />
+  <img src="{base-url}tmp/W50H50_H0V0l1h0a_wifi.png" width="30" height="30" />
   <svg width="30" height="30">
     <circle id="STATUS_network" cx="15" cy="15" r="6"  stroke="lightgreen" stroke-width="1" fill="lightgreen"/>
   </svg>
 </span>
 <span class="footerItem right" onclick="API.showBotlog();">
-      <img src="/tmp/W50H50_N373r1k1G_brain.png" width="30" height="30">
+      <img src="{base-url}tmp/W50H50_N373r1k1G_brain.png" width="30" height="30">
       <svg width="30" height="30"><circle id="STATUS_busy" cx="15" cy="15" r="6"  stroke="lightgreen" stroke-width="1" fill="lightgreen"/>
   </svg>
 </span>

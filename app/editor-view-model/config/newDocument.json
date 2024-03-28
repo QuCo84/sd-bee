@@ -4,7 +4,7 @@
         "permissions" : 7,
         "nlabel" : "Nouveau document",
         "stype" : 2,
-        "nstyle" : "ASS000000000301_System",
+        "nstyle" : "{%model}",
         "tcontent" : "",
         "thtml" : "",
         "nlanguage" : "",

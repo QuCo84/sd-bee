@@ -113,7 +113,9 @@
         "crypt-key" : "",
         "homeModel" : "A0000001IPLHB0000M_bienvenu2",
         "admin-user" : "admin",
-        "admin-pass" : "admin54!!"
+        "admin-pass" : "admin54!!",
+        "first-user" : "first user",
+        "first-pass" : "enter password",
     },
     /* GCP version 
     "access-database" : {
@@ -124,7 +126,9 @@
         "crypt-key" : "",
         "homeModel" : "A0000001IPLHB0000M_bienvenu2",
         "admin-user" : "admin",
-        "admin-pass" : "admin54!!"
+        "admin-pass" : "admin54!!",
+        "first-user" : "first user",
+        "first-pass" : "enter password",
     },
     */
     /**
@@ -138,8 +142,6 @@
         "lang" : "FR",
         "UD_userConfigOid" : "_FILE_UniversalDocElement-Z00000010VKK800002_UserConfig--21-0",
         "UD_accountLink" : "window.open('/webdesk/UniversalDocElement--21--nname|Z00000010VKK80003S_UserConfig|CD|5/show/')",
-        "first-user" : "first user",
-        "first-pass" : "enter password",
         "url" : "/sd-bee",
         "zip" : {
             "default" : false
@@ -320,7 +322,8 @@
             "Brain": "https://www.sd-bee.com/tmp/W50H50_N373r1k1G_brain.png",
             "Logout": "https://www.sd-bee.com/upload/yMInMmcNO_logout.png",
             "Account": "https://www.sd-bee.com/upload/CvrVYVywC_account.png",
-            "Language": "https://www.sd-bee.com/upload/O1v0I1o21_lang.png"
+            "Language": "https://www.sd-bee.com/upload/O1v0I1o21_lang.png",
+            "wait" : "https://www.sd-bee.com/upload/3VUvtUCVi_processing.gif"
 
         }        
     }

@@ -91,7 +91,8 @@ class SDBEE_access {
                 $params[ 'docName'] = UD_utilities::getContainerName();
                 $params[ 'token'] = LF_getToken();                
                 $params[ 'docName2'] = UD_utilities::getContainerName( UD_document, 200);
-                $params[ 'token2'] = LF_getToken();                
+                $params[ 'token2'] = LF_getToken();      
+                echo "with ".print_r( $params)."\n";
                 $sql = LF_substitute( $sql, $params);
                 $this->_load( ".config/createaccess.sql", explode( "\n", $sql));
                 $this->helper->save();                 
@@ -562,7 +563,7 @@ class SDBEE_access {
         // If no other links delete target
         $data = [ ':targetId'=>$target[ 'id'], ':isDoc'=>$isDoc];
         $collLinks = $this->_query( 'SELECT * FROM CollectionLinks WHERE targetId=:targetId AND isDoc=:isDoc', $data);
-        $userLinks = $this->_query( 'SELECT * FROM UserLinks WHERE targetId=:targetId AND isUser=0', $data);
+        $userLinks = $this->_query( 'SELECT * FROM UserLinks WHERE targetId=:targetId AND isUser=0', [ ':targetId'=>$target[ 'id']]);
         if ( !$collLinks  && !$userLinks) {
             // Delete Doc Or Collection
             $table = ( $isDoc) ? 'Docs' : 'Collections';
@@ -578,7 +579,7 @@ class SDBEE_access {
         $target = ( $isUser) ? $this->getUserInfo( $targetName) : (( $isDoc) ? $this->getDocInfo( $targetName) : $this->getCollectionInfo( $targetName));
         if ( !$source || !$target) return $this->_error( "$collectionName Or $targetName doesn't exist");
         // Remove link record
-        $sql = "DELETE FROM CollectionLinks WHERE collectionId=:collectionId AND isDOc=:isDoc AND targetId = targetId;";
+        $sql = "DELETE FROM CollectionLinks WHERE collectionId=:collectionId AND isDoc=:isDoc AND targetId = targetId;";
         $data = [ ':collectionId'=> $source[ 'id'], ':isDoc'=>$isDoc, ':targetId'=>$target[ 'id']];
         $this->_query( $sql, $data);
         // If no other links delete target

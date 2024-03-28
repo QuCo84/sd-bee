@@ -1498,7 +1498,7 @@ class UD_utilities
             global $ACCESS;
             if ( $ACCESS) include_once __DIR__."/../../local-services/udservices.php";
             else include_once __DIR__."/../services/udservices.php";
-            $services = new UD_services( [ 'throttle'=>'off']);
+            UD_utilities::$services = new UD_services( [ 'throttle'=>'off']);
         }
         if ( is_array( $docOID)) $docOID = "UniversalDocElement--".implode( '-', $docOID);
         // Read preferences from User config doc    
@@ -1509,9 +1509,9 @@ class UD_utilities
             'docOID' => $docOID,
             'elementName' => $elementName
         ];
-        $response = $services->_doRequest( $request);
+        $response = UD_utilities::$services->_doRequest( $request);
         $d = val( $response, 'data');
-        if ( val( $response, 'success') && strpos( $d, 'ERR:') !== 0) return $d;
+        if ( val( $response, 'success') && (!is_string( $d) || strpos( $d, 'ERR:') !== 0)) return $d;
         return "";
     }
 
