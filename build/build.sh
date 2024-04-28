@@ -3,6 +3,8 @@ git pull
 # copy sample config
 mkdir -p .config
 cp -r config-standard/* .config
+mv .config/app.yam .
+mv .config/composer.json .
 # Setup data directories
 mkdir -p data
 mkdir -p data/access
@@ -15,7 +17,8 @@ mkdir -p services
 ln -s app/local-services/udservices.php udservices.php
 ln -s app/local-services/udservicethrottle.php udservicethrottle.php 
 #Get PHP libraries
-composer require google/cloud-storage
+php composer.phar update
+#composer require google/cloud-storage
 # Local run
 echo check localhost:8080
 php -S localhost:8080 index.php

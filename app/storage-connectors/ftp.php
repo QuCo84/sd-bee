@@ -26,6 +26,10 @@
  *       "prefix" : ""
  *   },
  */
+
+ /*
+  * PROGRAM UNDER DEVELOPMENT. NOT FUNCTIONAL. NOT COMPLETED
+  */
 include "ftplib.php";
 $JUST_CREATED_CLASS = "SFTPStorage";
 

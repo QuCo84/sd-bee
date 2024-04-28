@@ -62,13 +62,14 @@ class UD_services {
         $serviceName = strToLower( val( $serviceRequest, 'service'));
         $serviceAndProvider = $serviceName . strToLower( val( $serviceRequest, 'provider'));
         $action = val( $serviceRequest, 'action');
+        $params = $serviceRequest;
         if ( 
             !in_array( $serviceName, [ 'doc', 'resource', 'tasks', 'scrape'])
             && !in_array( $serviceAndProvider, [ 'imagesfileimages', 'imagesftpimages'])
         ) {
-            // For 3rd party services, check throttle & parameters
+            // For 3rd party services, check throttle, cache & parameters
             // Check service throttle     
-            if ( $this->throttle && !( $throttleId = $this->throttle->isAvailable( $serviceName))) {
+            if ( !in_array( $serviceName, [ 'email']) && $this->throttle && !( $throttleId = $this->throttle->isAvailable( $serviceName))) {
                 $result = "{$this->throttle->lastError}: {$this->throttle->lastResponse}";
                 $jsonResponse = [ 
                     'success'=>false, 
@@ -86,19 +87,6 @@ class UD_services {
                 }*/
                 return $cache;
             }
-            /*
-            // Force error
-            $jsonResponse = [ 
-                'success'=>False, 
-                'message'=> "Generic services not available",
-                'data'=>['no data']
-            ];
-            $response = "<span class=\"error\">Failure on $serviceName $action <a>more</a></span><span>$result</span>"; 
-            return $jsonResponse;   
-            */
-            // Fill request with parameters defined by user or token
-            //if ( !$this->_getParamsFromUserConfig( $serviceRequest)) return $this->_error( "202 {!No paramaters for service!} $serviceName");
-        
             // Get parameters for services that rely on 3rd party        
             if ( !$this->_getParamsFromUserConfig( $serviceRequest)) {
                 return $this->_error( "202 {!No parameters for service!} $serviceName");
@@ -269,8 +257,8 @@ class UD_services {
             'docName' => "Z00000010VKK8{$user32}_UserConfig",
             'elementName' => $service.'service' /* $paramsName */
         ];
-        $service = new UD_services( [ 'throttle'=>'off', 'service-root-dir'=> __DIR__ ]);
-        $response = $service->_doRequest( $request); //$this
+        $serviceH = new UD_services( [ 'throttle'=>'off', 'service-root-dir'=> __DIR__ ]);
+        $response = $serviceH->_doRequest( $request); //$this
         if ( val( $response, 'success')) {
             $paramsContent = $response[ 'data'];
             if ( is_string( $paramsContent)) $paramsContent = JSON_decode( $response[ 'data'], true);
@@ -333,7 +321,7 @@ class UD_services {
             $paramsPath = "data/value";
             */
             $paramsData = $this->fetchNode( $paramsOid);
-            if ( LF_count( $paramsData) < 2 ) $paramsData = $this->fetchNode( str_replace( "_", "%20", $paramsOid));
+            if ( LF_count( $paramsData) < 2 ) $paramsData = $this->fetchNode( str_replace( "_", " ", $paramsOid));
             if ( LF_count( $paramsData) > 1) {
                 $paramsContent = LF_preDisplay( 't', $paramsData[1]['tvalues']);
                 if ( $paramsContent && $paramsPath) $params = val( $paramsContent, 'data/value'); 

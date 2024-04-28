@@ -386,7 +386,12 @@ class SDBEE_access {
                 $content[ 'oid'] = "_FILE_UniversalDocElement-{$targetName}--21-{$targetId}";
                 $contents[] = $content; 
             } else $contents[] = $info;
-        }        
+        }
+        // Sorting ( could be moved to uddatamodel.php function sort and use sort param in sdbee-collection get endpoint)        
+        $sort = array_column( $contents, 'nname'); // dcreated not reliable for imported files
+        $cols = array_shift( $contents);
+        $w = array_multisort( $sort, SORT_DESC, $contents); 
+        array_unshift( $contents, $cols);
         return $contents;
     }
 

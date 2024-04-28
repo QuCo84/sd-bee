@@ -236,6 +236,7 @@
             global $debug;
             // Look for personalised layout
             $layout = @file_get_contents( __DIR__."/../../../.config/sdbee-layout.html");
+            // otherwise standard
             if ( !$layout) $layout = file_get_contents( __DIR__."/../config/sdbee-layout.html");
             // Substitute dynamic content
             $accountClick = LF_env( 'UD_accountLink'); 
@@ -681,6 +682,12 @@ function LF_fileServer() {
             // Get from configured space            
             $dir = implode( '/', $uriParts);
             $fileContents = $PUBLIC->read( $dir, $filename);
+            /*
+            if ( ($p1 = strpos( $filename, '-v'))) {
+                // Remove version no or move to directory ex modules/v-1.2/
+            }
+
+            */
         }
         if ( !$fileContents || stripos( $fileContents, 'ERR') === 0) {
             // Fallback on sdbee

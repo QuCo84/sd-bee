@@ -755,7 +755,7 @@ class SDBEE_doc {
         $element["newElement"] = "1"; // !!! important
         // Get previous element
         $ids = array_keys( $this->content);
-        $index = array_search( $ids, $elementId);
+        $index = array_search( $elementId, $ids);
         $prevId = ( $index) ? $ids[ $index - 1] : 0;
         if ( $prevId) {
             $prevEl = $this->content[ '$prevId'];
@@ -1128,6 +1128,7 @@ class SDBEE_doc {
     }
 
     function _getUserPreferences() {
+        if ( LF_env( 'is_Anonymous')) return [];
         global $USER;
         $userConfigOid = LF_env( 'UD_userConfigOid');
         $d = UD_utilities::getNamedElementFromUD( $userConfigOid, 'profile');

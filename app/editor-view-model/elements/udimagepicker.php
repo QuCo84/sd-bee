@@ -21,7 +21,7 @@ if ( !class_exists( 'UDelement')) require_once( __DIR__."/../../tests/testenv.ph
     // Return array with content( HTML) and Javascript 
     function renderAsHTMLandJS( $active=true)
     {
-        $r = "";
+        $r = $js = "";
         // Read component's parameters in textra
         $filter = val( $this->extra, 'system/filter');
         if ( !$filter) $filter = $this->extractTags( $this->label);
@@ -35,16 +35,66 @@ if ( !class_exists( 'UDelement')) require_once( __DIR__."/../../tests/testenv.ph
         $r .= " data-ud-filter=\"{$filter}\" data-ud-selection=\"{$selection}\"";
         $r .= ">";
         if ( $this->label && strpos( $content, '<span class="caption"') === false) $r .= "<span class=\"caption\">{$this->label}</span>";
+        $js .= "API.initialiseElement( '{$this->name}');\n";
         /*
-        // Add image name edit zone
-        $title = ($this->title) ? $this->title : "Caption";
-        if ( $title && $this->mode == "edit") {
-            $r .= "<span class=\"caption\">{$title}</span>";
-        }
-        // Add link edit zone 
-        $links = HTML_getLinks( $this->content);
-        if ( $links && $this->mode == "edit") {
-            $r .= "<span class=\"caption\">{$links[0]}</span>";
+        if ( !strpos( $content, 'Dropzone')) {
+            // Modify content to have drop zone over image
+            $content = <<< EOT
+<div style="position:relative">
+    <div style="position:absolute; top:0; left:0; z-index:1"> 
+        $content
+    </div>
+    <div id="{$this->name}-dropzone" class="Dropzone" ud_type="Dropzone" style="position:absolute; top:0; left:0; z-index:10">           
+        <div id="{$this->name}-dropzone" class="Dropzone" ud_type="Dropzone">
+            <form id="{$this->name}-drop-form" method="post" enctype="multipart/form-data" accept-charset="UTF-8" name="INPUT_LINKS_script" action="" class="dropzone" style="width:100%;">
+                <input type ="hidden" name="form" value="INPUT_dropImage" />        
+                <input type ="hidden" name="nname" value="{$this->name}" />               
+                 <input type ="hidden" name="domainAndPath" value="{$this->name}" /> 
+            </form>
+        </div>
+    </div>
+</div>
+EOT;
+        // Activate dropzone 
+        $js .= <<< EOT
+let dropFormId = "{$this->name}-drop-form";
+let dropForm = API.dom.element( dropFormId);
+if ( dropForm && typeof Dropzone == "undefined") {
+    let src = "/upload/smartdoc/vendor/dropzone.css";
+    let styleTag = document.createElement( 'style');
+    styleTag.id = "dropzone_css";                
+    styleTag.onerror = function() { debug( {level:2}, src, ' is not available'); }
+    styleTag.onload = function() { debug( {level:2}, src, "loaded"); }
+    styleTag.src = src;  
+}
+require( ['https://unpkg.com/dropzone@5/dist/min/dropzone.min.js'], function()  {
+    let dropForm = API.dom.element( dropFormId);
+    if ( dropForm && typeof dropForm.dropzone == "undefined") {
+        let myDropzone = new Dropzone(
+            "#"+dropFormId, 
+            { 
+                url: "/webdesk//AJAX_clipboardTool/e|paste/", 
+                paramName: "gimage", 
+                dictDefaultMessage: 'Glisser vos fichiers images ici',
+                //dictDefaultMessage: "Â Â Â Â Â <br />Â Â <br />Â "
+            }
+        );
+        myDropzone.on( "complete", function( file) {
+            // Update image
+            let picker = $$$.dom.element( '{$this->name}');
+            if ( picker) {
+                let img = this.dom.element( 'img', saveable); 
+                if ( img) {
+                    // Set existing image's src attribute
+                    let p = $$$.getUDparam( 'image-source');
+                    if ( p) img.src = 'https://' + p + '/' + file;  
+                }
+            }
+        }); 
+    }
+});   // end of require
+// end of activate dropzone
+EOT;
         }
         */
         // Add image with or without link

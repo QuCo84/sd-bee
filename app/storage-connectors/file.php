@@ -65,6 +65,15 @@ class FileStorage extends SDBEE_storage {
         return $r;
     }
 
+    function delete( $dir, $filename) {    
+        if ( !$this->exists( $dir, $filename)) return false;    
+        if ( strpos( $this->topDir, 'http') === false) {
+            // Delete from local file system
+            unlink( $this->getURL( $dir, $filename));
+        }
+    }
+
+
     function _prefix( $dir, &$filename) {
         if ( !$this->isPublic( $dir, $filename) && $this->prefix) $filename = $this->prefix.'_'.$filename;
     }

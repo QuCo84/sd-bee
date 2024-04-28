@@ -23,7 +23,7 @@ function SDBEE_endpoint_changes( $request) {
     $task = val( $request, 'task');
     $lastTime = (int) $_REQUEST['lastTime'] - 1;
     // Initialise response
-    $changed = ['UD_user' => [ 'content'=>"me"]];
+    $changed = ['UD_user' => [ 'content'=>"me", 'time'=>time()]];
     // Task or collection
     $info = $ACCESS->getDocInfo( $task);
     if ( !$info) $task = "";

@@ -724,7 +724,8 @@ EOT;
             $iconsJSON = JSON_encode( $icons);
             $base = LF_env( 'url');           
             foreach ( $icons as $name => $img) {
-                $preloadIcons .= "<img src=\"{$base}{$img}\" />";
+                if ( strpos( $img, 'http') !== 0) $img = $base.$img;
+                $preloadIcons .= "<img src=\"{$img}\" />";
             }
             $preloadIcons .= '<img src="https://www.sd-bee.com/upload/3VUvtUCVi_processing.gif" />';
         }        

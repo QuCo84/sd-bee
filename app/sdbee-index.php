@@ -32,7 +32,7 @@ include_once "sdbee-doc.php";
 include_once "editor-view-model/helpers/uddatamodel.php";
 include_once "editor-view-model/ud.php";
 
-$TEST = true; //( strpos( $_SERVER[ 'HTTP_HOST'], "ud-server") === false);
+$TEST = false; //( strpos( $_SERVER[ 'HTTP_HOST'], "ud-server") === false);
 
 // MAIN
 
@@ -71,6 +71,7 @@ try {
 if ( !$USER || $USER == -1) {
     // User not identified -display relogin page
     LF_env( 'UD_accountLink', "API.switchView( 'connect');");
+    LF_env( 'UD_userConfigOid', "");
     $DM = new DataModel( $PUBLIC);
     // 2DO 
     $home = LF_env( 'home');
@@ -99,7 +100,7 @@ if ( count( $request)) {
         if ( $ACCESS) $ACCESS->logout();
         $USER = null;
         // Home page or redirect
-        header("Location: /");
+        header("Location: " . LF_env( 'url'));
         /*
         LF_env( 'UD_accountLink', "API.switchView( 'connect');");
         $DM = new DataModel( $PUBLIC);
@@ -205,6 +206,9 @@ if ( count( $request)) {
         } elseif ( $form == "INPUT_deleteDoc") {
             //echo "Delete a task"
             include ( "post-endpoints/sdbee-delete-doc.php");
+        } elseif ( $form == "INPUT_dropImage") {
+            //echo "Delete a task"
+            include ( "post-endpoints/sdbee-drop-image.php");
         }
         // 2DO Fetch element            
     } elseif ( val( $request, 'act') && $request[ 'act'] != "ignore") {
@@ -301,7 +305,7 @@ function SDBEE_getRequest() {
     $requestKeys = array( 
         'test', 'e', 'form', 'nServiceRequest', 'task', 'model', 'collection', 'act', 'input_oid', 
         'nname', 'nlabel', 'stype', 'nstyle', 'tcontent', 'thtml', 'nlang', 'textra', 'ngivenname', 'nParams', 'lastTime', 'ticks',
-        'tpasswd', 'tdomain', '_stype', '_tdomain', 'ttext', 'iaccess', 'tlabel'
+        'tpasswd', 'tdomain', '_stype', '_tdomain', 'ttext', 'iaccess', 'tlabel', 'ttext', 'gimage'
         // v, m,d ?
     );
     foreach( $requestKeys as $key) {

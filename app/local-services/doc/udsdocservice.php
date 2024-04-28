@@ -34,8 +34,7 @@ class UDS_doc extends UD_service {
     }*/
     
     // Central function for all actions
-    function call( $data)
-    {
+    function call( $data)  {
         global $DM, $STORAGE;        
         $action = val( $data, 'action');
         $r = "";
@@ -110,6 +109,33 @@ class UDS_doc extends UD_service {
                     $this->lastResponseRaw = $d;
                     $r = true;
                 break;}
+                case "updateNamedContent" : {
+                    $dir = val( $data, 'dir');
+                    $docName = val( $data, 'docName');
+                    if ( !$docName) {
+                        $docOID = val( $data, 'docOID');
+                        $parts = explode( '-', explode( '--', $docOID)[0]);
+                        $docName = $parts[ count( $parts) -1];
+                        $dir = '';
+                    }
+                    $elementName = val( $data, 'elementName');
+                    $targetElementName = val( $data, 'targetElementName');
+                    $doc = new SDBEE_doc( $docName, $dir);
+                    if ( !$doc) {
+                        $this->lastResponse = "ERR: no file $docName";                        
+                        return false;
+                    }
+                    $el = $doc->readElementByLabel( $elementName); 
+                    if ( !$el) {
+                        $this->lastResponse = "ERR: no element $el in file $docName";                        
+                        return false;
+                    }     
+                    if ( is_string( $el)) $el = JSON_decode( $el, true); 
+                    $d = $doc->updateElement( $el['nname'], [ 'tcontent'=> JSON_encode( val( $data, 'content'))]);
+                    if ( is_string( $d)) $this->lastResponse = $d;
+                    $this->lastResponseRaw = JSON_decode( $d, true);
+                    $r = true;
+                break;}
                 case "getInfo" : {
                     $dirOID = val( $data, 'dir');
                     $docName = val( $data, 'doc');
@@ -171,141 +197,9 @@ class UDS_doc extends UD_service {
     
             }      
             return $r;
-        }
-        switch ( $action) {
-            case "getMostRecentByName" : {
-                $model = val( $data, 'model');
-                $dir = val( $data, 'dir');
-                $elName = val( $data, 'elementName');
-                $max_dcreated = val( $data, 'dcreated');
-                // Get candidate docs
-                $candidates = [];
-                global $DM, $ACCESS;
-                if ( $DM) {
-                    // OS version
-                    // Get collection name
-                    $dirParts = explode( '-', explode( '--', $dir)[0]);
-                    $collection = array_pop( $dirParts);                    
-                    // Get docs in collection
-                    if ( $collection) $docs = $ACCESS->getCollectionContents( $collection);
-                    else $docs = $ACCESS->getUserContents();
-                    // Keep if same model                   
-                    for ( $doci=0; $doci < LF_count( $docs); $doci++) {
-                        $doc = val( $docs, $doci);
-                        if ( $doc[ 'nmodel'] == $model) {
-                            // Open docs for dates and add to doc record
-                            // Add to candidates list
-                            $candidates[] = $doc;  
-                        }
-                    }
-                } else {
-                    $searchOid = $dir."-21--NO|OIDLENGTH|nstyle|{$model}"; 
-                    $candidates = $this->fetchData( $searchOid, "id nname dmodified dcreated");                
-                }
-                // Get an element by name from most recent doc of a model in same dir                
-                            
-                // Find OID of most recent candidate
-                $mostRecentOID = "";
-                $dcreated = 0;
-                for ( $candi=1; $candi < LF_count( $candidates); $candi++) {
-                    $candidate = val( $candidates, $candi);                    
-                    if ( $candidate[ 'id'] != val( $data, 'exclude') && $candidate[ 'dcreated'] > $dcreated) {
-                        if ( $max_dcreated && $candidate[ 'dcreated'] >= $max_dcreated) continue;
-                        $dcreated = val( $candidate, 'dcreated');
-                        $mostRecentOID = val( $candidate, 'oid');
-                    }
-                }
-                if ( $mostRecentOID) {
-                    $r = $this->getNamedContents( $mostRecentOID, $elName);
-                }
-            break;}
-           /**
-                let params = {
-                    // Service parameters
-                    action : "getNamedContent",
-                    dir : "UniversalDocElement--21-52", // Top directory to search
-                    dirDepth : 1, // Reserved for depth of earch
-                    docName : "myDoc", // Document name
-                    elementName : "myData", // Element name
-                    // Where to store result
-                    source : "value", // can take path value/jsonkey 
-                    target : "myElement" // Element where to stock value
-                }
-                API.serviceRequest( "doc", params);
-            */           
-            case "getNamedContent" : {
-                $dirOID = val( $data, 'dir');
-                $docName = val( $data, 'docName');
-                $docOID = val( $data, 'docOID');
-                $elementName = val( $data, 'elementName');
-                $targetElementName = val( $data, 'targetElementName');
-                if ( !$docOID) $docOID = $this->getDocumentOIDbyName( $dirOID, $docName);
-                if ( !$docOID) { $r = "ERR: no file $docName in $dirOID"; break;}
-                $r = $this->getNamedContents( $docOID, $elementName);
-                if ( $targetElementName) $r = str_replace( $elementName, $targetElementName, $r);                 
-            break;}
-            case "getInfo" : {
-                $dirOID = val( $data, 'dir');
-                $docName = val( $data, 'doc');
-                if ( !$dirOID) {
-                    // Compute dir OID from dirPath                
-                    $dirPath = explode( '/', val( $data, 'dirPath'));                    
-                    $elementName = val( $data, 'elementName');
-                    $dirOID = "UniversalDocumentElement--21";
-                    for ( $diri=0; $diri < LF_count( $dirPath); $diri++) {
-                        $dirOID = $this->getDocumentOIDbyName( $dirOID, val( $dirPath, $diri));
-                    }
-                }
-                $docOID = $this->getDocumentOIDbyName( $dirOID, $docName);
-                if ( !$docOID) { break;}
-                $docData = $this->fetchData( $docOID);
-                $extra = JSON_decode( LF_preDisplay( 't', $docData[ 1][ 'textra']), true);
-                if ( !$extra) $extra=[ 'system'=>""];
-                $r = [ 'info'=>"", 'params'=> $extra['system']];
-            } break;
-            case "create" : {
-                $model = val( $data, 'model');
-                $dir = val( $data, 'dir');
-                $docName = val( $data, 'docName');
-                $max_dcreated = val( $data, 'dcreated');
-                $dcreated = 0;
-                $searchOid = $dir."-21--NO|OIDLENGTH|nname|*{$docName}"; //tyle|{$model}"; 
-                $candidates = $this->fetchData( $searchOid, "id nname dmodified dcreated");
-                if ( LF_count( $candidates) < 2) {
-                    // No task/doc with this model found, so create
-                    // Get user's 32 base no
-                    $user = base_convert( (int) LF_env( 'user_id'), 10, 32);
-                    $user = substr( "00000".$user, strlen($user));
-                    // Get name of model
-                    $modelData= UD_UTILITIES::getModelToLoad( $model);
-                    $newDoc = [
-                        [ 'nname', 'nlabel', 'stype', 'nstyle', 'tcontent', 'textra'],
-                        [ 
-                            'nname'=> UD_UTILITIES::getContainerName().$user."_".substr( str_replace( ' ', '', $docName), 0, 9),
-                            'nlabel' => $docName,
-                            'stype'=> UD_document,
-                            'nstyle'=>$modelData[ 'name'],
-                            'tcontent'=>'<span class="title">'.$docName.'</span><span class="subtitle">create service</span>',
-                            'textra' => '{ "system":{"state":"new"}}'
-                        ]
-                    ];
-                    $newDocId = LF_createNode( $dir, "UniversalDocElement", $newDoc);
-                    if ( $newDocId > 0) {
-                        $newOID = $dir."-21-".$newDocId;
-                        UD_UTILITIES::copyModelIntoUD( "", $newOID);
-                        $r = [ 'oid'=>$newOID."-21--{OIDPARAM}"];
-                    }
-                    else $r = [ 'error'=>"ERR: failed to create doc {$newDocId}"];
-                } else {
-                    // Return OID of first one found
-                    $r = [ 'oid'=>$dir."-21-".$candidates[1][ 'id']."-21--{OIDPARAM}"];
-                }    
-                break;
-            }
-
-        }      
-        /*return */$this->response( true, $r, $r);  
-        return $r; // keep this until we update AJAX_service
+        }        
+        $this->lastResponse = "ERR: no doc service for unidentifed users";                        
+        return false;
     } // UDS_ud->call()
     
    /** 
@@ -365,7 +259,7 @@ class UDS_doc extends UD_service {
 
 
 // Auto-test
-if ( isset( $argv) && strpos( $argv[0], "uddocservice.php") !== false)
+if ( isset( $argv) && strpos( $argv[0], "udsdocservice.php") !== false)
 {
     function nextTest() {
         global $TEST_NO, $LF, $LFF;
@@ -402,6 +296,7 @@ if ( isset( $argv) && strpos( $argv[0], "uddocservice.php") !== false)
     }    
     // CLI launched for tests
     echo "Syntax OK\n";
+    /*
     // Create an UD
     require_once( __DIR__."/../../tests/testenv.php");
     require_once( __DIR__."/../../ud-view-model/ud_new.php");
@@ -411,6 +306,7 @@ if ( isset( $argv) && strpos( $argv[0], "uddocservice.php") !== false)
     // require_once( __DIR__."/../ud-view-model/ud.php");    
     $TEST_NO = 1;
     while( $TEST_NO < 3) { sleep(1); nextTest();}
+    */
     echo "Test completed\n";      
 } 
 

@@ -52,7 +52,7 @@ function SDBEE_endpoint_deleteDoc( $request) {
             // Unlink from waste bin
             $ACCESS->removeFromCollection( $task, $dirInfo[ 'name'], true);
             // Delete file
-            // $STORAGE->delete( $task);
+            $STORAGE->delete( "", $task . ".json");
         }
     }   
     // Send back dir listing

@@ -91,7 +91,9 @@
     */
     /**
      * archive section - where to store archived tasks
+     * Not available yet
      */
+     /*
      "archive-storage": {
         "storageService" : "sftp",
         "keyFile" : "<json credentials file for GCS>", 
@@ -101,6 +103,22 @@
         "crypt-algo" : "DES",
         "crypt-key" : ""
     },
+    */
+    /**
+     * web section - where to write files available over the web
+     * Not available yet
+     */
+     /*
+     "web-storage": {
+        "storageService" : "sftp",
+        "domain" : "<domain parameters set in user config>", 
+        "server" : "<server address>",
+        "user"   : "<web-user>",
+        "password" : "<web-pass>",
+        "top-dir" : "<bucket>", 
+        "prefix" : ""
+    },
+    */
     /**
      * access database section - where to store the databse used for controling access
      */
