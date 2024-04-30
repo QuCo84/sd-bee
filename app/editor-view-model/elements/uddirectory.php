@@ -90,8 +90,7 @@
             }
             if ( !$thumbImage) {
                 // Use default
-                // $thumbImage = "/upload/W48H48_4U1VqUxwy_folder.jpg";
-                $thumbImage = "/upload/smartdoc/resources/images/folder.png";
+                $thumbImage = "https://www.sd-bee.com/upload/sd-bee-cdn/resources/images/folder.png";
             }
             // Build link to directory
             $viewId = "API.dom.getView( '{$this->name}').id";

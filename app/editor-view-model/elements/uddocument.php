@@ -76,7 +76,7 @@ class UDdocument extends UDelement
             if ( !$thumbImage) {
                 // Use default
                 // $thumbImage = "/upload/W48H48_4U1wvUaUS_file.jpg";
-                $thumbImage = "https://www.sd-bee.com/upload/smartdoc/resources/images/task.png";
+                $thumbImage = "https://www.sd-bee.com/upload/sd-bee-cdn/resources/images/task.png";
             }
             // Build link to document
             $viewId = "API.dom.getView( '{$this->name}').id";
