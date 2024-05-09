@@ -764,13 +764,8 @@ function LF_sendFile( $path, $ext, $fileContents = "") {
         /*if (!$fileContents)  header("Content-Length: ". filesize($path.$oid_str));
         else*/ 
         header("Content-Length: ". strlen($fileContents));
-        //header("Last-Modified: ".gmdate('D, d M Y H:i:s \G\M\T', time() + 3600));
-        /*
-        // ETag 2DO keep version no discarded above
-        $w = explode("_", $oid_str);
-        if ($cache && count($w))  header("Etag: ".$w[0]."1");
-        elseif ( count($w))  header("Etag: ".$w[0]."0");
-        */
+        // !!! important Etag required for cache to work. Limited to 62 characters
+        header( "Etag:".hash( 'md5', $path.LF_env( 'UD_version')));
         if ( true /* $cache==0 || $fileContents*/) {
             $life =  15552000; // 180*24*60*60 
             header("Vary: Accept-Encoding");

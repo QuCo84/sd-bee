@@ -2,7 +2,7 @@ require.config({
     baseUrl: 'https://www.sd-bee.com/upload/smartdoc',
     paths: {
         /* for compatability with OVH setup, dayjs & moment copied to vendor after installation with npm. moment-with-locales.min copied up to mai dir */
-        'moment': "https://www.sd-bee.com/upload/smartdoc/node_modules/moment.js/moment-with-locales.min",
+        'moment': "https://www.sd-bee.com/upload/smartdoc/vendor/moment.js/moment-with-locales.min",
         'dayjs' : "https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.7/dayjs.min",
         'dayjscdn' : "https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.7",
         'ejs' : "https://www.sd-bee.com/upload/smartdoc/node_modules/ejs/ejs.min"

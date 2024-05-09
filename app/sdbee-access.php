@@ -352,7 +352,7 @@ class SDBEE_access {
         $contents = [];        
         $map = [ 
             'nname'=>'name', 'tlabel'=>'label', 'stype'=>'type', 'nstyle'=>'model', 
-            'tcontent'=>'content', 'textra'=>'params', 'dreated'=>'created', 'dupdated'=>'updated'
+            'tcontent'=>'content', 'textra'=>'params', 'dcreated'=>'created', 'dmodified'=>'updated'
         ];
         if ( $useMap) {
             // Set column names row

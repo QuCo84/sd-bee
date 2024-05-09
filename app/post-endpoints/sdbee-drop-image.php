@@ -30,12 +30,13 @@
         'provider' => 'FTPimages',
         'action' => 'save',
         'source' => $domain,
-        'tmp-file' => $tempFilename, 
+        'source-file' => $tempFilename, 
         'target' => $name
     ];
-    $services = new UD_services( [ 'throttle'=>'off']);
+    $params = [ 'service-root-dir' => __DIR__.'/../../.config/added-local-services', 'throttle' => 'off'];
+    $services = new UD_services( $params);
     $r = $services->do( $request);
-    if ($r) echo "OK {$tempFilename} transferred";
+    if ($r) echo "OK {$name} transferred";
     else echo "ERR not saved";
     /*
         $c = file_get_content( $tempFilename)
@@ -45,5 +46,5 @@
     */ 
 
  }
-
+ global $request;
  SDBEE_endpoint_drop_image( $request);
