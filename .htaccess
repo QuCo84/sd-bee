@@ -1,4 +1,4 @@
 RewriteEngine On
-RewriteRule ^.*requireconfig.js$ app/editor-view-model/config/requireconfig.js $
+RewriteRule ^.*requireconfig.js$ app/editor-view-model/config/requireconfig.js [L,NC,QSA]
 RewriteRule ^.*servertracker.js$ app/editor-view/servertracker.js [L,NC,QSA]
 RewriteRule ^(.*)$ index.php [L,NC,QSA]

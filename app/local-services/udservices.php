@@ -370,7 +370,8 @@ class UD_services {
             'elementName' => $service.'service'
         ];
         $response = $this->_doRequest( $request);
-        if ( !val( $response, 'success')) return null;
+        if ( !val( $response, 'success')) return null;        
+        // $profile = UD_utilities::getNamedElementFromUD( LF_env( 'UD_userConfigOid'), 'profile');
         // Extract parameters set
         $paramsContent = JSON_decode( $response[ 'data'], true);
         if ( !$paramsContent || !is_array( $paramsContent)) return null;

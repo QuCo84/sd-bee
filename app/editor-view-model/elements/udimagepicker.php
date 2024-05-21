@@ -38,69 +38,10 @@ if ( !class_exists( 'UDelement')) require_once( __DIR__."/../../tests/testenv.ph
         $js .= "API.initialiseElement( '{$this->name}');\n";
         // Dropzone function
         $newPasteOid = 'SimpleArticle--5-278-5-0';
-        if ( !strpos( $content, 'Dropzone')) {
-            // Modify content to have drop zone over image
-            $content = <<< EOT
-<div style="position:relative;height:340px;">
-    <div style="position:absolute; top:0; left:0; z-index:1"> 
-        $content
-    </div>
-    <div id="{$this->name}-dropzone" class="Dropzone" ud_type="Dropzone" style="position:absolute; top:0; left:0; z-index:10; height:340px; background-color:unset;">           
-        <form id="{$this->name}-drop-form" method="post" enctype="multipart/form-data" accept-charset="UTF-8" name="INPUT_LINKS_script" action="" class="dropzone" style="width:100%;height:340px;">
-            <input type ="hidden" name="form" value="INPUT_dropImage" />  
-            <input type ="hidden" name="input_oid" value="$newPasteOid" />       
-            <input type ="hidden" name="nname" value="{$this->name} test" />               
-            <input type ="hidden" name="domainAndPath" value="{$this->name}" /> 
-        </form>
-    </div>
-</div>
-EOT;
-        // Activate dropzone 
-        // 'https://unpkg.com/dropzone@5/dist/min/dropzone.min.js'
-        $js .= <<< EOT
-API.initialiseElement( '{$this->name}');
-{
-    let dropFormId = "{$this->name}-drop-form";
-    let dropForm = API.dom.element( dropFormId);
-    if ( dropForm && typeof Dropzone == "undefined") {
-        let src = "/upload/smartdoc/vendor/dropzone.css";
-        let styleTag = document.createElement( 'style');
-        styleTag.id = "dropzone_css";                
-        styleTag.onerror = function() { debug( {level:2}, src, ' is not available'); }
-        styleTag.onload = function() { debug( {level:2}, src, "loaded"); }
-        styleTag.src = src;  
-    }
-    require( ['vendor/dropzone/dropzone'], function()  {
-        let dropForm = API.dom.element( dropFormId);
-        if ( dropForm && typeof dropForm.dropzone == "undefined") {
-            let myDropzone = new Dropzone(
-                "#"+dropFormId, 
-                { 
-                    url: "/webdesk//AJAX_clipboardTool/e|paste/", 
-                    paramName: "gimage", 
-                    dictDefaultMessage: 'Glisser vos fichiers images ici',
-                    //dictDefaultMessage: "Â Â Â Â Â <br />Â Â <br />Â "
-                }
-            );
-            myDropzone.on( "complete", function( file) {
-                // Update image
-                let picker = $$$.dom.element( '{$this->name}');
-                if ( picker) {
-                    let img = $$$.dom.element( 'img', picker); 
-                    if ( img) {
-                        // Set existing image's src attribute
-                        let p = $$$.getUDparam( 'image-source');
-                        if ( p) img.src = 'https://' + p + '/' + file;  
-                    }
-                }
-            }); 
+        // Server-side dropzone setup
+        if ( false && !strpos( $content, 'Dropzone')) {
+           $this->dropzone( $content, $js);
         }
-    });   // end of require
-}
-// end of activate dropzone
-EOT;
-        }
-
         // Add image with or without link
         $r .= $content;
         $r .= "</div>";
@@ -169,6 +110,87 @@ EOT;
         // Return CSV
         if ($csv) return implode( ",", $r); else return $r;
     } 
+
+    /**
+     * Add dropzone server-side
+     * @param {*string} content current content
+     * @param {*string} js current JS
+     */
+    function dropzone( &$content, &$js) {
+        // Get image space
+        $profile = UD_utilities::getNamedElementFromUD( LF_env( 'UD_userConfigOid'), 'profile');
+        $domainAndPath = val( $profile, 'data/value/image-source');
+        // Modify content to have drop zone over image
+        $content = <<< EOT
+<div style="position:relative;height:340px;">
+    <div style="position:absolute; top:0; left:0; width:100%; z-index:1"> 
+        $content
+    </div>
+    <div id="{$this->name}-dropzone" class="Dropzone" ud_type="Dropzone" style="position:absolute; top:0; left:0; z-index:10; height:300px; background-color:unset;">           
+        <form id="{$this->name}-drop-form" method="post" enctype="multipart/form-data" accept-charset="UTF-8" name="INPUT_LINKS_script" action="" class="dropzone" style="width:100%;height:300px;">
+        <input type ="hidden" name="form" value="INPUT_dropImage" />  
+        <input type ="hidden" name="input_oid" value="$newPasteOid" />       
+        <input type ="hidden" name="nname" value="{$this->name} test" />               
+        <input type ="hidden" name="domainAndPath" value="$domainAndPath" /> 
+        </form>
+    </div>
+</div>
+EOT;
+        $content = str_replace( "\n", "", $content);
+        // Activate dropzone 
+        // 'https://unpkg.com/dropzone@5/dist/min/dropzone.min.js'
+        $js .= <<< EOT
+let dropFormId = "{$this->name}-drop-form";
+let dropForm = API.dom.element( dropFormId);
+if ( dropForm && typeof Dropzone == "undefined") {
+    let src = "/upload/smartdoc/vendor/dropzone.css";
+    let styleTag = document.createElement( 'style');
+    styleTag.id = "dropzone_css";                
+    styleTag.onerror = function() { debug( {level:2}, src, ' is not available'); }
+    styleTag.onload = function() { debug( {level:2}, src, "loaded"); 
+    styleTag.src = src;  
+}
+require( ['vendor/dropzone/dropzone'], function()  {
+    let dropForm = API.dom.element( dropFormId);
+    if ( dropForm && typeof dropForm.dropzone == "undefined") {
+    let myDropzone = new Dropzone(
+        "#"+dropFormId, 
+        { 
+            url: UD_SERVICE + "/", //webdesk//AJAX_clipboardTool/e|paste/", 
+            paramName: "gimage", 
+            dictDefaultMessage: '' //Glisser vos fichiers images ici',
+            //dictDefaultMessage: "Â Â Â Â Â <br />Â Â <br />Â "
+        }
+    );
+    myDropzone.on( "complete", function( file) {
+        // Analyse file name
+        let fileParts = file.name.split( '.');
+        let tag = fileParts[0];
+        // Update image
+        let picker = $$$.dom.element( '{$this->name}');
+        if ( picker) {
+            let img = $$$.dom.element( 'img', picker); 
+            let tagHolder = $$$.dom.element( 'span.image-tags', picker);
+            if ( img) {
+                // Set existing image's src attribute
+                let p = $$$.getUDparam( 'image-source');
+                p = p.replace( 'www/', '');
+                if ( p) img.src = 'https://' + p + '/' + file.name;  
+                // Set file name without extension as tag
+                if ( tagHolder) tagHolder.textContent = tag;
+            }
+            // Remove dropzone preview
+            let msg = $$$.dom.element( 'div.dz-message', picker);
+            if ( msg) msg.remove();
+            let preview = $$$.dom.element( 'div.dz-preview', picker);
+            if ( preview) preview.remove();
+            // Save picker
+            $$$.setChanged( '{$this->name}');
+        }
+    }); 
+});   // end of require
+EOT;
+    }
     
  } // UDimagePicker PHP class
  
