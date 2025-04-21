@@ -287,6 +287,10 @@ class SDBEE_access {
         // if archive or use seperate endpoint and sdbee-archive.php derived from sdbee-doc
         */
         // Get doc's info
+        /*
+        * To enable modifying after _ we would need WHERE name LIKE :dbname%
+        * dbname = explode( '-', $name)[0]
+        */
         $sql = "SELECT rowid, * FROM Docs WHERE name=:name;";
         $data = [ ':name' => $name]; 
         $candidates = $this->_query( $sql, $data);
@@ -441,6 +445,7 @@ class SDBEE_access {
      */
     function updateUserInfo( $name, $info) {
         $currentInfo = $this->getUserInfo( $name);
+        if ( !$currentInfo) return 0;
         return $this->_update( 'Users', $currentInfo[ 'rowid'], $info, [ 'password']);
     }
 
@@ -449,6 +454,7 @@ class SDBEE_access {
      */
     function updateDocInfo( $name, $info) {
         $currentInfo = $this->getDocInfo( $name);
+        if ( !$currentInfo) return 0;
         return $this->_update( 'Docs', $currentInfo[ 'rowid'], $info, [ 'id', 'rowid', 'access', 'path']);
     }
 
@@ -457,6 +463,7 @@ class SDBEE_access {
      */
     function updateCollectionInfo( $name, $info) {
         $currentInfo = $this->getDocInfo( $name);
+        if ( !$currentInfo) return 0;
         return $this->_update( 'Docs', $currentInfo[ 'rowid'], $info, [ 'id', 'rowid', 'access', 'path']);
     }
 
@@ -766,7 +773,7 @@ CREATE TABLE 'ServiceLog' (
             $qdata[ ':id'] = $id;
             $q .= " WHERE rowid=:id;";
         } else {
-            // $q .= 
+            return 0;
         }
         // Run query and return true if no error
         $this->_query( $q, $qdata);

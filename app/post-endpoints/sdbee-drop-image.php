@@ -33,7 +33,10 @@
         'source-file' => $tempFilename, 
         'target' => $name
     ];
-    $params = [ 'service-root-dir' => __DIR__.'/../../.config/added-local-services', 'throttle' => 'off'];
+    $extraServicesDir = ( LF_env( "UD_extended_local_services")) 
+        ? __DIR__ . '/../..' . LF_env( "UD_extended_local_services")
+        : __DIR__. '/../../.config/added-local-services';
+    $params = [ 'service-root-dir' => $extraServicesDir, 'throttle' => 'off'];
     $services = new UD_services( $params);
     $r = $services->do( $request);
     if ($r) echo "OK {$name} transferred";

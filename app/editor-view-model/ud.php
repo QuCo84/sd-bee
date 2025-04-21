@@ -151,7 +151,7 @@ class UniversalDoc {
     // Page management
     public $pager = null;
     // Modules
-    private $requiredModules = [         
+    private $requiredModules = [ 
         'modules/editors/udelist', // Manage has a list so always required
         'modules/editors/udetable',  // Idem
         'modules/editors/udedraw' // Only loaded by UDE for new elements

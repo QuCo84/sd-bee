@@ -1,4 +1,7 @@
 RewriteEngine On
 RewriteRule ^.*requireconfig.js$ app/editor-view-model/config/requireconfig.js [L,NC,QSA]
+RewriteRule ^.*requireconfig.js-v-c$ app/editor-view-model/config/requireconfig.js [L,NC,QSA]
 RewriteRule ^.*servertracker.js$ app/editor-view/servertracker.js [L,NC,QSA]
-RewriteRule ^(.*)$ index.php [L,NC,QSA]
+# use link for this RewriteRule ^/sd-bee/fonts/(.*)$ data/sd-bee-cdn/fonts/$1 [L,NC,QSA]
+RewriteRule ^/?data/sd-bee-cdn/([^-]*)-v-[^.]*.(.*)$ data/sd-bee-cdn/$1.$2 [L,NC,QSA]
+RewriteRule ^(.*)/$ index.php [L,NC,QSA]

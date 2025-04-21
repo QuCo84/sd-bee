@@ -673,34 +673,76 @@ function LF_fileServer() {
         $uriParts[ count( $uriParts) - 1] = $filename;
     }       
     $fileContents = "";
-    if ( $ext != 'js' || !in_array( $filename, $localFiles)) {
-        // Public file
-        array_pop( $uriParts); // remove filename for dir
-        array_shift( $uriParts); // remove first path
-        global $PUBLIC;
-        if ( $PUBLIC) {
-            // Get from configured space            
-            $dir = implode( '/', $uriParts);
-            $fileContents = $PUBLIC->read( $dir, $filename);
-            /*
-            if ( ($p1 = strpos( $filename, '-v'))) {
-                // Remove version no or move to directory ex modules/v-1.2/
+   /*
+    *   ENABLE LOADING ALL FILES LOCALLY
+    *   JS files (via require): ex modules/editors/udelist current baseUrl sends to sd-bee
+    *   ressource files via PHP UD_fetchResource : have relative path in CDN, use Public for CDN
+    if ( file_exists( __DIR__.'../../../data/SD-bee-resources/core/udregister.js')) {
+        // Stand-alone version ... JS & resources in data directory
+        if ( $ext == 'js') {
+        
+            // Check locally
+            // Remove sub-directory in URI
+            if ( in_array( $uriParts[0], [ "sdbee", "sd-bee"])) array_shift( $uriParts);   
+            // Remove resources in path for local access
+            $uriPartsLocal = $uriParts;
+            if ( $uriPartsLocal[0] == "resources")) {
+                // App modules are stored in app-modules directory
+                $uriPartsLocal[0] = "app-modules";
             }
-
-            */
-        }
-        if ( !$fileContents || stripos( $fileContents, 'ERR') === 0) {
-            // Fallback on sdbee
-            if ( $topDir && strpos( LF_env( 'url'), $topDir) === false) $path = 'https://www.sd-bee.com/'.$topDir.'/'.implode( '/', $uriParts).'/'.$filename;
-            else $path = 'https://www.sd-bee.com/'.implode( '/', $uriParts).'/'.$filename;
-            $fileContents = @file_get_contents( $path);
+            // Instead avoid subtitution in udregister
+            $localPath = implode( '/', $uriPartsLocal);
+            $local = __DIR__."/../../../data/SD-bee-resources/".$localPath;        
+            if ( file_exists( $local)) $fileContents = @file_get_contents( $local);
+            else {
+                // Not available locally - use SD bee server
+                $cdn4js = "https://www.sd-bee.com/upload/smartdoc/";
+                $path = implode( '/', $uriParts);
+                $path = $cdn4js.$path;
+                $fileContents = @file_get_contents( $path);
+            }
+        } else {
+            // Non JS resource ... used ?
+            array_pop( $uriParts); // remove filename for dir
+            array_shift( $uriParts); // remove first path
+            global $PUBLIC;
+            if ( $PUBLIC) {
+                // Get from configured space            
+                $dir = implode( '/', $uriParts);
+                $fileContents = $PUBLIC->read( $dir, $filename);
+            }
+            if ( !$fileContents || stripos( $fileContents, 'ERR') === 0) {
+                // Fallback on sdbee
+                if ( $topDir && strpos( LF_env( 'url'), $topDir) === false) $path = 'https://www.sd-bee.com/'.$topDir.'/'.implode( '/', $uriParts).'/'.$filename;
+                else $path = 'https://www.sd-bee.com/'.implode( '/', $uriParts).'/'.$filename;
+                $fileContents = @file_get_contents( $path);
+            }
         }
     } else {
-        // Available locally    
-        //if ( $filename != "requireconfig.js") array_shift( $uriParts); // smartdoc or app or upload
-        if ( in_array( $uriParts[0], [ "sdbee", "sd-bee"])) array_shift( $uriParts);
-        $path = implode( '/', $uriParts);               
-    }
+    */
+        if ( $ext != 'js' || !in_array( $filename, $localFiles)) {
+            // Public file
+            array_pop( $uriParts); // remove filename for dir
+            array_shift( $uriParts); // remove first path
+            global $PUBLIC;
+            if ( $PUBLIC) {
+                // Get from configured space            
+                $dir = implode( '/', $uriParts);
+                $fileContents = $PUBLIC->read( $dir, $filename);
+            }
+            if ( !$fileContents || stripos( $fileContents, 'ERR') === 0) {
+                // Fallback on sdbee
+                if ( $topDir && strpos( LF_env( 'url'), $topDir) === false) $path = 'https://www.sd-bee.com/'.$topDir.'/'.implode( '/', $uriParts).'/'.$filename;
+                else $path = 'https://www.sd-bee.com/'.implode( '/', $uriParts).'/'.$filename;
+                $fileContents = @file_get_contents( $path);
+            }
+        } else {
+            // Available locally    
+            //if ( $filename != "requireconfig.js") array_shift( $uriParts); // smartdoc or app or upload
+            if ( in_array( $uriParts[0], [ "sdbee", "sd-bee"])) array_shift( $uriParts);
+            $path = implode( '/', $uriParts);               
+        }
+    /* } */
     return LF_sendFile( $path, $ext, $fileContents);
 }
 
@@ -807,6 +849,10 @@ function LF_sendFile( $path, $ext, $fileContents = "") {
     return false;
 }
 
+function FILE_listDir( $path) {
+    return ( scandir( __DIR__."/../../../../".$path));
+}
+  
 // end of functions
  
 Class LinksAPI {

@@ -21,6 +21,15 @@ require_once( __DIR__."/../local-services/udservices.php");
 require_once( __DIR__."/../local-services/udservicethrottle.php");
 require_once( __DIR__."/../sdbee-mp-client.php");
 
+if ( LF_env( "UD_extended_local_services")) {
+    define ( 'SDBEE_extended_local_services', __DIR__ . '/../..' . LF_env( "UD_extended_local_services"));
+    define ( 'SDBEE_external_services', __DIR__ . '/../..' . LF_env( "UD_external-services"));
+} else {
+    define ( 'SDBEE_extended_local_services', __DIR__.'/../../.config/added-local-services');
+    define ( 'SDBEE_external_services', __DIR__.'/../../.config/external-services');
+}
+
+
 use Google\Auth\ApplicationDefaultCredentials;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
@@ -105,7 +114,7 @@ use GuzzleHttp\HandlerStack;
         // Get parameters
         $params = null;        
         if ( $gateway == 'local+') {
-            $params = [ 'service-root-dir' => __DIR__.'/../../.config/added-local-services', 'throttle' => 'off'];
+            $params = [ 'service-root-dir' => SDBEE_extended_local_services, 'throttle' => 'off'];
         }
         // Call service via local gateway and load helpers
         include_once __DIR__.'/../editor-view-model/helpers/udutilities.php';
@@ -212,7 +221,7 @@ function SDBEE_service_endpoint_gcf( $gateway, $functionPath, $serviceAccount, $
 function SDBEE_service_endpoint_getServiceMap() {
     $map = [];
     // Build map with JSON files from app/local-services, .config/added-local-service and .config/external-services
-    $dirs = [ __DIR__.'/../local-services', __DIR__.'/../../.config/added-local-services', __DIR__.'/../../.config/external-services'];
+    $dirs = [ __DIR__.'/../local-services', SDBEE_extended_local_services, SDBEE_external_services];
     for ( $diri=0; $diri < count( $dirs); $diri++) {
         $dir = val( $dirs, $diri);
         if ( !file_exists( $dir)) continue;

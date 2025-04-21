@@ -325,7 +325,7 @@ const UD_register = {
         },
         "div.js":{
             "label":"js", "icon": "js.png",
-            "db_type":18, "icon": "",
+            "db_type":18, 
             "ud_type":"js", "isContainer":0, "forceClasses":"linetext",
             "displayable":1, "editable":1, "useTextEditor":1, "addTextEditor":1, 
             "viewTypes":["data", "system", "middleware", "style", "program"],

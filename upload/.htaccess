@@ -1,0 +1,2 @@
+RewriteEngine On
+RewriteRule (.*) https://www.sd-bee.com/upload/$1 [R=301,L]

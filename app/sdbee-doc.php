@@ -643,6 +643,17 @@ class SDBEE_doc {
         if ( $element[ 'stype'] == UD_document || $element[ 'stype'] == UD_model) {
             // Top element is modified
             $this->top = $element;
+            // Update label, description, model, params, state & progress attributes
+            /*
+            * Name can't change as used to find access entry unless only after _ used
+            */
+            // $this->name = val( $data, 'nname', $this->name);
+            $this->label = val( $data, 'nlabel', $this->label);
+            $content = val( $data, 'tcontent');
+            if ( $content) {
+                $spans = HTML_getContentsByTag( $content, 'span');
+                if ( count( $spans) > 1) $this->description = $spans[ 1];
+            }
             if ( val( $data, 'nstyle')) {
                 // Change of model
                 $this->model = val( $element, 'nstyle');
@@ -816,33 +827,24 @@ class SDBEE_doc {
             if ( !$doc) die ("Cannot import {$this->name}\n");
             // Add a single task
             // Extract type & label
-            $top = $doc[ 'contents'][ $this->name];           
-            if ( !$dir) $dir = val( $this->user, 'home');            
-            $newDoc = new SDBEE_doc( $name, $dir, $storage); 
-            $newDoc->label = val( $top, 'nlabel');       
-            $newDoc->type = (int) val( $top, 'stype');
-            $newDoc->doc = $doc;
-            $newDoc->content = val( $doc, 'contents');            
-            $newDoc->top = $top;
-	         /*
-	        $newDoc->index = $this->index;
-            $newDoc->info = $this->info;
-            $this->modifiedInfo = true;
-            */
-            $spans = HTML_getContentsByTag( $newDoc->content, 'span');
+            $top = $doc[ 'content'][ $this->name];           
+            if ( !$dir) $dir = val( $this->user, 'home');    
+            $spans = HTML_getContentsByTag( val( $top, 'content'), 'span');
             $descr = ( count( $spans) > 1) ? $spans[1] : '';
-            $doc = [ 
-                'label'=>$newDoc->label, 
-                'type'=>$newDoc->type, 
-                'model'=>val( $top, 'nstyle'), 
-                'description'=>$descr, 
-                'params'=>JSON_encode( val( $top, 'textra/system')),
-                'prefix'=> "", 'state'=>"", 'progress'=>0
+            $this->info = [
+                'label' => val( $top, 'nlabel'),
+                'type' => val( $top, 'stype'),
+                'model' => val( $top, 'nstyle'),
+                'description' => $descr,
+                'params' => JSON_encode( val( $top, 'textra/system')),
+                'prefix'=>'',
+                'state' => val( $top, 'textra/system/state', ''),
+                'progress' => val( $top, 'textra/system/progress', 0)
             ];
             if ( $dir) 
-                $this->access->addDocToCollection( $name, $dir, $doc, $access=7);
+                $this->access->addDocToCollection( $name, $dir, $this->info, $access=7);
             else
-                $this->access->addDocToUser( $name, $this->user[ 'id'], $doc, $access=7);             
+                $this->access->addDocToUser( $name, $this->user[ 'id'], $this->info, $access=7);             
         }
         return $newDoc;
     }
@@ -958,7 +960,7 @@ class SDBEE_doc {
                     $type >= UD_chapter && $type <= UD_subParagraph 
                     && strlen( $content) <= 40 && strpos( $content, "<") === false
                 ) $params[ 'system'][ 'ude_place'] = $content;
-                else $el[ 'nstyle'] .= ( (val( $el, 'nstyle')) ? " ": "") . "initialcontent";
+                elseif ( val( $el, 'stype') == UD_HTML && val( $el, 'nstyle') == "input") $el[ 'nstyle'] .= ( (val( $el, 'nstyle')) ? " ": "") . "initialcontent";
                 // $el[ 'tparams'] = JSON_encode( $params);
                 $this->content[ $name] = $el;
                 $this->modifications[] = [ 'action'=>"create", 'elementId'=>$name, 'data'=>$el, 'depth'=>$el[ 'depth']];
@@ -1079,7 +1081,7 @@ class SDBEE_doc {
                         // Incorporate shared view into current doc
                         $this->_fetchSharedView( $sharedDocName, $name);
                     }
-                    
+                    $copy = false; // Skip shared view elements in model
                 }
                 /*
                     unset( $el[ 'nname']);
@@ -1101,7 +1103,7 @@ class SDBEE_doc {
         ksort( $this->content); // !!!important sort by ids to get the right order
         $this->index = array_keys( $this->content);
         $this->size = count( $this->index);
-        // CHa,ge task name if requested by model
+        // Change task name if requested by model
         $defName = val( $model->params, 'defaultName');
         $defSub = val( $model->params, 'defaultSubtitle');
         if ( $defName) {
@@ -1112,6 +1114,8 @@ class SDBEE_doc {
             $this->label = $this->info[ 'label'] = $this->top[ 'nlabel'] = $defName;
             $this->description = $this->info[ 'description'] = $defSub;
             $this->top[ 'tcontent'] = '<span class="title">' . $defName . '</span><span class="subtitle">' . $defSub . '</span>';
+            $this->top[ 'nlabel'] = $defName;
+            $this->content[ $this->topName] = $this->top;
         }
         // Update model in content
         $this->top[ 'nstyle'] = $this->content[ $this->topName][ 'nstyle'] = $this->model;

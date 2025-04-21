@@ -69,6 +69,14 @@ try {
 }
 
 if ( !$USER || $USER == -1) {
+    $test = val( $request, 'test');
+    if ( $test) {
+        // Tests OK even if unidentifed
+        if ( $test == "caisse") {
+            include __DIR__."/../.config/added-local-services/cash-register/udshiboutik.php";
+            exit(); 
+        }
+    }
     // User not identified -display relogin page
     LF_env( 'UD_accountLink', "API.switchView( 'connect');");
     LF_env( 'UD_userConfigOid', "");
@@ -113,7 +121,7 @@ if ( count( $request)) {
     } elseif ( val( $request, 'post')) {
         var_dump( $request); die();
     } elseif ( val( $request, 'test')) {
-        // TEST option
+        // TEST option 2DO functio so we can also call fron !loggedin
         $test = val( $request, 'test');
         if ( $test == "obj") {
             try {
@@ -183,6 +191,9 @@ if ( count( $request)) {
                 // test infnite loop
                 echo ".";
             }
+        } elseif ( $test == "caisse") {
+            include __DIR__."/../.config/added-local-services/cash-register/udshiboutik.php";
+            exit();  
         }
         echo "no test $test configurated";    
         exit();    
@@ -207,7 +218,7 @@ if ( count( $request)) {
             //echo "Delete a task"
             include ( "post-endpoints/sdbee-delete-doc.php");
         } elseif ( $form == "INPUT_dropImage") {
-            //echo "Delete a task"
+            //echo "Recieve an image from drop form"
             include ( "post-endpoints/sdbee-drop-image.php");
         }
         // 2DO Fetch element            

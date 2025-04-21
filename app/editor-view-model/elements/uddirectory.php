@@ -90,7 +90,7 @@
             }
             if ( !$thumbImage) {
                 // Use default
-                $thumbImage = "https://www.sd-bee.com/upload/sd-bee-cdn/resources/images/folder.png";
+                $thumbImage = LF_env( 'url')."data/sd-bee-cdn/resources/images/task.png";
             }
             // Build link to directory
             $viewId = "API.dom.getView( '{$this->name}').id";

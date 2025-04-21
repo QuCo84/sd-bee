@@ -9,13 +9,19 @@ mv .config/composer.json .
 mkdir -p data
 mkdir -p data/access
 mkdir -p data/users
-mkdir -p /data/SD-bee-resources
+mkdir -p data/added-local-services
+mkdir -p data/external-services
+mkdir -p data/SD-bee-resources
 mkdir -p data/tmp
 mkdir -p data/archive
-# Setup services directroy
+# Setup services directory
 mkdir -p services
+# Setup links in root directory
+ln -s data/sd-bee-cdn/fonts fonts
+ln -s data/tmp tmp
+ln -s data/sd-bee-cdn/resources/images upload
 ln -s app/local-services/udservices.php udservices.php
-ln -s app/local-services/udservicethrottle.php udservicethrottle.php 
+ln -s app/local-services/udservicethrottle.php udservicethrottle.php
 #Get PHP libraries
 php composer.phar update
 #composer require google/cloud-storage
